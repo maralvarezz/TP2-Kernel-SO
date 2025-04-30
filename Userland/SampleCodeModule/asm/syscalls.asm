@@ -8,7 +8,6 @@ GLOBAL getScreenResolution
 GLOBAL drawRect
 GLOBAL getTicks
 GLOBAL getMemory
-GLOBAL playSound
 GLOBAL kaboom
 GLOBAL setFontColor
 GLOBAL getFontColor
@@ -61,11 +60,6 @@ getTicks:
 
 getMemory:
     mov rax, 9
-    int 80h
-    ret
-
-playSound:
-    mov rax, 10
     int 80h
     ret
 

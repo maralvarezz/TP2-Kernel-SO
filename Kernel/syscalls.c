@@ -3,7 +3,6 @@
 #include <keyboard.h>
 #include <lib.h>
 #include <color.h>
-#include <speaker.h>
 #include <time.h>
 #include <memory.h>
 /* File Descriptors*/
@@ -23,7 +22,6 @@
 #define DRAW_RECT 7
 #define GET_TICKS 8
 #define GET_MEMORY 9
-#define PLAY_SOUND 10
 #define SET_FONT_COLOR 11
 #define GET_FONT_COLOR 12
 
@@ -37,7 +35,6 @@ static uint32_t syscall_resolution();
 static void syscall_drawRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t color);
 static uint64_t syscall_getTicks();
 static void syscall_getMemory(uint64_t pos, uint8_t * vec);
-static void syscall_playSound(uint64_t frequency, uint64_t ticks);
 static void syscall_setFontColor(uint8_t r, uint8_t g, uint8_t b);
 static uint32_t syscall_getFontColor();
 
@@ -68,9 +65,6 @@ uint64_t syscallDispatcher(uint64_t nr, uint64_t arg0, uint64_t arg1, uint64_t a
             return syscall_getTicks();
         case GET_MEMORY:
             syscall_getMemory((uint64_t) arg0, (uint8_t *) arg1);
-            break;
-        case PLAY_SOUND:
-            syscall_playSound(arg0, arg1);
             break;
         case SET_FONT_COLOR:
             syscall_setFontColor((uint8_t) arg0, (uint8_t) arg1, (uint8_t) arg2);
@@ -147,11 +141,6 @@ static uint64_t syscall_getTicks(){
 //PrintMem
 static void syscall_getMemory(uint64_t pos, uint8_t * vec){
     memcpy(vec, (uint8_t *) pos, 32);
-}
-
-//playSound
-static void syscall_playSound(uint64_t frequency, uint64_t ticks){
-    playSound(frequency, ticks);
 }
 
 //Set fontsize

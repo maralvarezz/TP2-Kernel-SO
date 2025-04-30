@@ -4,7 +4,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdint.h>
-#include <sound.h>
 
 #define CURSOR_FREQ 10  /* Frecuencia en Ticks del dibujo del cursor*/
 
@@ -134,9 +133,7 @@ int scanf(char * fmt, ...) {
             else if(bIdx>0){
                 bIdx--;
                 putchar(c);
-            } else {
-                playSoundLimitReached();
-            }
+            } 
         }
     }
     if(cursorDrawn)
