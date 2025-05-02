@@ -3,9 +3,18 @@
 
 #include <stddef.h>
 
-typedef struct MemoryManagerCDT *MemoryManagerADT;
+typedef struct memoryInformation{
+    uint64_t size;
+    uint64_t used;
+    uint64_t free;
+}memoryInfo_t;
 
-MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManager, void * const restrict managedMemory);
-void allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate);
+MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManager, uint64_t managedMemory);
+
+void * allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate);
+
+void freeMemory(MemoryManagerADT const restrict memoryManager, void * const restrict memoryToFree);
+
+memoryInfo_t memoryInfo(MemoryManagerADT const restrict memoryManager);
 
 #endif
