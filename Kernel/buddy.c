@@ -4,7 +4,7 @@
 #define OCCUPIED 1
 #define SPLIT 2
 
-
+/*
 typedef struct node{
     uint64_t size;
     uint8_t ocu;
@@ -57,3 +57,4 @@ memoryInfo_t memoryInfo(MemoryManagerADT const restrict memoryManager){
 }
 
 
+*/
