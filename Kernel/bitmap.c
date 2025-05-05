@@ -9,11 +9,8 @@ typedef struct MemoryManagerCDT{
     void * bitmapStart;
     uint64_t cantBlocks;
     uint64_t blocksUsed;
-    uint8_t  bitmapState[];
+    uint8_t bitmapState[];
 } MemoryManagerCDT;
-
-typedef struct MemoryManagerCDT * MemoryManagerADT;
-
 
 MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManager, uint64_t managedMemory){
     MemoryManagerADT memoryManager = (MemoryManagerADT) memoryForMemoryManager;
@@ -30,7 +27,7 @@ MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManage
     for(int i = 0; i < memoryManager->cantBlocks; i++){
         memoryManager->bitmapState[i] = FREE; 
     }
-    memoryManager->used = 0;
+    memoryManager->blocksUsed = 0;
 
     return memoryManager;
 }
@@ -113,7 +110,7 @@ void freeMemory(MemoryManagerADT const restrict memoryManager, void * const rest
 memoryInfo_t memoryInfo(MemoryManagerADT const restrict memoryManager){
     memoryInfo_t info;
     info.size = memoryManager->cantBlocks;
-    info.used = memoryManager->used;
-    info.free = memoryManager->cantBlocks - memoryManager->used;
+    info.used = memoryManager->blocksUsed;
+    info.free = memoryManager->cantBlocks - memoryManager->blocksUsed;
     return info;
 }

@@ -9,6 +9,8 @@ typedef struct memoryInformation{
     uint64_t free;
 }memoryInfo_t;
 
+typedef struct MemoryManagerCDT * MemoryManagerADT;
+
 MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManager, uint64_t managedMemory);
 
 void * allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate);
