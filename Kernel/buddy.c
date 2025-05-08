@@ -15,7 +15,6 @@ static uint8_t getNodeIndex(memoryManagerADT const restrict memoryManager, uint8
 static void setMerge(memoryManagerADT const restrict memoryManager, uint64_t node);
 static void splitTree(memoryManagerADT const restrict memoryManager, uint64_t node);
 
-
 typedef struct node{
     uint8_t state;
 }node;
@@ -33,7 +32,6 @@ MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManage
     if(managedMemory > HEAPSIZE || manegedMemory < POW_2(MINEXPONENT)){
         return NULL;
     }
-    
     MemoryManagerADT memoryManager = (MemoryManagerADT) memoryForMemoryManager;
     memoryManager->treeStart = (uint8_t *) memoryForMemoryManager + sizeof(memoryManagerCDT);
     memoryManager->tree = (TNode *) (memoryManager->treeStart + HEAPSIZE);
@@ -131,10 +129,6 @@ static uint64_t getNewNode(memoryManagerADT const restrict memoryManager, uint8_
 
 static uint8_t getNodeLevel(uint8_t exponent){
     return (1 << exponent) - 1;
-}
-
-static uint8_t getNodeIndex(memoryManagerADT const restrict memoryManager, uint8_t exponent){
-
 }
 
 static void setMerge(memoryManagerADT const restrict memoryManager, uint64_t node){
