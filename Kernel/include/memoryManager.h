@@ -1,6 +1,9 @@
 #ifndef MEMORY_MANAGER_H
 #define MEMORY_MANAGER_H
 
+#define HEAPSIZE 0x10000000 
+
+
 #include <stddef.h>
 
 typedef struct memoryInformation{
@@ -10,6 +13,7 @@ typedef struct memoryInformation{
 }memoryInfo_t;
 
 typedef struct MemoryManagerCDT * MemoryManagerADT;
+
 
 MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManager, uint64_t managedMemory);
 

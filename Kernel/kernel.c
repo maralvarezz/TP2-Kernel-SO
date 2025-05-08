@@ -3,6 +3,7 @@
 #include <moduleLoader.h>
 #include <interrupts.h>
 #include <video.h>
+#include <memoryManager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -15,6 +16,9 @@ static const uint64_t PageSize = 0x1000;
 
 static void * const sampleCodeModuleAddress = (void*)0x400000;
 static void * const sampleDataModuleAddress = (void*)0x500000;
+static void * const memoryManagerModuleAddress = (void*)0x600000;
+
+MemoryManagerADT memoryManagerPtr; 
 
 typedef int (*EntryPoint)();
 
@@ -38,6 +42,7 @@ void initializeKernelBinary()
 	void * moduleAddresses[] = { sampleCodeModuleAddress, sampleDataModuleAddress };
 	loadModules(&endOfKernelBinary, moduleAddresses);
 	clearBSS(&bss, &endOfKernel - &bss);
+	memoryManagerPtr = createMemoryManager( memoryManagerModuleAddress, HEAPSIZE);
 }
 
 int main()
