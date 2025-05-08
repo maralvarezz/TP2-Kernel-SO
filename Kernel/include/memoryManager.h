@@ -5,6 +5,7 @@
 
 
 #include <stddef.h>
+#include <stdint.h>
 
 typedef struct memoryInformation{
     uint64_t size;
