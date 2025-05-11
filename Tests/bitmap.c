@@ -3,7 +3,7 @@
 #define FREE 0
 #define USED 1
 #define HEADER 2
-
+#define BLOCKSIZE 64
 #define MAXBLOCKSINMEMORY 1024
 typedef struct MemoryManagerCDT{
     void * bitmapStart;
@@ -66,7 +66,7 @@ MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManage
     memoryManager->cantBlocks = (managedMemory - sizeof(MemoryManagerCDT)) / BLOCKSIZE; // Cantidad de bloques que se pueden manejar
     memoryManager->blocksUsed = 0;
 
-    for(int i = 0; i < memoryManager->cantBlocks; i++){
+    for(int i = 0; i < (int)memoryManager->cantBlocks; i++){
         memoryManager->bitmapState[i] = FREE; 
     }
 
@@ -78,8 +78,8 @@ void * allocMemory(MemoryManagerADT const restrict memoryManager, const size_t m
         return NULL;
     }
     int flag = 0;
-    int j = 0;
-    for(int i = 0; i < memoryManager->cantBlocks; i++){
+    size_t j = 0;
+    for(int i = 0; i < (int)memoryManager->cantBlocks; i++){
         flag = 0;
         if(memoryManager->bitmapState[i] == FREE){
             for(j = 0; j < memoryToAllocate && !flag; j++){
@@ -89,11 +89,11 @@ void * allocMemory(MemoryManagerADT const restrict memoryManager, const size_t m
             }
             if(!flag){
                 memoryManager->bitmapState[i] = HEADER;
-                for(int k = 1; k < j; k++){
+                for(size_t k = 1; k < j; k++){
                     memoryManager->bitmapState[i+k] = USED;
                 }
                 memoryManager->blocksUsed += j;
-                return (void *) &(memoryManager->bitmapStart[i]);
+                return (void *)((uint8_t *)memoryManager->bitmapStart + i * BLOCKSIZE);
             }  
         }
         if(flag){

@@ -54,6 +54,7 @@ void init() {
     commands[6] = (Command){ "font-size", "Cambio de dimensiones de la fuente. Para hacerlo escribir el comando seguido de un numero", .g = (void*) &fontSize, SINGLE_PARAM};
     commands[7] = (Command){ "printmem", "Realiza un vuelco de memoria de los 32 bytes posteriores a una direccion de memoria en formato hexadecimal enviada por parametro", .g = (void*) &printMem, SINGLE_PARAM};
     commands[8] = (Command){ "clear", "Limpia toda la pantalla", .f = (void*) &myClear, NO_PARAMS};
+    //commands[9] = (Command){ "testMemManager", "Corre un test para los memory managers", .g = (void*) &testMemManager, SINGLE_PARAM};
 }
 
 void run_shell() {
@@ -165,3 +166,5 @@ static void man(char * command){
 static void myClear(){
     clear();
 }
+
+//static void testMemManager()

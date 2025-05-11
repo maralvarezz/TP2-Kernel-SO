@@ -11,7 +11,7 @@ static uint8_t getExponentPtr(MemoryManagerADT const restrict memoryManager, voi
 static uint8_t getExponent(uint64_t size);
 static uint64_t getNewNode(MemoryManagerADT const restrict memoryManager, uint8_t exponent);
 static uint8_t getNodeLevel(uint8_t exponent);
-static uint8_t getNodeIndex(MemoryManagerADT const restrict memoryManager, uint8_t *ptr, uint8_t *exponent);
+static int64_t getNodeIndex(MemoryManagerADT const restrict memoryManager, uint8_t *ptr, uint8_t *exponent);
 static void setMerge(MemoryManagerADT const restrict memoryManager, uint64_t node);
 static void splitTree(MemoryManagerADT const restrict memoryManager, uint64_t node);
 
@@ -66,7 +66,7 @@ void freeMemory(MemoryManagerADT const restrict memoryManager, void * const rest
         return;
     }
     uint8_t exponent = getExponentPtr(memoryManager, memoryToFree);
-    uint8_t nodo = getNodeIndex(memoryManager, ptr, &exponent);
+    uint8_t nodo = getNodeIndex(memoryManager, memoryToFree, &exponent);
     memoryManager->tree[nodo].state = FREE;
     setMerge(memoryManager, nodo);
     memoryManager->used -= POW_2(exponent);
@@ -83,8 +83,8 @@ memoryInfo_t memoryInfo(MemoryManagerADT const restrict memoryManager){
 static int64_t getNodeIndex(MemoryManagerADT const restrict memoryManager, uint8_t *ptr, uint8_t *exponent) {
 	int64_t node = 0;
 	uint8_t levelExponent = *exponent;
-	while (levelExponent > 0 && memoryManager->tree[node].state != USED) {
-		node = ((ptr - memoryManager->firstAddress) >> levelExponent) + getNode(levelExponent);
+	while (levelExponent > 0 && memoryManager->tree[node].state != OCCUPIED) {
+		node = ((ptr - memoryManager->treeStart) >> levelExponent) + getNewNode(memoryManager,levelExponent);
 		levelExponent--;
 	}
 	*exponent = levelExponent;
