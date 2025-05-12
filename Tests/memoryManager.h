@@ -16,13 +16,12 @@ typedef struct memoryInformation{
 
 typedef struct MemoryManagerCDT * MemoryManagerADT;
 
-
 MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManager, uint64_t managedMemory);
 
-void * allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate);
+void * allocMemory(const size_t memoryToAllocate);
 
-void freeMemory(MemoryManagerADT const restrict memoryManager, void * const restrict memoryToFree);
+void freeMemory(void * const restrict memoryToFree);
 
-memoryInfo_t memoryInfo(MemoryManagerADT const restrict memoryManager);
+memoryInfo_t memoryInfo();
 
 #endif

@@ -1,8 +1,9 @@
 #ifndef MEMORY_MANAGER_H
 #define MEMORY_MANAGER_H
 
-#define HEAPSIZE 0x10000000 
-
+#define HEAPSIZE 0x10000000
+#define BLOCKSIZE 64
+#define STRUCTSIZE (HEAPSIZE / BLOCKSIZE)
 
 #include <stddef.h>
 #include <stdint.h>
@@ -15,13 +16,12 @@ typedef struct memoryInformation{
 
 typedef struct MemoryManagerCDT * MemoryManagerADT;
 
-
 MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManager, uint64_t managedMemory);
 
-void * allocMemory(MemoryManagerADT const restrict memoryManager, const size_t memoryToAllocate);
+void * allocMemory(const size_t memoryToAllocate);
 
-void freeMemory(MemoryManagerADT const restrict memoryManager, void * const restrict memoryToFree);
+void freeMemory(void * const restrict memoryToFree);
 
-memoryInfo_t memoryInfo(MemoryManagerADT const restrict memoryManager);
+memoryInfo_t memoryInfo();
 
 #endif
