@@ -6,9 +6,8 @@
 
 #define STACK_SIZE 4096 // 4KB
 
-
 typedef struct PCB {
-	int16_t pid;        // id del proceso
+	int64_t pid;        // id del proceso
 	uint64_t stackBase; // ubicacion de la base de la pila
 	uint64_t stackPos;  // ubicacion del ultimo elemento de la pila
 	uint64_t rip;       // instruction pointer
@@ -21,6 +20,7 @@ typedef struct PCB {
 	doubleLinkedListADT waitingList;        // lista de procesos bloqueados esperando por este proceso
 	int ground;
 } PCB_t;
+
 
 int buildProcess(PCB_t *process, int16_t pid, uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground);
 

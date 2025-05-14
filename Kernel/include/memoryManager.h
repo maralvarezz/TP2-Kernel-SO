@@ -24,4 +24,12 @@ void freeMemory(void * const restrict memoryToFree);
 
 memoryInfo_t memoryInfo();
 
+int setFirst(linkedListADT list, void * info);
+
+void toBegin(linkedListADT list);
+
+int hasNext(linkedListADT list);
+
+void * next(linkedListADT list);
+
 #endif

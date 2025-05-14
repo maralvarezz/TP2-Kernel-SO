@@ -103,10 +103,34 @@ void freeList(linkedListADT list){
     freeMemory(list);
 }
 
-/*void * getCurrent(linkedListADT list){
-    if(list == NULL || list->current == NULL){
+int setFirst(linkedListADT list, void * info){
+    if(list == NULL){
+        return 0;
+    }
+    TNode newNode = allocMemory(sizeof(Node));
+    newNode->info = info;
+    newNode->next = list->first;
+    newNode->prev = NULL;
+    list->first = newNode;
+    return 1;
+}
+
+void toBegin(linkedListADT list){
+    if(list == NULL){
+        return;
+    }
+    list->current = list->first;
+}
+
+int hasNext(linkedListADT list){
+    return !(list == NULL || list->current == NULL);
+}
+
+void * next(linkedListADT list){
+    if(!hasNext(list)){
         return NULL;
     }
-    return list->current->info;
-}*/
-
+    void * info = list->current->info;
+    list->current = list->current->next;
+    return info;
+}

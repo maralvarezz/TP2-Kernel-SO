@@ -10,3 +10,7 @@ int removeNode(linkedListADT list, void * info);
 
 void freeList(linkedListADT list);
 
+int setFirst(linkedListADT list, void * info);
+
+
+
