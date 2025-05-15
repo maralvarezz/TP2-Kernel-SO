@@ -1,62 +1,65 @@
+#define CANT_SEMS 50
 
-
+typedef struct semaphore{
+    uint8_t value;
+    uint8_t occupied;
+    linkedListADT waitingList; 
+}semaphore;
 
 typedef struct semaphoreCDT{
-    uint8_t value;
-    linkedListADT waitingList; //lista de procesos esperando por el semáforo
-
+    semaphore semVec[CANT_SEMS];
 } semaphoreCDT;
 
 typedef struct semaphoreCDT * semaphoreADT;
 
 sempahoreADT semaphore = NULL;
 
-semaphoreADT createSemaphore(uint8_t value){
+semaphoreADT createSemaphores(){
     semaphore = allocMemory(sizeof(semaphoreCDT));
     if(semaphore == NULL){
         return NULL;
     }
-    semaphore->value = value;
-    semaphore->waitingList = createList();
-    if(semaphore->waitingList == NULL){
-        freeMemory(semaphore);
-        return NULL;
+
+    for(int i = 0; i < CANT_SEMS; i++){
+        semaphore->semVec[i].value = 0;
+        semaphore->semVec[i].waitingList = createList();
+        if(semaphore->semVec[i].waitingList == NULL){
+            return NULL;
+        }
     }
-    return semaphore;
 }
 
-void waitSemaphore(TPCB process){
+int setSemaphore(uint16_t id, uint8_t value){
+    if(id >= CANT_SEMS || id < 0){
+        return 0;
+    }
+    semaphoreADT sem = getSemaphore();
+    if(sem == NULL){
+        return 0;
+    }
+
+    if(sem->semVec[id].occupied == 1){
+        return 0;
+    }
+    sem->semVec[id].occupied = 1;
+    sem->semVec[id].value = value;
+    return 1;
+}
+
+void waitSemaphore(uint8_t id){
     semaphoreADT sem = getSemaphore();
     if(sem == NULL){
         return;
     }
-    if(sem->value == 0 && process->status != BLOCKED){
-        if(!addNode(sem->waitingList, process)){
-            return;
-        }
-        blockProcess(process->pid);
-    }
-    else{
-        sem->value--;
-    }
-    return;
+    
 }
 
-void postSemaphore(TPCB process){
+void postSemaphore(uint8_t id){
     semaphoreADT sem = getSemaphore();
     if(sem == NULL){
         return;
     }
-    if(sem->value == 0){
-        while(sem->waitinglist->size > 0){
-            TPCB aux = getNode(sem->waitingList);
-            if(aux == NULL){
-                return;
-            }
-            readyProcess(aux->pid);
-        }
-    }
-    sem->value++;
+    
 }
 
 
