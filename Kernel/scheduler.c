@@ -76,7 +76,7 @@ uint64_t changeProcess(uint64_t actualRSP){
     //si no hay procesos en la lista de listos, entonces no hay nada para correr y lo pongo a correr al idle
     PCB *auxProcess = getFirstProcess(scheduler->readyList);
     if(auxProcess == NULL){
-        PCB * process = findProcess(IDLEPROCESS);
+        PCB * process = getProcess(IDLEPROCESS);
         if(process == NULL){
             return actualRSP;
         }
@@ -147,16 +147,13 @@ int blockProcess(uint64_t pid){
     if(scheduler == NULL){
         return 0;
     }
-
     TPCB process = getProcess(pid);
     if(process == NULL){
         return 0;
     }
-
     if(process->state == BLOCKED){
         return 0;
     }
-
     if(process->state == READY){
         if(!removeNode(scheduler->readyList, process)){
             return 0;
@@ -166,30 +163,22 @@ int blockProcess(uint64_t pid){
         }
         process->state = BLOCKED;
     }
-    
     //si es el proceso que estoy corriendo, interrumpime y llama al timmertick
     if(pid == getCurrentPid()){
         yieldProcess();
     }
-
     return 1;
 }
 
 int readyprocess(uint64_t pid){
     schedulerADT scheduler = getScheduler();
-    if(scheduler == NULL){
-        return 0;
-    }
-
     TPCB process = getProcess(pid);
     if(process == NULL){
         return 0;
     }
-
     if(process->state == READY){
         return 0;
     }
-
     if(!removeNode(scheduler->blockedList, process)){
         return 0;
     }
@@ -197,7 +186,6 @@ int readyprocess(uint64_t pid){
         return 0;
     }
     process->state = READY;
-
     return 1;
 }
 
