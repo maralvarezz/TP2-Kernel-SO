@@ -1,7 +1,4 @@
 #define MAX_PROCESSES 100
-#define DEFAULT_PRIOTITY
-#define MAX_PRIORITY
-#define TQUANTUM 
 #define PID_SHELL 0
 
 typedef struct schedulerCDT{
@@ -75,10 +72,18 @@ uint64_t changeProcess(uint64_t actualRSP){
             return actualRSP;
         }
     }
+    //si el proceso actual es NULL, entonces tengo que sacar un proceso de la lista de listos y ponerlo a correr
+    //si no hay procesos en la lista de listos, entonces no hay nada para correr y lo pongo a correr al idle
     PCB *auxProcess = getFirstProcess(scheduler->readyList);
-    if(scheduler->NULL){
-        //acá lo que hay que hacer es seleccionar el proceso idle y ponerlo en idle si no es NULL
-        return actualRSP;
+    if(auxProcess == NULL){
+        PCB * process = findProcess(IDLEPROCESS);
+        if(process == NULL){
+            return actualRSP;
+        }
+        else{
+            scheduler->actualProcess = process;
+            return scheduler->actualProcess->stackPos;
+        }
     }
     
     scheduler->actualProcess = auxProcess;
