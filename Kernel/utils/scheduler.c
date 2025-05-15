@@ -1,5 +1,9 @@
+#include "scheduler.h"
+
 #define MAX_PROCESSES 100
 #define PID_SHELL 0
+
+
 
 typedef struct schedulerCDT{
     linkedListADT totalProcesses;
@@ -12,7 +16,7 @@ typedef struct schedulerCDT{
     uint64_t cantProcesses;
 } schedulerCDT;
 
-typedef struct schedulerCDT * schedulerADT;
+
 
 schedulerADT scheduler = NULL;
 uint8_t createdScheduler = 0;
@@ -164,7 +168,7 @@ int blockProcess(uint64_t pid){
         process->state = BLOCKED;
     }
     //si es el proceso que estoy corriendo, interrumpime y llama al timmertick
-    if(pid == getCurrentPid()){
+    if(pid == getActualPid()){
         yieldProcess();
     }
     return 1;
@@ -210,11 +214,20 @@ void yieldProcess(){
     if(scheduler == NULL){
         return;
     }
-    scheduler->quantums = 0;
-    interruptTimerTick();
+    //scheduler->quantums = 0;
+    //interruptTimerTick(); 
+    // // deberia directamente llamar a la funcion que se llama cuando el timerTick interrumpe  
 }
 
 schedulerADT getScheduler(){
     return scheduler;
+}
+
+uint64_t getActualPid(){
+    schedulerADT scheduler = getScheduler();
+    if(scheduler == NULL){
+        return 0;
+    }
+    return scheduler->actualPid;
 }
 

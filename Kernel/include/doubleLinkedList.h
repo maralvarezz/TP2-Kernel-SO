@@ -1,6 +1,4 @@
-
 typedef struct linkedListCDT * linkedListADT;
-
 
 linkedListADT createList();
 
@@ -12,5 +10,9 @@ void freeList(linkedListADT list);
 
 int setFirst(linkedListADT list, void * info);
 
+void toBegin(linkedListADT list);
 
+int hasNext(linkedListADT list);
+
+void * next(linkedListADT list);
 

@@ -115,6 +115,13 @@ int setFirst(linkedListADT list, void * info){
     return 1;
 }
 
+void * getFirst(linkedListADT list){
+    if(list == NULL || list->first == NULL){
+        return NULL;
+    }
+    return list->first->info;
+}
+
 void toBegin(linkedListADT list){
     if(list == NULL){
         return;
