@@ -15,5 +15,12 @@ typedef PCB_t * TPCB;
 #define FOREGROUND 1
 #define BACKGROUND 0
 
+#define CANT_FILE_DESCRIPTORS 3
+
+#define MAX_PRIORITY 5
+#define MIN_PRIORITY 1
+#define DEFAULT_PRIORITY 3
+
+
 
 #endif
