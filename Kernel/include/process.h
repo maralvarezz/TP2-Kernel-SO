@@ -2,7 +2,7 @@
 #define _PROCESS_H
 #include <stdint.h>
 #include <stdlib.h>
-#include "string.h"
+#include "lib.h"
 #include "processDefs.h"
 #include "scheduler.h"
 
