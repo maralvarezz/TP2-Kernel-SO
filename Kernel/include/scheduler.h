@@ -6,21 +6,23 @@
 #include "process.h"
 #include "processDefs.h"
 
-typedef struct schedulerCDT * schedulerADT;
+#define SHELLPID 1
+#define IDLEPROCESS 0
 
+typedef struct schedulerCDT * schedulerADT;
 
 
 void createScheduler();
 
 uint64_t changeProcess(uint64_t actualRSP);
 
-int createProcess(/* Parámetros pendientes */);
+int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground);
 
 void killProcess(uint64_t pid);
 
 int blockProcess(uint64_t pid);
 
-int readyprocess(uint64_t pid);
+int readyProcess(uint64_t pid);
 
 TPCB getProcess(uint64_t pid);
 

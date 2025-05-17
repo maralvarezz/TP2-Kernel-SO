@@ -1,8 +1,10 @@
 include Makefile.inc
 
 KERNEL=kernel.bin
-SOURCES=$(wildcard *.c)
+# Include both root directory C files and utils directory C files
+SOURCES=$(wildcard *.c) $(wildcard utils/*.c)
 SOURCES_ASM=$(wildcard asm/*.asm)
+# Generate object files in their respective directories
 OBJECTS=$(SOURCES:.c=.o)
 OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
 LOADERSRC=loader.asm
@@ -26,6 +28,6 @@ $(LOADEROBJECT):
 	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJECT)
 
 clean:
-	rm -rf asm/*.o *.o *.bin
+	rm -rf asm/*.o *.o utils/*.o *.bin
 
 .PHONY: all clean

@@ -1,43 +1,43 @@
 #include "process.h"
 
-static char **allocateArgv(TPCB pcb, char **argv, int argc);
-static void freeArgv(PCB *pcb, char **argv, int argc);
+static char **allocateArgv(char **argv, int argc);
+static void freeArgv(char **argv, int argc);
 uint64_t setStackFrame(uint64_t stackBase, uint64_t code, int argc, char *args[]);
 
 int buildProcess(TPCB process, int16_t pid, uint64_t rip, char **args, int argc, 
                             uint8_t priority, int16_t fileDescriptors[], int ground){
     process->pid = pid;
-    void * stack = allocateMemory(STACK_SIZE);
+    void * stack = allocMemory(STACK_SIZE);
     if(stack == NULL){
         return -1;
     }
     process->stackBase = (uint64_t) stack + STACK_SIZE; // porque crece hacia abajo
-	process->argv = allocateArgv(process, args, argc);
+	process->argv = allocateArgv( args, argc);
 	if (process->argv == NULL) {
-		free((void *) (process->stackBase - STACK_SIZE));
+		freeMemory((void *) (process->stackBase - STACK_SIZE));
 		return -1;
 	}
 	process->argc = argc;
-	process->name = allocateMemory(strlen(args[0]) + 1);
+	process->name = allocMemory(strlen(args[0]) + 1);
 	if (process->name == NULL) {
-		free((void *) (process->stackBase - STACK_SIZE));
-		freeArgv(process, process->argv, argc);
+		freeMemory((void *) (process->stackBase - STACK_SIZE));
+		freeArgv(process->argv, argc);
 		return -1;
 	}
 	strcpy(process->name, args[0]);
 	process->rip = rip;
 	process->priority = priority;
-	process->stackPos = setupStackFrame(process->stackBase, process->rip, argc, process->argv);
+	process->stackPos = setStackFrame(process->stackBase, process->rip, argc, process->argv);
 	if (process->pid > 1) {
 		process->status = BLOCKED;
 	}else{
 		process->status = READY;
 	}
-	process->waitingList = createDoubleLinkedListADT();
+	process->waitingList = createList();
 	if (process->waitingList == NULL) {
-		free((void *) (process->stackBase - STACK_SIZE));
-		freeArgv(process, process->argv, argc);
-		free(process->name);
+		freeMemory((void *) (process->stackBase - STACK_SIZE));
+		freeArgv(process->argv, argc);
+		freeMemory(process->name);
 		return -1;
 	}
 	for (int i = 0; i < CANT_FILE_DESCRIPTORS; i++) {
@@ -60,9 +60,9 @@ int changePriority(int16_t pid, uint8_t priority){
 }
 
 void freeProcess(TPCB process){
-    if(argv != NULL){
+    if(process->argv != NULL){
         for(int i = 0; i < process->argc; i++){
-        if(argv[i] != NULL){
+        if(process->argv[i] != NULL){
             freeMemory(process->argv[i]);
         }
     }
@@ -79,7 +79,7 @@ int waitProcess(int16_t pid){
 	if (process == NULL || currentPid == pid) {
 		return -1;
 	}
-	addNode(process->waitingList, currentProcess);
+	addNode(process->waitingList, process);
 	blockProcess(currentPid);
 	return 0;
 }
@@ -96,12 +96,12 @@ int changeFds(int16_t pid, int16_t fileDescriptors[]){
 }
 
 static char **allocateArgv(char **argv, int argc) {
-	char **toReturn = allocateMemory((argc + 1) * sizeof(char *));
+	char **toReturn = allocMemory((argc + 1) * sizeof(char *));
 	if (toReturn == NULL) {
 		return NULL;
 	}
 	for (int i = 0; i < argc; i++) {
-		toReturn[i] = allocateMemory(strlen(argv[i]) + 1);
+		toReturn[i] = allocMemory(strlen(argv[i]) + 1);
 
 		if (toReturn[i] == NULL) {
 			for (int j = 0; j < i; j++) {

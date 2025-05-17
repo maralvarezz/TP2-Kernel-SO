@@ -1,7 +1,7 @@
 #include "doubleLinkedList.h"
 
 typedef struct Node {
-    void * info; //se va a usar para guardar estructuras de control de procesos (PCB)
+    void * info; //se va a usar para guardar estructuras de control de procesos (TPCB)
     struct Node * next;
     struct Node * prev;
 } Node;
@@ -14,8 +14,6 @@ typedef struct linkedListCDT{
     TNode last;
     size_t size;
 } linkedListCDT;
-
-
 
 linkedListADT createList(){
     linkedListADT newList = allocMemory(sizeof(linkedListCDT));
@@ -103,6 +101,10 @@ void freeList(linkedListADT list){
     freeMemory(list);
 }
 
+int isEmpty(linkedListADT list){
+    return (list == NULL || list->size == 0);
+}
+
 int setFirst(linkedListADT list, void * info){
     if(list == NULL){
         return 0;
@@ -119,7 +121,10 @@ void * getFirst(linkedListADT list){
     if(list == NULL || list->first == NULL){
         return NULL;
     }
-    return list->first->info;
+    void * info = list->first->info;
+    removeNode(list, info);
+    list->first = list->first->next;
+    return info;
 }
 
 void toBegin(linkedListADT list){
@@ -138,6 +143,7 @@ void * next(linkedListADT list){
         return NULL;
     }
     void * info = list->current->info;
+    removeNode(list, info);
     list->current = list->current->next;
     return info;
 }

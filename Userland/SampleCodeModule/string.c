@@ -21,3 +21,11 @@ int strcpychar(char * dest, const char * origin, char limit) {
     dest[idx] = 0;
     return idx;
 }
+
+int strlen(const char * str) {
+    int idx = 0;
+    while (str[idx] != '\0') {
+        idx++;
+    }
+    return idx;
+}

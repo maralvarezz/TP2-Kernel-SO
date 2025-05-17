@@ -2,18 +2,24 @@
 #define SEMAPHORE_H
 
 #include <stdint.h>
+#include "process.h"
 #include "doubleLinkedList.h"
 
 typedef struct semaphoreCDT * semaphoreADT;
+typedef struct semaphore_t * TSem;
 
-semaphoreADT createSemaphores();
+void createSemaphores();
 
-int setSemaphore(uint16_t id, uint8_t value);
+TSem buildSemaphore(uint8_t value);
 
-void waitSemaphore(uint8_t id);
+void waitSemaphore(TSem sem);
 
-void postSemaphore(uint8_t id);
+void postSemaphore(TSem sem);
 
 semaphoreADT getSemaphore();
+
+uint16_t openSem(TSem sem);
+
+uint16_t closeSem(TSem sem);
 
 #endif /* SEMAPHORE_H */
