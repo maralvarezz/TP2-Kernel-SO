@@ -16,7 +16,7 @@
 
 #define MAX_PRIORITY 5
 #define MIN_PRIORITY 1
-#define DEFAULT_PRIORITY 3
+#define SHELL_PRIORITY 8
 
 
 

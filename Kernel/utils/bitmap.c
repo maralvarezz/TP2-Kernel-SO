@@ -67,8 +67,11 @@ MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManage
     }
     firstMemoryPlace = memoryForMemoryManager;
     MemoryManagerADT memoryManager = (MemoryManagerADT) firstMemoryPlace;
-    memoryManager->bitmapStart = (void *)((uint8_t *)memoryForMemoryManager + sizeof(MemoryManagerCDT));
+
     memoryManager->cantBlocks = (managedMemory - sizeof(MemoryManagerCDT)) / BLOCKSIZE; // Cantidad de bloques que se pueden manejar
+
+    memoryManager->bitmapStart = (void *)((uint8_t *)memoryForMemoryManager + sizeof(MemoryManagerCDT) + memoryManager->cantBlocks);
+    
     memoryManager->blocksUsed = 0;
 
     for(uint64_t i = 0; i < memoryManager->cantBlocks; i++){
@@ -108,6 +111,40 @@ void * allocMemory(const size_t memoryToAllocate){
     }
     return NULL;
 }
+
+// void *malloc(uint64_t size) {
+// 	MemoryManagerADT memoryManager = getMemoryManager();
+
+// 	if (size == 0) {
+// 		return NULL;
+// 	}
+
+// 	uint64_t blocksNeeded = size / BLOCK_SIZE + ((size % BLOCK_SIZE) ? 1 : 0);
+
+// 	uint64_t freeBlocks = 0;
+
+// 	for (uint64_t i = 0; i < memoryManager->blocksQty; i++) {
+// 		if (memoryManager->bitmap[i] == FREE) {
+// 			freeBlocks++;
+// 			if (freeBlocks == blocksNeeded) {
+// 				memoryManager->bitmap[i - freeBlocks + 1] = BORDER;
+
+// 				for (uint64_t j = i - freeBlocks + 2; j <= i; j++) {
+// 					memoryManager->bitmap[j] = USED;
+// 				}
+
+// 				memoryManager->usedBlocks += blocksNeeded;
+
+// 				return (uint8_t *) memoryManager->arena + (i - freeBlocks + 1) * BLOCK_SIZE;
+// 			}
+// 		}
+// 		else {
+// 			freeBlocks = 0;
+// 		}
+// 	}
+
+// 	return NULL;
+// }
 
 void freeMemory(void * const restrict memoryToFree){
     MemoryManagerADT memoryManager = getMM();    

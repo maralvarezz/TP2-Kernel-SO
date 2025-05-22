@@ -17,7 +17,7 @@ typedef struct linkedListCDT{
 } linkedListCDT;
 
 linkedListADT createList(){
-    linkedListADT newList = allocMemory(sizeof(linkedListCDT));
+    linkedListADT newList = (linkedListADT) allocMemory(sizeof(linkedListCDT));
     if(newList == NULL){
         return NULL;
     }

@@ -4,8 +4,7 @@ static char **allocateArgv(char **argv, int argc);
 static void freeArgv(char **argv, int argc);
 uint64_t setStackFrame(uint64_t stackBase, uint64_t code, int argc, char *args[]);
 
-int buildProcess(TPCB process, int16_t pid, uint64_t rip, char **args, int argc, 
-                            uint8_t priority, int16_t fileDescriptors[], int ground){
+int buildProcess(TPCB process, int16_t pid, uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
     process->pid = pid;
     void * stack = allocMemory(STACK_SIZE);
     if(stack == NULL){

@@ -22,7 +22,7 @@ schedulerADT scheduler = NULL;
 uint8_t createdScheduler = 0;
 
 void createScheduler(){
-    scheduler = allocMemory(sizeof(schedulerCDT));
+    scheduler =(schedulerADT) allocMemory(sizeof(schedulerCDT));
     if(scheduler == NULL){
         return;
     }
@@ -49,27 +49,14 @@ void createScheduler(){
     }
     printf("scheduler->blockedList = %d\n", (uint64_t)scheduler->blockedList);
     
-    scheduler->actualProcess = NULL;
-    scheduler->actualPid = 0;
-    scheduler->nextPid = 0; //ponele
+    scheduler->actualProcess = NULL;    
+    scheduler->actualPid = -1;
+    scheduler->nextPid = 0;
     scheduler->cantProcesses = 0;
     createdScheduler = 1;
-    TPCB idleProcess = allocMemory(sizeof(PCB_t));
-    if(idleProcess == NULL){
-        return;
-    }
     char *idleArg[] = { "idle" };
-    int16_t fileDescriptors[] = {-1,-1,-1};
-    
-    if(buildProcess(idleProcess, IDLEPROCESS, (uint64_t)idle, idleArg, 1, 1, fileDescriptors, BACKGROUND) != -1) {
-        addNode((void *)scheduler->totalProcesses, idleProcess);
-        addNode((void *)scheduler->blockedList, idleProcess);
-        scheduler->cantProcesses++;
-        scheduler->nextPid = 1; // Próximo PID será 1
-    } else {
-        // Si falla buildProcess, liberar la memoria
-        freeMemory(idleProcess);
-    }
+    int16_t fileDescriptors[] = {-1,-1,2};
+    createProcess((uint64_t) idle, idleArg, 1, 1, fileDescriptors, 1);
 }
 
 //este bro, va a agarrar un proceso, si es que hay, lo va a METER running agarrando uno de los readys y lo va  amandar a la cola de bloqueados o de ready dependiendo el caso
@@ -132,14 +119,13 @@ uint64_t changeProcess(uint64_t actualRSP){
 }
 
 /* Devuelve 0 si no se pudo crear y si no su pid */
-int createProcess(uint64_t rip, char **args, int argc, 
-                            uint8_t priority, int16_t fileDescriptors[], int ground){
+int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
     schedulerADT scheduler = getScheduler();
     if(scheduler == NULL){
         return 0;
     }
 
-    if(scheduler->cantProcesses >= MAX_PROCESSES){
+    if(scheduler->cantProcesses > MAX_PROCESSES){
         return 0;
     }
 
@@ -154,7 +140,7 @@ int createProcess(uint64_t rip, char **args, int argc,
     }
     addNode(scheduler->totalProcesses, newProcess);
 
-    if(newProcess->pid < 1){ 
+    if(newProcess->pid > 1){ 
         addNode(scheduler->blockedList, newProcess);
     } 
     else{

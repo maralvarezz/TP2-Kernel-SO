@@ -52,12 +52,9 @@ int main()
 	printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
     createScheduler();
 	printf("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\n");
-    //char * argv[] = { "shell" };
-    //int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
-    
-    
-    //createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, DEFAULT_PRIORITY, fileDescriptors, 0);
-    
+    char * argv[] = { "shell" };
+    int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
+    createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
     while(1) _hlt();
     return 0;
 }
