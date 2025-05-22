@@ -60,9 +60,10 @@ void createScheduler(){
     }
     char *idleArg[] = { "idle" };
     int16_t fileDescriptors[] = {-1,-1,-1};
+    
     if(buildProcess(idleProcess, IDLEPROCESS, (uint64_t)idle, idleArg, 1, 1, fileDescriptors, BACKGROUND) != -1) {
-        addNode(scheduler->totalProcesses, idleProcess);
-        addNode(scheduler->blockedList, idleProcess);
+        addNode((void *)scheduler->totalProcesses, idleProcess);
+        addNode((void *)scheduler->blockedList, idleProcess);
         scheduler->cantProcesses++;
         scheduler->nextPid = 1; // Próximo PID será 1
     } else {
@@ -148,7 +149,6 @@ int createProcess(uint64_t rip, char **args, int argc,
     }
 
     if(buildProcess(newProcess, scheduler->nextPid, rip, args, argc, priority, fileDescriptors, ground) == -1){
-        //el proceso no se pudo crear
         freeMemory(newProcess);
         return 0;
     }

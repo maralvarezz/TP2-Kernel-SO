@@ -21,7 +21,6 @@ linkedListADT createList(){
     if(newList == NULL){
         return NULL;
     }
-    printf("creando lista en %d\n",(uint64_t)newList);
     newList->current = NULL;
     newList->first = NULL;
     newList->last = NULL;

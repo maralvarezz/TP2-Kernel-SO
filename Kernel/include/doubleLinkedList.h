@@ -11,6 +11,7 @@ linkedListADT createList();
 
 int addNode(linkedListADT list, void * info);
 
+
 int removeNode(linkedListADT list, void * info);
 
 void freeList(linkedListADT list);

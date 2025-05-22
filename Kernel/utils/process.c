@@ -27,7 +27,9 @@ int buildProcess(TPCB process, int16_t pid, uint64_t rip, char **args, int argc,
     my_strcpy(process->name, args[0]);
     process->rip = rip;
     process->priority = priority;
+    printf("stack: %d\n", (uint64_t)process->stackBase);
     process->stackPos = setStackFrame(process->stackBase, process->rip, argc, process->argv);
+    printf("stack: %d\n", (uint64_t)process->stackBase);
     if (process->pid > 1) {
         process->status = BLOCKED;
     }else{
