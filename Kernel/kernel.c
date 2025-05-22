@@ -4,6 +4,7 @@
 #include <interrupts.h>
 #include <video.h>
 #include <memoryManager.h>
+#include "scheduler.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -46,10 +47,18 @@ void initializeKernelBinary()
 }
 
 int main()
-{	
-	load_idt();
-	((EntryPoint)sampleCodeModuleAddress)();
-	while(1) _hlt();
-	return 0;
+{   
+    load_idt();
+	printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
+    createScheduler();
+	printf("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\n");
+    //char * argv[] = { "shell" };
+    //int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
+    
+    
+    //createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, DEFAULT_PRIORITY, fileDescriptors, 0);
+    
+    while(1) _hlt();
+    return 0;
 }
 

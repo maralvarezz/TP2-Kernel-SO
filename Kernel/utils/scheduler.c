@@ -17,7 +17,7 @@ typedef struct schedulerCDT{
 } schedulerCDT;
 
 
-
+static void idle();
 schedulerADT scheduler = NULL;
 uint8_t createdScheduler = 0;
 
@@ -26,15 +26,49 @@ void createScheduler(){
     if(scheduler == NULL){
         return;
     }
+
     scheduler->totalProcesses = createList();
+    if(scheduler->totalProcesses == NULL){
+        freeMemory(scheduler);
+        return;
+    }
+    printf("scheduler->totalProcesses = %d\n", (uint64_t)scheduler->totalProcesses);
     scheduler->readyList = createList();
+    if(scheduler->readyList == NULL){
+        freeMemory(scheduler->totalProcesses);
+        freeMemory(scheduler);
+        return;
+    }
+    printf("scheduler->readyList = %d\n", (uint64_t)scheduler->readyList);
     scheduler->blockedList = createList();
+    if(scheduler->blockedList == NULL){
+        freeMemory(scheduler->readyList);
+        freeMemory(scheduler->totalProcesses);
+        freeMemory(scheduler);
+        return;
+    }
+    printf("scheduler->blockedList = %d\n", (uint64_t)scheduler->blockedList);
+    
     scheduler->actualProcess = NULL;
     scheduler->actualPid = 0;
     scheduler->nextPid = 0; //ponele
     scheduler->cantProcesses = 0;
     createdScheduler = 1;
-    //acá habría que crear el proceso idle y agregarlo a la lista de listos
+    TPCB idleProcess = allocMemory(sizeof(PCB_t));
+    if(idleProcess == NULL){
+        return;
+    }
+    char *idleArg[] = { "idle" };
+    int16_t fileDescriptors[] = {-1,-1,-1};
+    if(buildProcess(idleProcess, IDLEPROCESS, (uint64_t)idle, idleArg, 1, 1, fileDescriptors, BACKGROUND) != -1) {
+        addNode(scheduler->totalProcesses, idleProcess);
+        addNode(scheduler->blockedList, idleProcess);
+        scheduler->cantProcesses++;
+        scheduler->nextPid = 1; // Próximo PID será 1
+    } else {
+        // Si falla buildProcess, liberar la memoria
+        freeMemory(idleProcess);
+    }
 }
 
 //este bro, va a agarrar un proceso, si es que hay, lo va a METER running agarrando uno de los readys y lo va  amandar a la cola de bloqueados o de ready dependiendo el caso
@@ -116,6 +150,7 @@ int createProcess(uint64_t rip, char **args, int argc,
     if(buildProcess(newProcess, scheduler->nextPid, rip, args, argc, priority, fileDescriptors, ground) == -1){
         //el proceso no se pudo crear
         freeMemory(newProcess);
+        return 0;
     }
     addNode(scheduler->totalProcesses, newProcess);
 
@@ -229,5 +264,11 @@ uint64_t getActualPid(){
         return 0;
     }
     return scheduler->actualPid;
+}
+
+static void idle(){
+    while(1){
+        _hlt();
+    }
 }
 

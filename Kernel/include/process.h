@@ -5,6 +5,7 @@
 #include "lib.h"
 #include "processDefs.h"
 #include "scheduler.h"
+#include "video.h"
 
 
 #define STACK_SIZE 4096 // 4KB
