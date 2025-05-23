@@ -22,16 +22,18 @@ schedulerADT scheduler = NULL;
 uint8_t createdScheduler = 0;
 
 void createScheduler(){
+    printf("creando scheduler\n");
     scheduler =(schedulerADT) allocMemory(sizeof(schedulerCDT));
     if(scheduler == NULL){
         return;
     }
-
+    printf("creo lista\n");
     scheduler->totalProcesses = createList();
     if(scheduler->totalProcesses == NULL){
         freeMemory(scheduler);
         return;
     }
+
     printf("scheduler->totalProcesses = %d\n", (uint64_t)scheduler->totalProcesses);
     scheduler->readyList = createList();
     if(scheduler->readyList == NULL){
@@ -130,6 +132,7 @@ int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t
     }
 
     TPCB newProcess = allocMemory(sizeof(PCB_t));
+    printf("newProcess: %d\n", (uint64_t)newProcess);
     if(newProcess == NULL){
         return 0;
     }
@@ -138,8 +141,9 @@ int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t
         freeMemory(newProcess);
         return 0;
     }
+    printf("Se construyó el proceso\n");
     addNode(scheduler->totalProcesses, newProcess);
-
+    printf("Se agregó el proceso a la lista de procesos\n");
     if(newProcess->pid > 1){ 
         addNode(scheduler->blockedList, newProcess);
     } 
@@ -149,6 +153,7 @@ int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t
 
     scheduler->cantProcesses++;
     scheduler->nextPid++;
+    printf("Termino el create\n");
     return newProcess->pid;
 }
 

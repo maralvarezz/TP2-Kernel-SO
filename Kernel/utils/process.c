@@ -6,18 +6,23 @@ uint64_t setStackFrame(uint64_t stackBase, uint64_t code, int argc, char *args[]
 
 int buildProcess(TPCB process, int16_t pid, uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
     process->pid = pid;
+    printf("entro al buildProcess\n");
     void * stack = allocMemory(STACK_SIZE);
     if(stack == NULL){
         return -1;
     }
+    printf("paso la alocacion de stack\n");
     process->stackBase = (uint64_t) stack + STACK_SIZE; // porque crece hacia abajo
     process->argv = allocateArgv( args, argc);
+    printf("se aloco el argv\n");
     if (process->argv == NULL) {
         freeMemory((void *) (process->stackBase - STACK_SIZE));
         return -1;
     }
+    printf("soy deficiente\n");
     process->argc = argc;
     process->name = allocMemory(my_strlen(args[0]) + 1);
+    printf("se aloco el name\n");
     if (process->name == NULL) {
         freeMemory((void *) (process->stackBase - STACK_SIZE));
         freeArgv(process->argv, argc);
@@ -99,16 +104,17 @@ int changeFds(int16_t pid, int16_t fileDescriptors[]){
 static char **allocateArgv(char **argv, int argc) {
     char **toReturn = allocMemory((argc + 1) * sizeof(char *));
     if (toReturn == NULL) {
+        printf("Error allocating memory for argv\n");
         return NULL;
     }
     for (int i = 0; i < argc; i++) {
         toReturn[i] = allocMemory(my_strlen(argv[i]) + 1);
-
         if (toReturn[i] == NULL) {
             for (int j = 0; j < i; j++) {
                 freeMemory(toReturn[j]);
             }
             freeMemory(toReturn);
+            printf("ERROR 2\n");
             return NULL;
         }
 
