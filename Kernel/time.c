@@ -1,5 +1,6 @@
 #include <time.h>
 #include <stdint.h>
+#include "video.h"
 static uint64_t ticks = 0;
 
 void timerHandler() {

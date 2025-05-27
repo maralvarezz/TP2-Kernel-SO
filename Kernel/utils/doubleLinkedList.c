@@ -29,33 +29,28 @@ linkedListADT createList(){
 }
 
 int addNode(linkedListADT list, void * info){
-    printf("recibimos lista en %d\n",(uint64_t)((void *)list));
+    
     if(list == NULL){
         return 0;
     }
-    printf("agregando nodo\n");
     TNode newNode = allocMemory(sizeof(Node));
     if(newNode == NULL){
         return 0;
     }
-    printf("agregando info2\n");
+
     newNode->info = info;
     newNode->next = NULL;
-    printf("agregando info3\n");
-    printf("list->size%d\n", list->size);
     if(list->size == 0){ //soy el primero 
-        printf("agregando info3.5\n");
+        
         list->first = newNode;
     }
     else{
-        printf("agregando info3.6\n");
+        
         list->last->next = newNode;
     }
-    printf("agregando info4\n");
     newNode->prev = list->last;
     list->last = newNode;
     list->size++;
-    printf("agregando info5\n");
     return 1;
 }
 
@@ -71,16 +66,17 @@ int removeNode(linkedListADT list, void * info){
                 list->first = iter->next;
                 list->first->prev = NULL;
             }
-            else if(iter == list->last){ //si soy el ultimo
+            if(iter == list->last){ //si soy el ultimo
                 list->last = iter->prev;
                 list->last->next = NULL;
             }
-            else{
+            else if (iter != list->first){
                 iter->prev->next = iter->next;
                 iter->next->prev = iter->prev;
             }
             freeMemory(iter);
             list->size--;
+            printf("Nodo eliminado\n");
             return 1;
         }
         iter = iter->next;
@@ -127,8 +123,8 @@ void * getFirst(linkedListADT list){
         return NULL;
     }
     void * info = list->first->info;
-    removeNode(list, info);
     list->first = list->first->next;
+    removeNode(list, info);
     return info;
 }
 
