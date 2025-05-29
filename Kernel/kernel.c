@@ -84,7 +84,9 @@ int main()
     //int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
     //createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
 	_sti();
-    while(1) _hlt();
+    while(1) {
+		_hlt();
+	}
     return 0;
 }
 
