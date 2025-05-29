@@ -5,6 +5,7 @@ GLOBAL getKeyPressed
 GLOBAL startSound
 GLOBAL stopSound
 GLOBAL saveRegisters
+GLOBAL timerTickInt
 
 section .text
     
@@ -72,6 +73,8 @@ getKeyPressed:
     pop rbp
     ret
 
+
+
 int_80:
     push rbp
     mov rbp, rsp
@@ -118,3 +121,7 @@ saveRegisters:
     mov rdi, rbp 
     call copyRegisters
     ret
+
+timerTickInt:
+int 20h
+ret

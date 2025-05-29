@@ -13,6 +13,7 @@ typedef struct linkedListCDT{
     TNode current;
     TNode first;
     TNode last;
+    TNode iter; 
     int size;
 } linkedListCDT;
 
@@ -24,6 +25,7 @@ linkedListADT createList(){
     newList->current = NULL;
     newList->first = NULL;
     newList->last = NULL;
+    newList->iter = NULL;
     newList->size = 0;
     return newList;
 }
@@ -123,7 +125,7 @@ void * getFirst(linkedListADT list){
         return NULL;
     }
     void * info = list->first->info;
-    list->first = list->first->next;
+    // list->first = list->first->next;
     removeNode(list, info);
     return info;
 }
@@ -133,6 +135,7 @@ void toBegin(linkedListADT list){
         return;
     }
     list->current = list->first;
+    list->iter = list->first;
 }
 
 int hasNext(linkedListADT list){
@@ -144,7 +147,6 @@ void * next(linkedListADT list){
         return NULL;
     }
     void * info = list->current->info;
-    removeNode(list, info);
     list->current = list->current->next;
     return info;
 }

@@ -69,15 +69,16 @@ int changePriority(int16_t pid, uint8_t priority){
 void freeProcess(TPCB process){
     if(process->argv != NULL){
         for(int i = 0; i < process->argc; i++){
-        if(process->argv[i] != NULL){
-            freeMemory(process->argv[i]);
+            if(process->argv[i] != NULL){
+                freeMemory(process->argv[i]);
+            }
         }
-    }
         freeMemory(process->argv);
     }
     freeMemory(process->waitingList);
     freeMemory(process->name);
-    //falta algo con el stack seguro
+    freeMemory((void *)(process->stackBase - STACK_SIZE));
+    freeMemory(process);
 }
 
 int waitProcess(int16_t pid){

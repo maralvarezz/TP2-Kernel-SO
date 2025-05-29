@@ -39,12 +39,6 @@ void * getStackBase()
 }
 
 
-void proceso2(){
-	while(1) {
-		printf("Proceso 2\n");
-	}
-}
-
 
 
 void initializeKernelBinary()
@@ -56,11 +50,26 @@ void initializeKernelBinary()
 }
 
 void proceso1(){
+	int aux= 50;
+	while(aux--) {
+		printf("Proceso 1 \n");
+	}
+	killProcess(getActualPid());
+}
+
+
+
+void proceso2(){
 	while(1) {
-		printf("Proceso 1\n");
+		printf("Proceso 2\n");
 	}
 }
 
+void proceso3(){
+	while(1) {
+		print("Proceso 3\n");
+	}
+}
 
 void foo(){
 	while(1){
@@ -71,18 +80,20 @@ void foo(){
 int main()
 {   
 	_cli();
-    load_idt();
+    
     createScheduler();
 	char * argv[] = { "shell" };
 	char * argv1[] = { "P1" };
 	char * argv2[] = { "P2" };
 	int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { -1, 1, -1 };
 	createProcess((uint64_t)foo, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
-	createProcess((uint64_t)proceso1, argv1, 1, 1, fileDescriptors, 0);
-	createProcess((uint64_t)proceso2, argv2, 1, 1, fileDescriptors, 0);
+	createProcess((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);
+	createProcess((uint64_t)proceso2, argv2, 1, 5, fileDescriptors, 0);
+	createProcess((uint64_t)proceso3, argv2, 1, 5, fileDescriptors, 0);
     //char * argv[] = { "shell" };
     //int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
     //createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
+	load_idt();
 	_sti();
     while(1) {
 		_hlt();
