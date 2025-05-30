@@ -7,19 +7,29 @@
 #include <man.h>
 #include <libasm.h>
 
-/* Enum para la cantidad de argumentos recibidos */
-typedef enum {NO_PARAMS = 0, SINGLE_PARAM, DUAL_PARAM} functionType;    
+/* Enum para la cantidad de argumentos recibidos */    
 #define QTY_BYTES 32 /* Cantidad de bytes de respuesta del printmem */
 #define DEFAULT_FONT_SIZE 1
 #define MIN_FONT_SIZE 1
 #define MAX_FONT_SIZE 3
 
-#define WELCOME "Bienvenido a Cactiland OS!\n"
+#define WELCOME "Bienvenido a eSeMeMe SO!\n"
 #define INVALID_COMMAND "Comando invalido!\n"
 #define WRONG_PARAMS "La cantidad de parametros ingresada es invalida\n"
 #define INVALID_FONT_SIZE "Dimension invalida de fuente\n"
 #define CHECK_MAN "Escriba \"man %s\" para ver como funciona el comando\n"
 #define CHECK_MAN_FONT "Escriba \"man font-size\" para ver las dimensiones validas\n"
+/*
+typedef void (* functionType) (int argc, char * argv[]);
+
+typedef struct {
+    char * name;                    // Nombre del comando
+    char * description;             // Descripcion del comando (para help)
+    functionType ftype;             // Cantidad de argumentos del comando
+} Command;
+*/
+
+typedef enum {NO_PARAMS = 0, SINGLE_PARAM, DUAL_PARAM} functionType;    
 
 typedef struct {
     char * name;                    // Nombre del comando
@@ -42,6 +52,32 @@ static void printMem(char * pos);
 static int getCommandIndex(char * command);
 static void myClear();
 
+/*static Command commands[] = {
+    { "help", "Listado de comandos", (functionType) help};
+    { "man", "Manual de uso de los comandos", (functionType) man};
+    { "inforeg", "Informacion de los registos que fueron capturados en un momento arbitrario de ejecucion del sistema", (functionType) inforeg};
+    { "time", "Despliega la hora actual UTC - 3", (functionType) time};
+    { "div", "Hace la division entera de dos numeros naturales enviados por parametro",(functionType) div};
+    { "kaboom", "Ejecuta una excepcion de Invalid Opcode", (functionType) kaboom};
+    { "font-size", "Cambio de dimensiones de la fuente. Para hacerlo escribir el comando seguido de un numero", (functionType) fontSize};
+    { "printmem", "Realiza un vuelco de memoria de los 32 bytes posteriores a una direccion de memoria en formato hexadecimal enviada por parametro", (functionType) printmem};
+    { "clear", "Limpia toda la pantalla", (functionType) myClear};
+    /*{ "mem", "Imprime el estado de la memoria", (functionType) mem};
+    { "ps", "Imprime la lista de todos los procesos con sus propiedades", (functionType) ps};
+    { "loop", "Imprime el ID del proceso con un saludo cada una determinada cantidad de segundos",(functionType) loop};
+    { "kill", "Mata un proceso dado su ID", (functionType) kill};
+    { "nice", "Cambia la prioridad de un proceso dado su ID y la nueva prioridad", (functionType) nice};
+    { "block", "Cambia el estado de un proceso entre bloqueado y listo dado su ID", (functionType) block};
+    { "cat", "Imprime el stdin tal como lo recibe", (functionType) cat};
+    { "wc", "Cuenta la cantidad de lineas del input", (functionType) wc};
+    { "filter", "Filtra las vocales del input", (functionType) filter};
+    { "phylo", "Implementa el problema de los filósofos comensales", (functionType) phylo};
+    { "testMemManager", "Corre un test para los memory managers", (functionType) testMemManager};
+    { "testPrio", "Corre un test de prioridades", (functionType) testPrio};
+    { "testProcesses", "Corre un test de procesos", (functionType) testProcesses};
+    { "testSync", "Corre un test de sincronizacion", (functionType) testSync};
+};*/
+
 static Command commands[QTY_COMMANDS];
 
 void init() {
@@ -57,8 +93,8 @@ void init() {
     //commands[9] = (Command){ "testMemManager", "Corre un test para los memory managers", .g = (void*) &testMemManager, SINGLE_PARAM};
 }
 
+
 void run_shell() {
-    init();
     int index;
     puts(WELCOME);
     while(1){

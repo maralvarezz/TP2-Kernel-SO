@@ -6,6 +6,8 @@
 #define FQ 2
 
 
+
+
 typedef struct schedulerCDT{
     linkedListADT totalProcesses;
     linkedListADT readyList;
@@ -205,7 +207,6 @@ int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t
     if(newProcess == NULL){
         return 0;
     }
-    
 
     if(buildProcess(newProcess, scheduler->nextPid, rip, args, argc, priority, fileDescriptors, ground) == -1){
         freeMemory(newProcess);
@@ -247,6 +248,11 @@ void killProcess(uint64_t pid){
     scheduler->cantProcesses--;
     process->status= KILLED;
     yieldProcess();
+}
+
+void killActualProcess(){
+    schedulerADT scheduler = getScheduler();
+    killProcess(scheduler->actualProcess->pid);
 }
 
 int blockProcess(uint64_t pid){
@@ -332,6 +338,48 @@ uint64_t getActualPid(){
         return 0;
     }
     return scheduler->actualPid;
+}
+
+TPInfo processInformation(uint64_t * pQuantity){
+    schedulerADT scheduler = getScheduler();
+    if(scheduler == NULL){
+        *pQuantity = 0;
+        return NULL;
+    }
+    TPInfo infoProc = (TPInfo) allocMemory(scheduler->cantProcesses * sizeof(PInfo));
+    if(infoProc == NULL){
+        *pQuantity = 0;
+        return NULL;
+    }
+    toBegin(scheduler->totalProcesses);
+    TPCB aux;
+    int i = 0;
+    while(hasNext(scheduler->totalProcesses)){
+        aux = next(scheduler->totalProcesses);
+        infoProc[i].pid = aux->pid;
+        infoProc[i].priority = aux->priority;
+        infoProc[i].ground = aux->ground;
+        infoProc[i].stackPos = aux->stackPos;
+        infoProc[i].stackBase = aux->stackBase;
+        infoProc[i].status = aux->status;
+        infoProc[i].rip = aux->rip;
+        if(aux->name !=NULL){
+            infoProc[i].name = allocMemory(my_strlen(aux->name) + 1);
+            if(infoProc[i].name == NULL){
+                freeMemory(infoProc[i].name);
+                freeMemory(infoProc);
+                *pQuantity = 0;
+                return NULL;
+            }
+            my_strcpy(infoProc[i].name, aux->name);
+        }else{
+            infoProc[i].name = NULL;
+        }
+        i++;
+    }
+    *pQuantity = scheduler->cantProcesses;
+    return infoProc;
+    
 }
 
 static void idle(){

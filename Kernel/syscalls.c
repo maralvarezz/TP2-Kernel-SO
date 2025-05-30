@@ -5,6 +5,9 @@
 #include <color.h>
 #include <time.h>
 #include <memory.h>
+#include <scheduler.h>
+#include <pipes.h>
+#include <semaphore.h>
 /* File Descriptors*/
 #define STDIN 0
 #define STDOUT 1
@@ -37,42 +40,96 @@ static uint64_t syscall_getTicks();
 static void syscall_getMemory(uint64_t pos, uint8_t * vec);
 static void syscall_setFontColor(uint8_t r, uint8_t g, uint8_t b);
 static uint32_t syscall_getFontColor();
+static void syscall_exit();
+static int syscall_createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground);
+static TPInfo syscall_processInfo(uint64_t *processCant);
+static uint64_t syscall_getPid();
+static void syscall_killProcess(uint64_t pid);
+static uint64_t syscall_changePriority(uint64_t pid, uint8_t priority);
+static void syscall_blockProcess(uint64_t pid);
+static void syscall_unblockProcess(uint64_t pid);
+static void syscall_chauCPU();
+static void syscall_waitChildren(uint64_t pid);
+static void syscall_openPipe();
+static void syscall_closePipe();
+static TSem syscall_semCreate(uint8_t value);
+static void syscall_semWait(TSem sem);
+static void syscall_semPost(TSem sem);
+static void syscall_semOpen(TSem sem);
+static void syscall_semClose(TSem sem);
+
+typedef uint64_t (*syscallFunc)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 
 
 uint64_t syscallDispatcher(uint64_t nr, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5) {
-	switch (nr) {
-        case READ:
-            return syscall_read((uint32_t)arg0);
-		case WRITE:
-			syscall_write((uint32_t)arg0, (char)arg1);
-            break;
-        case CLEAR:
-            syscall_clear();
-            break;
-        case SECONDS:
-            return syscall_seconds();
-        case GET_REGISTER_ARRAY:
-            return (uint64_t) syscall_registerArray((uint64_t *) arg0);
-        case SET_FONT_SIZE:
-            syscall_fontSize((uint8_t)arg0);
-            break;
-        case GET_RESOLUTION:
-            return syscall_resolution();
-        case DRAW_RECT:
-            syscall_drawRect((uint16_t)arg0, (uint16_t)arg1, (uint16_t)arg2, (uint16_t)arg3, (uint32_t)arg4);
-            break;
-        case GET_TICKS:
-            return syscall_getTicks();
-        case GET_MEMORY:
-            syscall_getMemory((uint64_t) arg0, (uint8_t *) arg1);
-            break;
-        case SET_FONT_COLOR:
-            syscall_setFontColor((uint8_t) arg0, (uint8_t) arg1, (uint8_t) arg2);
-            break;
-        case GET_FONT_COLOR:
-            return syscall_getFontColor();
-	}
-	return 0;
+
+    static syscallFunc syscalls[] = {
+        (syscallFunc) syscall_read,
+        (syscallFunc) syscall_write,
+        (syscallFunc) syscall_clear,
+        (syscallFunc) syscall_seconds,
+        (syscallFunc) syscall_registerArray,
+        (syscallFunc) syscall_fontSize,
+        (syscallFunc) syscall_resolution,
+        (syscallFunc) syscall_drawRect,
+        (syscallFunc) syscall_getTicks,
+        (syscallFunc) syscall_getMemory,
+        (syscallFunc) syscall_setFontColor,
+        (syscallFunc) syscall_getFontColor,
+        (syscallFunc) syscall_exit,
+        (syscallFunc) syscall_createProcess,
+        (syscallFunc) syscall_processInfo,
+        (syscallFunc) syscall_getPid,
+        (syscallFunc) syscall_killProcess,
+        (syscallFunc) syscall_changePriority,
+        (syscallFunc) syscall_blockProcess,
+        (syscallFunc) syscall_unblockProcess,
+        (syscallFunc) syscall_chauCPU,
+        (syscallFunc) syscall_waitChildren,
+        (syscallFunc) syscall_openPipe,
+        (syscallFunc) syscall_closePipe,
+        (syscallFunc) syscall_semCreate,
+        (syscallFunc) syscall_semWait,
+        (syscallFunc) syscall_semPost,
+        (syscallFunc) syscall_semOpen,
+        (syscallFunc) syscall_semClose
+    };
+
+    return syscalls[nr](arg0, arg1, arg2, arg3, arg4, arg5);
+
+	// switch (nr) {
+    //     case READ:
+    //         return syscall_read((uint32_t)arg0);
+	// 	case WRITE:
+	// 		syscall_write((uint32_t)arg0, (char)arg1);
+    //         break;
+    //     case CLEAR:
+    //         syscall_clear();
+    //         break;
+    //     case SECONDS:
+    //         return syscall_seconds();
+    //     case GET_REGISTER_ARRAY:
+    //         return (uint64_t) syscall_registerArray((uint64_t *) arg0);
+    //     case SET_FONT_SIZE:
+    //         syscall_fontSize((uint8_t)arg0);
+    //         break;
+    //     case GET_RESOLUTION:
+    //         return syscall_resolution();
+    //     case DRAW_RECT:
+    //         syscall_drawRect((uint16_t)arg0, (uint16_t)arg1, (uint16_t)arg2, (uint16_t)arg3, (uint32_t)arg4);
+    //         break;
+    //     case GET_TICKS:
+    //         return syscall_getTicks();
+    //     case GET_MEMORY:
+    //         syscall_getMemory((uint64_t) arg0, (uint8_t *) arg1);
+    //         break;
+    //     case SET_FONT_COLOR:
+    //         syscall_setFontColor((uint8_t) arg0, (uint8_t) arg1, (uint8_t) arg2);
+    //         break;
+    //     case GET_FONT_COLOR:
+    //         return syscall_getFontColor();
+	// }
+	// return 0;
 }
 
 // Read char
@@ -153,3 +210,82 @@ static uint32_t syscall_getFontColor(){
     ColorInt c = { color: getFontColor() };
     return c.bits;
 }
+
+static void syscall_exit(){
+    killActualProcess();
+    yieldProcess();
+}
+
+static int syscall_createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
+    return createProcess(rip, args, argc, priority, fileDescriptors, ground);
+}
+
+static TPInfo syscall_processInfo(uint64_t *processCant){
+    return processInformation(processCant);
+}
+
+static uint64_t syscall_getPid(){
+    return getActualPid();
+}
+
+static void syscall_killProcess(uint64_t pid){
+    killProcess(pid);
+    yieldProcess();
+}
+
+static uint64_t syscall_changePriority(uint64_t pid, uint8_t priority){
+    return changePriority(pid, priority);
+}
+
+static void syscall_blockProcess(uint64_t pid){
+    blockProcess(pid);
+    yieldProcess();
+}
+
+static void syscall_unblockProcess(uint64_t pid){
+    readyProcess(pid);
+    yieldProcess();
+}
+
+static void syscall_chauCPU(){
+
+}
+
+static void syscall_waitChildren(uint64_t pid){
+    //waitChildren(pid);
+}
+
+static void syscall_openPipe(){
+
+}
+
+static void syscall_closePipe(){
+
+}
+
+static TSem syscall_semCreate(uint8_t value){
+    return buildSemaphore(value);
+}
+
+static void syscall_semWait(TSem sem){
+    waitSemaphore(sem);
+}
+
+static void syscall_semPost(TSem sem){
+    postSemaphore(sem);
+}
+
+static void syscall_semOpen(TSem sem){
+    openSem(sem);
+}
+
+static void syscall_semClose(TSem sem){
+    closeSem(sem);
+}
+
+
+
+
+
+
+

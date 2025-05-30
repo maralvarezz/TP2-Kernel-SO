@@ -32,4 +32,23 @@ schedulerADT getScheduler();
 
 uint64_t getActualPid();
 
+void killActualProcess();
+
+void timerTickInt();
+
+typedef struct PInfo{
+    uint8_t priority;
+    int16_t pid;
+    int ground;
+    uint64_t stackPos;
+    uint64_t stackBase;
+    uint8_t status;
+    uint64_t rip;
+    char * name;
+}PInfo;
+
+typedef struct PInfo * TPInfo;
+
+TPInfo processInformation(uint64_t * pQuantity);
+
 #endif 

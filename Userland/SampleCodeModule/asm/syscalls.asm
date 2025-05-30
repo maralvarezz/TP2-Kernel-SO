@@ -72,3 +72,89 @@ getFontColor:
     mov rax, 12
     int 80h
     ret
+
+exit:
+    mov rax, 13
+    int 80h
+    ret
+
+createProc:
+    mov rax, 14
+    int 80h
+    ret
+
+getMemInfo:
+    mov rax, 15
+    int 80h
+    ret
+
+getPid:
+    mov rax, 16
+    int 80h
+    ret
+
+killProc:
+    mov rax, 17
+    int 80h
+    ret
+
+changePrio:
+    mov rax, 18
+    int 80h
+    ret
+
+blockProc:
+    mov rax, 19
+    int 80h
+    ret
+
+unblockProc:
+    mov rax, 20
+    int 80h
+    ret
+
+chauCPU:
+    mov rax, 21
+    int 80h
+    ret
+
+waitChildren:
+    mov rax, 22
+    int 80h
+    ret
+
+openPipe:
+    mov rax, 23
+    int 80h
+    ret
+
+closePipe:
+    mov rax, 24
+    int 80h
+    ret
+
+semCreate:
+    mov rax, 25
+    int 80h
+    ret
+
+semWait:
+    mov rax, 26
+    int 80h
+    ret
+
+semPost:
+    mov rax, 27
+    int 80h
+    ret
+
+semOpen:
+    mov rax, 28
+    int 80h
+    ret
+
+semClose:  
+    mov rax, 29
+    int 80h
+    ret
+
