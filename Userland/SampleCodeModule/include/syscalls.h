@@ -3,6 +3,56 @@
 
 #include <stdint.h>
 #include <color.h>
+#include <stdio.h>
+#include <stddef.h>
+
+typedef struct PInfo{
+    uint8_t priority;
+    int16_t pid;
+    int ground;
+    uint64_t stackPos;
+    uint64_t stackBase;
+    uint8_t status;
+    uint64_t rip;
+    char * name;
+}PInfo;
+
+typedef struct PInfo * TPInfo;
+
+typedef struct Node {
+    void * info; //se va a usar para guardar estructuras de control de procesos (TPCB)
+    struct Node * next;
+    struct Node * prev;
+} Node;
+
+typedef struct Node * TNode;
+
+typedef struct linkedListCDT{
+    TNode current;
+    TNode first;
+    TNode last;
+    TNode iter; 
+    int size;
+} linkedListCDT;
+
+typedef struct linkedListCDT * linkedListADT;
+
+typedef struct semaphore_t{
+    uint8_t idx;
+    uint8_t value;
+    uint8_t occupied;
+    linkedListADT waitingList; 
+}semaphore_t;
+
+typedef struct semaphore_t * TSem;
+
+typedef struct memoryInformation{
+    uint64_t size;
+    uint64_t used;
+    uint64_t free;
+}memoryInfo_t;
+
+typedef struct MemoryManagerCDT * MemoryManagerADT;
 
 /**
  * @brief Escribe a partir del descriptor recibido un caracter
@@ -89,4 +139,47 @@ void setFontColor(uint8_t r, uint8_t g, uint8_t b);
  * @return Color 
  */
 Color getFontColor();
+
+memoryInfo_t memoryInfo();
+
+void exit();
+
+int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground);
+
+TPInfo processInfo(uint64_t *processCant);
+
+uint64_t getPid();
+
+void killProcess(uint64_t pid);
+
+uint64_t changePriority(uint64_t pid, uint8_t priority);
+
+void blockProcess(uint64_t pid);
+
+void unblockProcess(uint64_t pid);
+
+void yield();
+
+void chauCPU();
+
+int waitProcess(uint64_t pid);
+
+uint16_t openPipe(uint16_t pid, uint8_t use);
+
+uint16_t closePipe(uint16_t fd);
+
+TSem semCreate(uint8_t value);
+
+void semWait(TSem sem);
+
+void semPost(TSem sem);
+
+void semOpen(TSem sem);
+
+void semClose(TSem sem);
+
+void allocMem(size_t memoryToAllocate);
+
+void freeMem(void * const restrict memoryToFree);
+
 #endif

@@ -164,7 +164,6 @@ void freeMemory(void * const restrict memoryToFree){
     
 }
 
-
 memoryInfo_t memoryInfo(){
     MemoryManagerADT memoryManager = getMM();
     memoryInfo_t info;

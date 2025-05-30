@@ -8,6 +8,7 @@
 #include <scheduler.h>
 #include <pipes.h>
 #include <semaphore.h>
+#include <memoryManager.h>
 /* File Descriptors*/
 #define STDIN 0
 #define STDOUT 1
@@ -49,14 +50,19 @@ static uint64_t syscall_changePriority(uint64_t pid, uint8_t priority);
 static void syscall_blockProcess(uint64_t pid);
 static void syscall_unblockProcess(uint64_t pid);
 static void syscall_chauCPU();
-static void syscall_waitChildren(uint64_t pid);
-static void syscall_openPipe();
-static void syscall_closePipe();
+static int syscall_waitProcess(uint64_t pid);
 static TSem syscall_semCreate(uint8_t value);
 static void syscall_semWait(TSem sem);
 static void syscall_semPost(TSem sem);
 static void syscall_semOpen(TSem sem);
 static void syscall_semClose(TSem sem);
+static void syscall_yield();
+static uint16_t syscall_openPipe(uint16_t pid, uint8_t use);
+static uint16_t syscall_closePipe(uint16_t fd);
+static memoryInfo_t syscall_memoryInfo();
+static void syscall_malloc(const size_t memoryToAllocate);
+static void syscall_free(void * const restrict memoryToFree);
+
 
 typedef uint64_t (*syscallFunc)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 
@@ -76,6 +82,7 @@ uint64_t syscallDispatcher(uint64_t nr, uint64_t arg0, uint64_t arg1, uint64_t a
         (syscallFunc) syscall_getMemory,
         (syscallFunc) syscall_setFontColor,
         (syscallFunc) syscall_getFontColor,
+        (syscallFunc) syscall_memoryInfo,
         (syscallFunc) syscall_exit,
         (syscallFunc) syscall_createProcess,
         (syscallFunc) syscall_processInfo,
@@ -84,15 +91,18 @@ uint64_t syscallDispatcher(uint64_t nr, uint64_t arg0, uint64_t arg1, uint64_t a
         (syscallFunc) syscall_changePriority,
         (syscallFunc) syscall_blockProcess,
         (syscallFunc) syscall_unblockProcess,
+        (syscallFunc) syscall_yield, 
         (syscallFunc) syscall_chauCPU,
-        (syscallFunc) syscall_waitChildren,
+        (syscallFunc) syscall_waitProcess, 
         (syscallFunc) syscall_openPipe,
         (syscallFunc) syscall_closePipe,
         (syscallFunc) syscall_semCreate,
         (syscallFunc) syscall_semWait,
         (syscallFunc) syscall_semPost,
         (syscallFunc) syscall_semOpen,
-        (syscallFunc) syscall_semClose
+        (syscallFunc) syscall_semClose,
+        (syscallFunc) syscall_malloc,
+        (syscallFunc) syscall_free
     };
 
     return syscalls[nr](arg0, arg1, arg2, arg3, arg4, arg5);
@@ -211,6 +221,10 @@ static uint32_t syscall_getFontColor(){
     return c.bits;
 }
 
+static memoryInfo_t syscall_memoryInfo(){
+    return memoryInfo();
+}
+
 static void syscall_exit(){
     killActualProcess();
     yieldProcess();
@@ -247,20 +261,24 @@ static void syscall_unblockProcess(uint64_t pid){
     yieldProcess();
 }
 
+static void syscall_yield(){
+    yieldProcess();
+}
+
 static void syscall_chauCPU(){
-
+    //hay que ver qué hacer acá, por ahora lo dejamos así
 }
 
-static void syscall_waitChildren(uint64_t pid){
-    //waitChildren(pid);
+static int syscall_waitProcess(uint64_t pid){
+    return waitProcess(pid);
 }
 
-static void syscall_openPipe(){
-
+static uint16_t syscall_openPipe(uint16_t pid, uint8_t use){
+    return openPipe(pid, use);
 }
 
-static void syscall_closePipe(){
-
+static uint16_t syscall_closePipe(uint16_t fd){
+    return closePipe(fd);
 }
 
 static TSem syscall_semCreate(uint8_t value){
@@ -281,6 +299,14 @@ static void syscall_semOpen(TSem sem){
 
 static void syscall_semClose(TSem sem){
     closeSem(sem);
+}
+
+static void syscall_malloc(const size_t memoryToAllocate){
+    allocMemory(memoryToAllocate);
+}
+
+static void syscall_free(void * const restrict memoryToFree){
+    freeMemory(memoryToFree);
 }
 
 

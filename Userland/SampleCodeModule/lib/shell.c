@@ -95,6 +95,7 @@ void init() {
 
 
 void run_shell() {
+    init();
     int index;
     puts(WELCOME);
     while(1){
@@ -129,6 +130,43 @@ void run_shell() {
         }
     }
 }
+
+/* 
+void run_shell() {
+    int index;
+    puts(WELCOME);
+    while(1){
+        putchar('>');
+        char command[MAX_CHARS] = {0};
+        scanf("%s", command); 
+        index = getCommandIndex(command);
+        if (index == -1) {
+            if (command[0] != 0)
+                printErr(INVALID_COMMAND);
+            continue;
+        }
+        int funcParams = commands[index].ftype;
+        if(qtyParams - 1 != funcParams){
+            printErr(WRONG_PARAMS);
+            printf(CHECK_MAN, command);
+            continue;
+        }
+        switch (commands[index].ftype)
+        {
+            case NO_PARAMS: 
+                commands[index].f();
+                break;
+            case SINGLE_PARAM:
+                commands[index].g(arg1);
+                break;
+            case DUAL_PARAM:
+                commands[index].h(arg1, arg2);
+                break;
+        }
+    }
+}
+
+*/
 
 /**
  * @brief  Devuelve el indice del vector de comandos dado su nombre

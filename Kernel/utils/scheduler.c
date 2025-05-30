@@ -5,9 +5,6 @@
 
 #define FQ 2
 
-
-
-
 typedef struct schedulerCDT{
     linkedListADT totalProcesses;
     linkedListADT readyList;
