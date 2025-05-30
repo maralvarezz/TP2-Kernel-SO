@@ -82,17 +82,17 @@ int main()
 	_cli();
     
     createScheduler();
-	char * argv[] = { "shell" };
+	//char * argv[] = { "shell" };
 	char * argv1[] = { "P1" };
 	char * argv2[] = { "P2" };
-	int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { -1, 1, -1 };
-	createProcess((uint64_t)foo, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
-	createProcess((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);
-	createProcess((uint64_t)proceso2, argv2, 1, 5, fileDescriptors, 0);
-	createProcess((uint64_t)proceso3, argv2, 1, 5, fileDescriptors, 0);
-    //char * argv[] = { "shell" };
-    //int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
-    //createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
+	//int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { -1, 1, -1 };
+	//createProcess((uint64_t)foo, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
+	//createProcess((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);
+	//createProcess((uint64_t)proceso2, argv2, 1, 5, fileDescriptors, 0);
+	//createProcess((uint64_t)proceso3, argv2, 1, 5, fileDescriptors, 0);
+    char * argv[] = { "shell" };
+    int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
+    createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
 	load_idt();
 	_sti();
     while(1) {
