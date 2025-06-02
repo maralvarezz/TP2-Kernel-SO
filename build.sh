@@ -24,13 +24,19 @@ QCOW2_FILE=$(find Image/ -name "*.qcow2" -type f | head -1)
 if [ -n "$QCOW2_FILE" ]; then
     sudo chmod 777 "$QCOW2_FILE"
 else
-    echo "No se encontró ningún archivo .qcow2 en el directorio Image/"
+    echo "No se encontró archivo .qcow2 en Image/"
     exit 1
 fi
 
-# Ejecutar run.sh
+# Ejecutar run.sh con el parámetro recibido (si existe)
 if [ -f "run.sh" ]; then
-    ./run.sh
+    echo "Ejecutando run.sh"
+    if [ "$1" = "gdb" ]; then
+        ./run.sh gdb
+    else
+        ./run.sh
+    fi
 else
     echo "No se encontró run.sh en el directorio actual"
+    exit 1
 fi
