@@ -246,7 +246,7 @@ static void myClear(){
 
 
 static void proceso2(){
-    int aux = 10;
+    int aux = 25;
     while(aux--){
         printf("Proceso 2\n");
     }
@@ -255,11 +255,11 @@ static void proceso2(){
 
 
 static void proceso1(){
-    int aux = 5;
-    while(1){
+    int aux = 15;
+    while(aux--){
         printf("Proceso 1\n");
     }
-    //killProc(getPid());
+    killProc(getPid());
 }
 
 
@@ -268,18 +268,13 @@ static void testProcess(){
     char * argv2[] = { "P2" };
 	int16_t fileDescriptors[3] = { -1, 1, -1 };
     uint64_t pid1, pid2;
-    pid1=createProc((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);
+    pid1=createProc((uint64_t)proceso1, argv1, 1, 1, fileDescriptors, 0);
+    pid2=createProc((uint64_t)proceso2, argv2, 1, 1, fileDescriptors, 0);
     unblockProc(pid1);
-    //waitProcess(pid1);
-    int i = 50000;
-    while(i--){
-        if(i== 25000){
-            yield();
-            printf("por la mitad\n");
-        }
-    } 
-    killProc(pid1);
-    //pid2=createProc((uint64_t)proceso2, argv2, 1, 5, fileDescriptors, 0);
+    unblockProc(pid2);
+    waitProcess(pid1); 
+    waitProcess(pid2);
+    
 }
 
 

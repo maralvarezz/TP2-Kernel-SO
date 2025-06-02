@@ -78,7 +78,7 @@ int removeNode(linkedListADT list, void * info){
             }
             freeMemory(iter);
             list->size--;
-            printf("Nodo eliminado\n");
+            //printf("Nodo eliminado\n");
             return 1;
         }
         iter = iter->next;

@@ -141,7 +141,7 @@ uint64_t changeProcess(uint64_t actualRSP){
     }
     //si el proceso actual es el kernel, entonces tengo que sacar un proceso el primer proceso de la lista de listos y ponerlo a correr
     
-    if(scheduler->actualPid <= SHELLPID){      //si el proceso no existe, entonces no hay nada para correr   
+    if(scheduler->actualPid < SHELLPID){      //si el proceso no existe, entonces no hay nada para correr   
         scheduler->actualProcess->stackPos = actualRSP;
         scheduler->actualProcess = (TPCB) getFirst(scheduler->readyList);
         if(scheduler->actualProcess == NULL){
