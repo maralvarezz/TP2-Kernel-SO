@@ -3,7 +3,7 @@
 #include <string.h>
 #include <shell.h>
 #include <stdint.h>
-#include "../include/syscalls.h"
+#include <syscalls.h>
 #include <man.h>
 #include <libasm.h>
 
@@ -52,6 +52,7 @@ static void printMem(char * pos);
 static int getCommandIndex(char * command);
 static void myClear();
 static void testProcess();
+
 
 /*static Command commands[] = {
     { "help", "Listado de comandos", (functionType) help};
@@ -105,7 +106,7 @@ void run_shell() {
         char command[MAX_CHARS] = {0};
         char arg1[MAX_CHARS];
         char arg2[MAX_CHARS];
-        int qtyParams = scanf("%s %s %s", command, arg1, arg2); 
+        int qtyParams = scanf("%s %s %s", command, arg1, arg2);   
         index = getCommandIndex(command);
         if (index == -1) {
             if (command[0] != 0)
@@ -177,7 +178,7 @@ void run_shell() {
  */
 static int getCommandIndex(char * command) {
     int idx = 0;
-    for(; idx < QTY_COMMANDS+1; idx++){
+    for(; idx < QTY_COMMANDS; idx++){
         if(!strcmp(commands[idx].name, command))
             return idx;
     }    
@@ -185,7 +186,7 @@ static int getCommandIndex(char * command) {
 }
 
 static void help() {
-    for (int i = 0; i < QTY_COMMANDS+1; i++)
+    for (int i = 0; i < QTY_COMMANDS; i++)
         printf("%s: %s\r\n", commands[i].name, commands[i].description);
 }
 
@@ -243,28 +244,32 @@ static void myClear(){
     clear();
 }
 
-static void proceso1(){
-    while(1){
-        int aux = 5;
-        printf("Proceso 1\n");
-        while(aux--);
-    }
-}
 
 static void proceso2(){
-    while(1){
-        int aux = 5;
+    int aux = 10;
+    while(aux--){
         printf("Proceso 2\n");
-        while(aux--);
     }
+    killProc(getPid());
 }
+
+
+static void proceso1(){
+    int aux = 5;
+    while(aux--){
+        printf("Proceso 1\n");
+    }
+    killProc(getPid());
+}
+
 
 static void testProcess(){
     char * argv1[] = { "P1" };
-	char * argv2[] = { "P2" };
-    int16_t fileDescriptors[3] = { -1, 1, -1 };
+    char * argv2[] = { "P2" };
+	int16_t fileDescriptors[3] = { -1, 1, -1 };
     createProc((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);
     createProc((uint64_t)proceso2, argv2, 1, 5, fileDescriptors, 0);
 }
+
 
 //static void testMemManager()

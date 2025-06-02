@@ -11,8 +11,27 @@ GLOBAL getMemory
 GLOBAL kaboom
 GLOBAL setFontColor
 GLOBAL getFontColor
-
+GLOBAL getMemInfo
+GLOBAL exit
 GLOBAL createProc
+GLOBAL processInfo
+GLOBAL getPid
+GLOBAL killProc
+GLOBAL changePrio
+GLOBAL blockProc
+GLOBAL unblockProc
+GLOBAL yieldCPU
+GLOBAL chauCPU
+GLOBAL waitProcess
+GLOBAL openPipe
+GLOBAL closePipe
+GLOBAL semCreate
+GLOBAL semWait
+GLOBAL semPost
+GLOBAL semOpen
+GLOBAL semClose
+GLOBAL allocMem
+GLOBAL freeMem
 
 read:
     mov rax, 0
@@ -66,117 +85,118 @@ getMemory:
     ret
 
 setFontColor:
-    mov rax, 11
+    mov rax, 10
     int 80h
     ret
 
 getFontColor:
-    mov rax, 12
+    mov rax, 11
     int 80h
     ret
 
 getMemInfo:
-    mov rax, 13
+    mov rax, 12
     int 80h
     ret
 
 exit:
-    mov rax, 14
+    mov rax, 13
     int 80h
     ret
 
 createProc:
-    mov rax, 15
+    mov rax, 14
+    mov r10, rcx
     int 80h
     ret
 
 processInfo:
-    mov rax, 16
+    mov rax, 15
     int 80h
     ret
 
 getPid:
-    mov rax, 17
+    mov rax, 16
     int 80h
     ret
 
 killProc:
-    mov rax, 18
+    mov rax, 17
     int 80h
     ret
 
 changePrio:
-    mov rax, 19
+    mov rax, 18
     int 80h
     ret
 
 blockProc:
-    mov rax, 20
+    mov rax, 19
     int 80h
     ret
 
 unblockProc:
-    mov rax, 21
+    mov rax, 20
     int 80h
     ret
 
 yieldCPU:
-    mov rax, 22
+    mov rax, 21
     int 80h
     ret
 
 chauCPU:
-    mov rax, 23
+    mov rax, 22
     int 80h
     ret
 
 waitProcess:
-    mov rax, 24
+    mov rax, 23
     int 80h
     ret
 
 openPipe:
-    mov rax, 25
+    mov rax, 24
     int 80h
     ret
 
 closePipe:
-    mov rax, 26
+    mov rax, 25
     int 80h
     ret
 
 semCreate:
-    mov rax, 27
+    mov rax, 26
     int 80h
     ret
 
 semWait:
-    mov rax, 28
+    mov rax, 27
     int 80h
     ret
 
 semPost:
-    mov rax, 29
+    mov rax, 28
     int 80h
     ret
 
 semOpen:
-    mov rax, 30
+    mov rax, 29
     int 80h
     ret
 
 semClose:  
-    mov rax, 31
+    mov rax, 30
     int 80h
     ret
 
 allocMem:
-    mov rax, 32
+    mov rax, 31
     int 80h
     ret
 
 freeMem:
-    mov rax, 33
+    mov rax, 32
     int 80h
     ret
 

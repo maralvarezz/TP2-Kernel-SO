@@ -1,7 +1,6 @@
 #include "scheduler.h"
 
 #define MAX_PROCESSES 100
-#define PID_SHELL 0
 
 #define FQ 2
 
@@ -241,9 +240,15 @@ void killProcess(uint64_t pid){
     // despues de eso, libero la memoria del proceso y lo saco de las listas
     /* Necesito pipes para cerrar fd (ayudame sancho) */
     // no
+    TPCB shellProcess = getProcess(SHELLPID);
     removeNode(scheduler->readyList, process);
     scheduler->cantProcesses--;
+    if(scheduler->cantProcesses == 0){
+        addNode(scheduler->readyList, shellProcess);
+        scheduler->cantProcesses++;
+    }
     process->status= KILLED;
+    
     yieldProcess();
 }
 

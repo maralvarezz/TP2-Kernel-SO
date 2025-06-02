@@ -227,7 +227,6 @@ static memoryInfo_t syscall_memoryInfo(){
 
 static void syscall_exit(){
     killActualProcess();
-    yieldProcess();
 }
 
 static int syscall_createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
@@ -244,7 +243,6 @@ static uint64_t syscall_getPid(){
 
 static void syscall_killProcess(uint64_t pid){
     killProcess(pid);
-    yieldProcess();
 }
 
 static uint64_t syscall_changePriority(uint64_t pid, uint8_t priority){
