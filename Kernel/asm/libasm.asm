@@ -123,5 +123,5 @@ saveRegisters:
     ret
 
 timerTickInt:
-int 20h
-ret
+    int 20h
+    ret

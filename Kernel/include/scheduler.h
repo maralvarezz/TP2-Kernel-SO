@@ -16,7 +16,7 @@ void createScheduler();
 
 uint64_t changeProcess(uint64_t actualRSP);
 
-int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground);
+uint64_t createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground);
 
 void killProcess(uint64_t pid);
 

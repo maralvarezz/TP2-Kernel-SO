@@ -97,7 +97,7 @@ uint64_t changeProcess(uint64_t actualRSP){
 }
 
 /* Devuelve 0 si no se pudo crear y si no su pid */
-int createProcess(uint64_t rip, char **args, int argc, 
+uint64_t createProcess(uint64_t rip, char **args, int argc, 
                             uint8_t priority, int16_t fileDescriptors[], int ground){
     schedulerADT scheduler = getScheduler();
     if(scheduler == NULL){

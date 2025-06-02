@@ -256,10 +256,10 @@ static void proceso2(){
 
 static void proceso1(){
     int aux = 5;
-    while(aux--){
+    while(1){
         printf("Proceso 1\n");
     }
-    killProc(getPid());
+    //killProc(getPid());
 }
 
 
@@ -267,8 +267,19 @@ static void testProcess(){
     char * argv1[] = { "P1" };
     char * argv2[] = { "P2" };
 	int16_t fileDescriptors[3] = { -1, 1, -1 };
-    createProc((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);
-    createProc((uint64_t)proceso2, argv2, 1, 5, fileDescriptors, 0);
+    uint64_t pid1, pid2;
+    pid1=createProc((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);
+    unblockProc(pid1);
+    //waitProcess(pid1);
+    int i = 50000;
+    while(i--){
+        if(i== 25000){
+            yield();
+            printf("por la mitad\n");
+        }
+    } 
+    killProc(pid1);
+    //pid2=createProc((uint64_t)proceso2, argv2, 1, 5, fileDescriptors, 0);
 }
 
 

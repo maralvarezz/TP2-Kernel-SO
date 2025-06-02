@@ -140,12 +140,15 @@ uint64_t changeProcess(uint64_t actualRSP){
         return actualRSP;
     }
     //si el proceso actual es el kernel, entonces tengo que sacar un proceso el primer proceso de la lista de listos y ponerlo a correr
-
+    
     if(scheduler->actualPid <= SHELLPID){      //si el proceso no existe, entonces no hay nada para correr   
-        scheduler->actualProcess->stackPos = actualRSP; 
+        scheduler->actualProcess->stackPos = actualRSP;
         scheduler->actualProcess = (TPCB) getFirst(scheduler->readyList);
-        if(scheduler->actualProcess == NULL){   
+        if(scheduler->actualProcess == NULL){
             return actualRSP;
+        }
+        if(scheduler->actualProcess->pid != SHELLPID){
+            printf("NO soy la shell! \n");
         }
         //TPCB shellProcess = getProcess(SHELLPID);
         //shellProcess->stackPos = actualRSP;
@@ -167,14 +170,14 @@ uint64_t changeProcess(uint64_t actualRSP){
             removeNode(scheduler->totalProcesses, scheduler->actualProcess);
             freeProcess(scheduler->actualProcess);
             scheduler->cantProcesses--;
-            if(scheduler->cantProcesses == 1){
+            /*if(scheduler->cantProcesses == 1){
                 TPCB shellProcess = getProcess(SHELLPID);
                 if(shellProcess != NULL){
                     shellProcess->status = READY;
                     addNode(scheduler->readyList, shellProcess);
                     scheduler->cantProcesses++;
                 }
-            }
+            }*/
         }
     }
     //si el proceso actual es NULL, entonces tengo que sacar un proceso de la lista de listos y ponerlo a correr
@@ -200,7 +203,7 @@ uint64_t changeProcess(uint64_t actualRSP){
 }
 
 /* Devuelve 0 si no se pudo crear y si no su pid */
-int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
+uint64_t createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
     schedulerADT scheduler = getScheduler();
     if(scheduler == NULL){
         return 0;
@@ -223,7 +226,7 @@ int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t
     printf("Se construyó el proceso\n");
     addNode(scheduler->totalProcesses, newProcess);
     printf("Se agregó el proceso a la lista de procesos\n");
-    if(newProcess->pid < 1){ 
+    if(newProcess->pid > SHELLPID){ 
         newProcess->status = BLOCKED;
         addNode(scheduler->blockedList, newProcess);
     } 
@@ -248,6 +251,7 @@ void killProcess(uint64_t pid){
     if(process == NULL){
         return;
     }
+    
     //cuando implementemos sincro, tenemos que hacer aca que el proceso antes de liberar memoria, ponga en ready a los procesos que lo estan esperando
     // despues de eso, libero la memoria del proceso y lo saco de las listas
     /* Necesito pipes para cerrar fd (ayudame sancho) */
@@ -259,9 +263,71 @@ void killProcess(uint64_t pid){
     //     addNode(scheduler->readyList, shellProcess);
     //     scheduler->cantProcesses++;
     // }
-    process->status= KILLED;
-    yieldProcess();
+    if(process->status == READY){
+        removeNode(scheduler->readyList, process);
+    }
+    else if(process->status == BLOCKED){
+        removeNode(scheduler->blockedList, process);
+    
+    }
+    myKill(process);
+    yieldProcess(); 
 }
+
+void myKill(TPCB process){
+    if(process == NULL || process->pid==SHELLPID){
+        return;
+    }
+    schedulerADT scheduler = getScheduler();
+    if(scheduler == NULL){
+        return;
+    }
+    toBegin(process->waitingList);
+    while(hasNext(process->waitingList)){
+        TPCB blockedProcess = next(process->waitingList);
+        if(blockedProcess == NULL){
+            continue;
+        }
+        printf("desbloqueando proceso %d\n", blockedProcess->pid);
+        readyProcess(blockedProcess->pid);
+    }
+    process->status= KILLED;
+}
+
+//las girls
+// int64_t kill(schedulerADT scheduler, PCB *process) {
+// 	if (process->status == READY) {
+// 		if (removeNode(scheduler->readyProcess, process) == NULL) {
+// 			return -1;
+// 		}
+// 	}
+// 	else if (process->status == BLOCKED) {
+// 		if (removeNode(scheduler->blockedProcess, process) == NULL) {
+// 			return -1;
+// 		}
+// 	}
+
+// 	toBegin(process->waitingList);
+// 	PCB *aux;
+// 	while (hasNext(process->waitingList)) {
+// 		aux = nextInList(process->waitingList);
+// 		if (readyProcess(aux->pid) == -1) {
+// 			return -1;
+// 		}
+// 		readyProcess(aux->pid);
+// 	}
+// 	if (removeNode(scheduler->processList, process) == NULL) {
+// 		return -1;
+// 	}
+// 	process->status = KILLED;
+
+// 	scheduler->processQty--;
+
+// 	free(process);
+
+// 	return 0;
+// }
+
 
 void killActualProcess(){
     schedulerADT scheduler = getScheduler();

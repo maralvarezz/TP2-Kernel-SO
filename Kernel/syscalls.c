@@ -42,7 +42,7 @@ static void syscall_getMemory(uint64_t pos, uint8_t * vec);
 static void syscall_setFontColor(uint8_t r, uint8_t g, uint8_t b);
 static uint32_t syscall_getFontColor();
 static void syscall_exit();
-static int syscall_createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground);
+static uint64_t syscall_createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground);
 static TPInfo syscall_processInfo(uint64_t *processCant);
 static uint64_t syscall_getPid();
 static void syscall_killProcess(uint64_t pid);
@@ -229,7 +229,7 @@ static void syscall_exit(){
     killActualProcess();
 }
 
-static int syscall_createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
+static uint64_t syscall_createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
     return createProcess(rip, args, argc, priority, fileDescriptors, ground);
 }
 
@@ -256,7 +256,6 @@ static void syscall_blockProcess(uint64_t pid){
 
 static void syscall_unblockProcess(uint64_t pid){
     readyProcess(pid);
-    yieldProcess();
 }
 
 static void syscall_yield(){
