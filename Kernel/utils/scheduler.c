@@ -163,6 +163,7 @@ uint64_t changeProcess(uint64_t actualRSP){
         }
         else if(scheduler->actualProcess->status == KILLED){
             freeProcess(scheduler->actualProcess);
+            scheduler->cantProcesses--;
         }
     }
     //si el proceso actual es NULL, entonces tengo que sacar un proceso de la lista de listos y ponerlo a correr
@@ -241,14 +242,13 @@ void killProcess(uint64_t pid){
     /* Necesito pipes para cerrar fd (ayudame sancho) */
     // no
     TPCB shellProcess = getProcess(SHELLPID);
-    removeNode(scheduler->readyList, process);
-    scheduler->cantProcesses--;
-    if(scheduler->cantProcesses == 0){
-        addNode(scheduler->readyList, shellProcess);
-        scheduler->cantProcesses++;
-    }
+    //removeNode(scheduler->readyList, process);
+    //scheduler->cantProcesses--;
+    // if(scheduler->cantProcesses == 0){
+    //     addNode(scheduler->readyList, shellProcess);
+    //     scheduler->cantProcesses++;
+    // }
     process->status= KILLED;
-    
     yieldProcess();
 }
 
