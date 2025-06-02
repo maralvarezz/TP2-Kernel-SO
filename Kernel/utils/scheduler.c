@@ -141,12 +141,14 @@ uint64_t changeProcess(uint64_t actualRSP){
     }
     //si el proceso actual es el kernel, entonces tengo que sacar un proceso el primer proceso de la lista de listos y ponerlo a correr
 
-    if(scheduler->actualPid <= SHELLPID){      //si el proceso no existe, entonces no hay nada para correr    
+    if(scheduler->actualPid <= SHELLPID){      //si el proceso no existe, entonces no hay nada para correr   
+        scheduler->actualProcess->stackPos = actualRSP; 
         scheduler->actualProcess = (TPCB) getFirst(scheduler->readyList);
         if(scheduler->actualProcess == NULL){   
             return actualRSP;
         }
-        //actualizo los datos del proceso 
+        //TPCB shellProcess = getProcess(SHELLPID);
+        //shellProcess->stackPos = actualRSP;
         scheduler->quantum = scheduler->actualProcess->priority;
         scheduler->actualProcess->status = RUNNING;
         scheduler->actualPid = scheduler->actualProcess->pid;
@@ -162,8 +164,17 @@ uint64_t changeProcess(uint64_t actualRSP){
             addNode(scheduler->readyList, scheduler->actualProcess);
         }
         else if(scheduler->actualProcess->status == KILLED){
+            removeNode(scheduler->totalProcesses, scheduler->actualProcess);
             freeProcess(scheduler->actualProcess);
             scheduler->cantProcesses--;
+            if(scheduler->cantProcesses == 1){
+                TPCB shellProcess = getProcess(SHELLPID);
+                if(shellProcess != NULL){
+                    shellProcess->status = READY;
+                    addNode(scheduler->readyList, shellProcess);
+                    scheduler->cantProcesses++;
+                }
+            }
         }
     }
     //si el proceso actual es NULL, entonces tengo que sacar un proceso de la lista de listos y ponerlo a correr
@@ -241,7 +252,7 @@ void killProcess(uint64_t pid){
     // despues de eso, libero la memoria del proceso y lo saco de las listas
     /* Necesito pipes para cerrar fd (ayudame sancho) */
     // no
-    TPCB shellProcess = getProcess(SHELLPID);
+    //TPCB shellProcess = getProcess(SHELLPID);
     //removeNode(scheduler->readyList, process);
     //scheduler->cantProcesses--;
     // if(scheduler->cantProcesses == 0){
