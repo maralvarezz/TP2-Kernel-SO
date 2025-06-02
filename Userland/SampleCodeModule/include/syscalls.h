@@ -144,7 +144,7 @@ memoryInfo_t memoryInfo();
 
 void exit();
 
-int createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground);
+int createProc(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground);
 
 TPInfo processInfo(uint64_t *processCant);
 

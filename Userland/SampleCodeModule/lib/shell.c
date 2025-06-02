@@ -3,7 +3,7 @@
 #include <string.h>
 #include <shell.h>
 #include <stdint.h>
-#include <syscalls.h>
+#include "../include/syscalls.h"
 #include <man.h>
 #include <libasm.h>
 
@@ -51,6 +51,7 @@ static void fontSize(char * size);
 static void printMem(char * pos);
 static int getCommandIndex(char * command);
 static void myClear();
+static void testProcess();
 
 /*static Command commands[] = {
     { "help", "Listado de comandos", (functionType) help};
@@ -91,6 +92,7 @@ void init() {
     commands[7] = (Command){ "printmem", "Realiza un vuelco de memoria de los 32 bytes posteriores a una direccion de memoria en formato hexadecimal enviada por parametro", .g = (void*) &printMem, SINGLE_PARAM};
     commands[8] = (Command){ "clear", "Limpia toda la pantalla", .f = (void*) &myClear, NO_PARAMS};
     //commands[9] = (Command){ "testMemManager", "Corre un test para los memory managers", .g = (void*) &testMemManager, SINGLE_PARAM};
+    commands[9] = (Command){ "prueba", "corre 2 procesos en simultaneo que imprimen en pantalla para testear prioridades", .f = (void*)&testProcess, NO_PARAMS};
 }
 
 
@@ -175,7 +177,7 @@ void run_shell() {
  */
 static int getCommandIndex(char * command) {
     int idx = 0;
-    for(; idx < QTY_COMMANDS; idx++){
+    for(; idx < QTY_COMMANDS+1; idx++){
         if(!strcmp(commands[idx].name, command))
             return idx;
     }    
@@ -183,7 +185,7 @@ static int getCommandIndex(char * command) {
 }
 
 static void help() {
-    for (int i = 0; i < QTY_COMMANDS; i++)
+    for (int i = 0; i < QTY_COMMANDS+1; i++)
         printf("%s: %s\r\n", commands[i].name, commands[i].description);
 }
 
@@ -239,6 +241,30 @@ static void man(char * command){
 
 static void myClear(){
     clear();
+}
+
+static void proceso1(){
+    while(1){
+        int aux = 5;
+        printf("Proceso 1\n");
+        while(aux--);
+    }
+}
+
+static void proceso2(){
+    while(1){
+        int aux = 5;
+        printf("Proceso 2\n");
+        while(aux--);
+    }
+}
+
+static void testProcess(){
+    char * argv1[] = { "P1" };
+	char * argv2[] = { "P2" };
+    int16_t fileDescriptors[3] = { -1, 1, -1 };
+    createProc((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);
+    createProc((uint64_t)proceso2, argv2, 1, 5, fileDescriptors, 0);
 }
 
 //static void testMemManager()

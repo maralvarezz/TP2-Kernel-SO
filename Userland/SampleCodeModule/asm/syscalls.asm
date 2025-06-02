@@ -12,6 +12,8 @@ GLOBAL kaboom
 GLOBAL setFontColor
 GLOBAL getFontColor
 
+GLOBAL createProc
+
 read:
     mov rax, 0
     int 80h
