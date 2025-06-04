@@ -16,7 +16,7 @@ GLOBAL exit
 GLOBAL createProc
 GLOBAL processInfo
 GLOBAL getPid
-GLOBAL killProc
+GLOBAL killProcess
 GLOBAL changePrio
 GLOBAL blockProc
 GLOBAL unblockProc
@@ -120,7 +120,7 @@ getPid:
     int 80h
     ret
 
-killProc:
+killProcess:
     mov rax, 17
     int 80h
     ret

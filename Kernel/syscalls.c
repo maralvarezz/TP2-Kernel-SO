@@ -48,14 +48,14 @@ static uint64_t syscall_getPid();
 static void syscall_killProcess(uint64_t pid);
 static uint64_t syscall_changePriority(uint64_t pid, uint8_t priority);
 static void syscall_blockProcess(uint64_t pid);
-static void syscall_unblockProcess(uint64_t pid);
+static int syscall_unblockProcess(uint64_t pid);
 static void syscall_chauCPU();
 static int syscall_waitProcess(uint64_t pid);
 static TSem syscall_semCreate(uint8_t value);
 static void syscall_semWait(TSem sem);
 static void syscall_semPost(TSem sem);
 static void syscall_semOpen(TSem sem);
-static void syscall_semClose(TSem sem);
+static uint16_t syscall_semClose(TSem sem);
 static void syscall_yield();
 static uint16_t syscall_openPipe(uint16_t pid, uint8_t use);
 static uint16_t syscall_closePipe(uint16_t fd);
@@ -254,8 +254,8 @@ static void syscall_blockProcess(uint64_t pid){
     yieldProcess();
 }
 
-static void syscall_unblockProcess(uint64_t pid){
-    readyProcess(pid);
+static int syscall_unblockProcess(uint64_t pid){
+    return readyProcess(pid);
 }
 
 static void syscall_yield(){
@@ -294,8 +294,8 @@ static void syscall_semOpen(TSem sem){
     openSem(sem);
 }
 
-static void syscall_semClose(TSem sem){
-    closeSem(sem);
+static uint16_t syscall_semClose(TSem sem){
+    return closeSem(sem);
 }
 
 static void syscall_malloc(const size_t memoryToAllocate){

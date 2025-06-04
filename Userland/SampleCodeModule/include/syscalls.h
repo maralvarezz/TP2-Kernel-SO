@@ -154,9 +154,9 @@ void killProcess(uint64_t pid);
 
 uint64_t changePriority(uint64_t pid, uint8_t priority);
 
-void blockProcess(uint64_t pid);
+void blockProc(uint64_t pid);
 
-void unblockProcess(uint64_t pid);
+int unblockProc(uint64_t pid);
 
 void yield();
 
@@ -176,7 +176,7 @@ void semPost(TSem sem);
 
 void semOpen(TSem sem);
 
-void semClose(TSem sem);
+uint16_t semClose(TSem sem);
 
 void allocMem(size_t memoryToAllocate);
 

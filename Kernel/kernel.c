@@ -5,6 +5,7 @@
 #include <video.h>
 #include <memoryManager.h>
 #include "scheduler.h"
+#include "semaphore.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -47,6 +48,7 @@ void initializeKernelBinary()
 	loadModules(&endOfKernelBinary, moduleAddresses);
 	clearBSS(&bss, &endOfKernel - &bss);
 	memoryManagerPtr = createMemoryManager( memoryManagerModuleAddress, HEAPSIZE);
+	createSemaphores();
 }
 
 void proceso1(){
@@ -83,8 +85,8 @@ int main()
     
     createScheduler();
 	//char * argv[] = { "shell" };
-	char * argv1[] = { "P1" };
-	char * argv2[] = { "P2" };
+	//char * argv1[] = { "P1" };
+	//char * argv2[] = { "P2" };
 	//int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { -1, 1, -1 };
 	//createProcess((uint64_t)foo, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
 	//createProcess((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);

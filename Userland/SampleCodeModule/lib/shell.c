@@ -6,6 +6,7 @@
 #include <syscalls.h>
 #include <man.h>
 #include <libasm.h>
+#include <processes.h>
 
 /* Enum para la cantidad de argumentos recibidos */    
 #define QTY_BYTES 32 /* Cantidad de bytes de respuesta del printmem */
@@ -94,6 +95,7 @@ void init() {
     commands[8] = (Command){ "clear", "Limpia toda la pantalla", .f = (void*) &myClear, NO_PARAMS};
     //commands[9] = (Command){ "testMemManager", "Corre un test para los memory managers", .g = (void*) &testMemManager, SINGLE_PARAM};
     commands[9] = (Command){ "prueba", "corre 2 procesos en simultaneo que imprimen en pantalla para testear prioridades", .f = (void*)&testProcess, NO_PARAMS};
+    commands[10] = (Command){ "filosofos", "Implementa el problema de los filósofos comensales", .g = (void*)&mainPhilo, SINGLE_PARAM};
 }
 
 
@@ -250,7 +252,7 @@ static void proceso2(){
     while(aux--){
         printf("Proceso 2\n");
     }
-    killProc(getPid());
+    killProcess(getPid());
 }
 
 
@@ -259,7 +261,7 @@ static void proceso1(){
     while(aux--){
         printf("Proceso 1\n");
     }
-    killProc(getPid());
+    killProcess(getPid());
 }
 
 

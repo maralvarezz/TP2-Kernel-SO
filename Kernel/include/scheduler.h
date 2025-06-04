@@ -34,6 +34,8 @@ uint64_t getActualPid();
 
 void killActualProcess();
 
+void myKill(TPCB process);
+
 void timerTickInt();
 
 typedef struct PInfo{
