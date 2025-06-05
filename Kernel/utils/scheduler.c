@@ -21,26 +21,26 @@ schedulerADT scheduler = NULL;
 uint8_t createdScheduler = 0;
 
 void createScheduler(){
-    printf("creando scheduler\n");
+    
     scheduler =(schedulerADT) allocMemory(sizeof(schedulerCDT));
     if(scheduler == NULL){
         return;
     }
-    printf("creo lista\n");
+    
     scheduler->totalProcesses = createList();
     if(scheduler->totalProcesses == NULL){
         freeMemory(scheduler);
         return;
     }
 
-    printf("scheduler->totalProcesses = %d\n", (uint64_t)scheduler->totalProcesses);
+    
     scheduler->readyList = createList();
     if(scheduler->readyList == NULL){
         freeMemory(scheduler->totalProcesses);
         freeMemory(scheduler);
         return;
     }
-    printf("scheduler->readyList = %d\n", (uint64_t)scheduler->readyList);
+    
     scheduler->blockedList = createList();
     if(scheduler->blockedList == NULL){
         freeMemory(scheduler->readyList);
@@ -48,7 +48,7 @@ void createScheduler(){
         freeMemory(scheduler);
         return;
     }
-    printf("scheduler->blockedList = %d\n", (uint64_t)scheduler->blockedList);
+    
     
     scheduler->actualProcess = NULL;    
     scheduler->actualPid = -1;
@@ -147,9 +147,6 @@ uint64_t changeProcess(uint64_t actualRSP){
         if(scheduler->actualProcess == NULL){
             return actualRSP;
         }
-        if(scheduler->actualProcess->pid != SHELLPID){
-            printf("NO soy la shell! \n");
-        }
         scheduler->quantum = scheduler->actualProcess->priority;
         scheduler->actualProcess->status = RUNNING;
         scheduler->actualPid = scheduler->actualProcess->pid;
@@ -203,7 +200,6 @@ uint64_t createProcess(uint64_t rip, char **args, int argc, uint8_t priority, in
     }
 
     TPCB newProcess = allocMemory(sizeof(PCB_t));
-    printf("newProcess: %d\n", (uint64_t)newProcess);
     if(newProcess == NULL){
         return 0;
     }
@@ -212,9 +208,7 @@ uint64_t createProcess(uint64_t rip, char **args, int argc, uint8_t priority, in
         freeMemory(newProcess);
         return 0;
     }
-    printf("Se construyó el proceso\n");
     addNode(scheduler->totalProcesses, newProcess);
-    printf("Se agregó el proceso a la lista de procesos\n");
     if(newProcess->pid > SHELLPID){ 
         newProcess->status = BLOCKED;
         addNode(scheduler->blockedList, newProcess);
@@ -226,7 +220,6 @@ uint64_t createProcess(uint64_t rip, char **args, int argc, uint8_t priority, in
 
     scheduler->cantProcesses++;
     scheduler->nextPid++;
-    printf("Termino el create\n");
     return newProcess->pid;
 }
 
@@ -277,7 +270,6 @@ void myKill(TPCB process){
         if(blockedProcess == NULL){
             continue;
         }
-        printf("desbloqueando proceso %d\n", blockedProcess->pid);
         readyProcess(blockedProcess->pid);
     }
     process->status= KILLED;
@@ -393,7 +385,6 @@ void yieldProcess(){
     }
     scheduler->quantum = 0;
     timerTickInt();
-    //deberia directamente llamar a la funcion que se llama cuando el timerTick interrumpe  
 }
 
 schedulerADT getScheduler(){

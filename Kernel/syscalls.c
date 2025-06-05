@@ -51,10 +51,10 @@ static void syscall_blockProcess(uint64_t pid);
 static int syscall_unblockProcess(uint64_t pid);
 static void syscall_chauCPU();
 static int syscall_waitProcess(uint64_t pid);
-static TSem syscall_semCreate(uint8_t value);
+static TSem syscall_semCreate(uint8_t value, char *name);
 static void syscall_semWait(TSem sem);
 static void syscall_semPost(TSem sem);
-static void syscall_semOpen(TSem sem);
+static TSem syscall_semOpen(char * name);
 static uint16_t syscall_semClose(TSem sem);
 static void syscall_yield();
 static uint16_t syscall_openPipe(uint16_t pid, uint8_t use);
@@ -278,8 +278,8 @@ static uint16_t syscall_closePipe(uint16_t fd){
     return closePipe(fd);
 }
 
-static TSem syscall_semCreate(uint8_t value){
-    return buildSemaphore(value);
+static TSem syscall_semCreate(uint8_t value, char *name){
+    return buildSemaphore(value, name);
 }
 
 static void syscall_semWait(TSem sem){
@@ -290,8 +290,8 @@ static void syscall_semPost(TSem sem){
     postSemaphore(sem);
 }
 
-static void syscall_semOpen(TSem sem){
-    openSem(sem);
+static TSem syscall_semOpen(char * name){
+    return openSem(name);
 }
 
 static uint16_t syscall_semClose(TSem sem){

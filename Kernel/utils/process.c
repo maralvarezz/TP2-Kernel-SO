@@ -6,23 +6,18 @@ uint64_t setStackFrame(uint64_t stackBase, uint64_t code, int argc, char *args[]
 
 int buildProcess(TPCB process, int16_t pid, uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
     process->pid = pid;
-    printf("entro al buildProcess\n");
     void * stack = allocMemory(STACK_SIZE);
     if(stack == NULL){
         return -1;
     }
-    printf("paso la alocacion de stack\n");
     process->stackBase = (uint64_t) stack + STACK_SIZE; // porque crece hacia abajo
     process->argv = allocateArgv( args, argc);
-    printf("se aloco el argv\n");
     if (process->argv == NULL) {
         freeMemory((void *) (process->stackBase - STACK_SIZE));
         return -1;
     }
-    printf("soy deficiente\n");
     process->argc = argc;
     process->name = allocMemory(my_strlen(args[0]) + 1);
-    printf("se aloco el name\n");
     if (process->name == NULL) {
         freeMemory((void *) (process->stackBase - STACK_SIZE));
         freeArgv(process->argv, argc);
@@ -30,11 +25,8 @@ int buildProcess(TPCB process, int16_t pid, uint64_t rip, char **args, int argc,
     }
     my_strcpy(process->name, args[0]);
     process->rip = rip;
-    printf("priority %d\n",priority);
     process->priority = priority;
-    printf("stack: %d\n", (uint64_t)process->stackBase);
     process->stackPos = setStackFrame(process->stackBase, process->rip, argc, process->argv);
-    printf("stack: %d\n", (uint64_t)process->stackBase);
     if (process->pid < 1) {
         process->status = BLOCKED;
     }else{

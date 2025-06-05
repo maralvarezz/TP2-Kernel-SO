@@ -1,5 +1,6 @@
 #include "semaphore.h"
 
+
 #define CANT_SEMS 64
 #define MAX_NAME_LEN 16
 
@@ -44,7 +45,7 @@ void createSemaphores(){
 
 TSem buildSemaphore(uint8_t value, char *name){
     semaphoreADT sem = getSemaphore();
-    if(sem == NULL || sem->cantOccupied == CANT_SEMS || name == NULL || strlen(name) >= MAX_NAME_LEN){
+    if(sem == NULL || sem->cantOccupied == CANT_SEMS || name == NULL || my_strlen(name) >= MAX_NAME_LEN){
         return NULL;
     }
 
@@ -55,7 +56,7 @@ TSem buildSemaphore(uint8_t value, char *name){
     sem->semVec[sem->nextIdx].occupied = 1;
     sem->semVec[sem->nextIdx].value = value;
     sem->semVec[sem->nextIdx].idx = sem->nextIdx;
-    my_strcpy(sem->semVec[sem->nextIdx].name, name, MAX_NAME_LEN);
+    my_strcpy(sem->semVec[sem->nextIdx].name, name);
 
     TSem toRet = &sem->semVec[sem->nextIdx];
     sem->nextIdx = (sem->nextIdx + 1)  % CANT_SEMS;
@@ -117,19 +118,18 @@ semaphoreADT getSemaphore(){
 }
 
 
-Tsem openSem(char * name){
+TSem openSem(char * name){
     semaphoreADT sem = getSemaphore();
     if(sem == NULL || name == NULL){
         return NULL;
     }
     for(int i = 0; i < CANT_SEMS; i++){
-        if(sem->semVec[i].occupied == 1 && my_strcmp(sem->semVec[i].name, name, MAX_NAME_LEN) == 0){
+        if(sem->semVec[i].occupied == 1 && strcmp(sem->semVec[i].name, name) == 0){
             return &sem->semVec[i];
         }
     }
     return NULL;
 }
-
 
 uint16_t closeSem(TSem sem){
     if(sem->occupied == 0){

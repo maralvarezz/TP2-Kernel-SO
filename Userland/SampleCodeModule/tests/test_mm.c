@@ -75,86 +75,47 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     uint64_t max_memory;
 
     if (argc != 1) {
-         printf("test_mm ERROR: Se esperaba 1 argumento (max_memory), recibidos %ld\n", argc); 
-         return -1; 
+        return -1; 
     }
 
     max_memory = satoi(argv[0]);
 
     if (max_memory <= 0) {
-        printf("test_mm ERROR: max_memory invalido (%s -> %ld)\n", argv[0], max_memory); 
         return -1; 
     }
 
     rq = 0;
     total = 0;
 
-    printf("Iniciando test_mm con max_memory = %ld bytes\n", max_memory);
-
-    printf("Fase 1: Solicitando bloques de memoria...\n");
     while (rq < MAX_BLOCKS && total < max_memory) {
         uint32_t size_to_alloc = GetUniform(max_memory - total - 1) + 1;
-        if (size_to_alloc == 0) size_to_alloc = 1; 
-
         mm_rqs[rq].address = malloc(size_to_alloc);
 
         if (mm_rqs[rq].address != NULL) {
             mm_rqs[rq].size = size_to_alloc;
             total += mm_rqs[rq].size; 
             rq++;
-        } else {
-            printf(" Malloc devolvio NULL (bloque %d, intento size=%d, total acumulado=%d)\n", rq, size_to_alloc, total);
-            break; 
         }
     }
-     printf(" -> Se solicitaron %d bloques, sumando %d bytes.\n", rq, total);
 
     uint32_t i;
-    printf("Fase 2: Escribiendo en la memoria asignada...\n");
     for (i = 0; i < rq; i++) {
         if (mm_rqs[i].address) {
             memset(mm_rqs[i].address, i % 256, mm_rqs[i].size); 
-
-            if (i == 0) {
-                printf("DEBUG: Verificando bloque 0 inmediatamente despues de su memset...\n");
-                if (!memcheck(mm_rqs[0].address, 0, mm_rqs[0].size)) {
-                    printf("DEBUG: ERROR! Bloque 0 corrupto INMEDIATAMENTE despues de memset!\n");
-                    // Podrías imprimir los primeros bytes para ver qué hay
-                    uint8_t* temp_ptr = (uint8_t*)mm_rqs[0].address;
-                    printf("DEBUG: Primeros bytes: %x %x %x %x\n", temp_ptr[0], temp_ptr[1], temp_ptr[2], temp_ptr[3]);
-                } else {
-                    printf("DEBUG: Bloque 0 OK inmediatamente despues de su memset.\n");
-            }
-        }
         }
     }
-     printf(" -> Escritura completada.\n");
 
-    printf("Fase 3: Verificando contenido de la memoria...\n");
     for (i = 0; i < rq; i++) {
         if (mm_rqs[i].address) {
-            if (!memcheck(mm_rqs[i].address, i % 256, mm_rqs[i].size)) { 
-                printf("test_mm ERROR: Fallo de verificacion en bloque %d! Addr=%p, Size=%d, Expected=(uint8_t)%d (0x%d)\n",
-                i, mm_rqs[i].address, mm_rqs[i].size, (uint8_t)(i % 256), (uint8_t)(i % 256));
-                for (uint32_t j = 0; j < rq; j++) {
-                    if(mm_rqs[j].address) free(mm_rqs[j].address);
-                }
+            if (!memcheck(mm_rqs[i].address, i , mm_rqs[i].size)) { 
                 return -1; 
             }
         }
     }
-     printf(" -> Verificacion completada.\n");
 
-    printf("Fase 4: Liberando memoria...\n");
     for (i = 0; i < rq; i++) {
         if (mm_rqs[i].address) {
             free(mm_rqs[i].address); 
         }
     }
-     printf(" -> Memoria liberada.\n");
-
-
-    printf("test_mm completado con EXITO!\n");
-    
-    return 0; 
 }

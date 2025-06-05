@@ -26,9 +26,9 @@
 typedef void (* functionType) (int argc, char * argv[]);
 
 typedef struct {
-    char * name;                    // Nombre del comando
-    char * description;             // Descripcion del comando (para help)
-    functionType ftype;             // Cantidad de argumentos del comando
+    char * name;                    
+    char * description;             
+    functionType ftype;             
 } Command;
 */
 
@@ -73,7 +73,6 @@ static void testProcess();
     { "ps", "Imprime la lista de todos los procesos con sus propiedades", (functionType) ps};
     { "kill", "Mata un proceso dado su ID", (functionType) kill};
     { "nice", "Cambia la prioridad de un proceso dado su ID y la nueva prioridad", (functionType) nice};
-    
     { "loop", "Imprime el ID del proceso con un saludo cada una determinada cantidad de segundos",(functionType) loop};
     { "cat", "Imprime el stdin tal como lo recibe", (functionType) cat};
     { "wc", "Cuenta la cantidad de lineas del input", (functionType) wc};

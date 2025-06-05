@@ -168,13 +168,13 @@ uint16_t openPipe(uint16_t pid, uint8_t use);
 
 uint16_t closePipe(uint16_t fd);
 
-TSem semCreate(uint8_t value);
+TSem semCreate(uint8_t value, char * name);
 
 void semWait(TSem sem);
 
 void semPost(TSem sem);
 
-void semOpen(TSem sem);
+TSem semOpen(char * name);
 
 uint16_t semClose(TSem sem);
 

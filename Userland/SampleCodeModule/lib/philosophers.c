@@ -135,7 +135,7 @@ void startPhilosophers(){
 static void sumPhilo(){
     semWait(mutexPhilo);
     philosophers[cantPhilo].state = THINKING;
-    philosophers[cantPhilo].semPhilo = semCreate(0);
+    philosophers[cantPhilo].semPhilo = semCreate(0, "semPhilo");
     if(philosophers[cantPhilo].semPhilo == NULL){
         semWait(printSemPhilo);
         printf("Error al crear el semaforo del filosofo %d.\n", cantPhilo);

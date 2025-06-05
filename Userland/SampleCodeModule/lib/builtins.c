@@ -1,5 +1,6 @@
 #include <syscalls.h>
 #include "builtins.h"
+#include "stdlib.h"
 
 void memInfo(int argc, char *argv[]) {
     if (argc != 0) {
@@ -7,10 +8,6 @@ void memInfo(int argc, char *argv[]) {
         return;
     }
     memoryInfo_t info = memoryInfo();
-    if(info == NULL) {
-        printf("Error al obtener la información de memoria.\n");
-        return;
-    }
     printf("Memoria total: %d bytes\n", (int)info.size);
     printf("Memoria usada: %d bytes\n", (int)info.used);
     printf("Memoria libre: %d bytes\n", (int)info.free);
@@ -26,7 +23,7 @@ void block(int argc, char *argv[]) {
         printf("PID inválido.\n");
         return;
     }
-    blockProcess(pid)
+    blockProc(pid);
     printf("Proceso %d bloqueado.\n", pid);
 }
 
@@ -40,7 +37,7 @@ void unblock(int argc, char *argv[]) {
         printf("PID inválido, debe ser un número mayor a 1.\n");
         return;
     }
-    unblockProcess(pid)
+    unblockProc(pid);
     printf("Proceso %d desbloqueado.\n", pid);
 }
 
@@ -50,9 +47,9 @@ void ps(int argc, char *argv[]){
         return;
     }
 
-    uint16_t cantProcess;
+    uint64_t cantProcess;
 
-    TPInfo * processes = processInfo(&cantProcess);
+    TPInfo processes = processInfo(&cantProcess);
 
     if(processes == NULL || cantProcess == 0){
         printf("No hay procesos en ejecución.\n");
@@ -62,8 +59,8 @@ void ps(int argc, char *argv[]){
     printf("Los %d procesos en ejecución son:\n", cantProcess);
 
     for(int i = 0; i < cantProcess; i++) {
-        TPInfo process = processes[i];
-        printf("PID: %d, Nombre: %s, Estado: %s, Priority: %d, Ground: %s, StackPos: %d, StackBase: %d, RIP: %d\n", process.pid, process.name, process.state == 0 ? "Activo" : "Bloqueado", process.priority, process.ground == 0 ? "Background" : "Foreground", process.stackPos, process.stackBase, process.rip);
+        PInfo process = processes[i];
+        printf("PID: %d, Nombre: %s, Estado: %s, Priority: %d, Ground: %s, StackPos: %d, StackBase: %d, RIP: %d\n", process.pid, process.name, process.status == 0 ? "Activo" : "Bloqueado", process.priority, process.ground == 0 ? "Background" : "Foreground", process.stackPos, process.stackBase, process.rip);
     }
     
     //aca faltaria un free??????? (de processes)

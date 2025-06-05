@@ -27,10 +27,27 @@ char * usages [QTY_COMMANDS] = { "Uso: help - muestra todos los comandos que exi
 
                               "Uso: ps - muestra el PID, nombre, estado, priority, ground, stackPos, stackBase y RIP de los procesos que se estan ejecutando en el sistema. No recibe parametros",
 
-                              "Uso: kill [PID] - mata el proceso cuyo PID se envia como parametro. Recibe un numero natural que es el PID del proceso\n"
+                              "Uso: kill [PID] - mata el proceso cuyo PID se envia como parametro. Recibe un numero natural que es el PID del proceso\n",
 
-                              "Uso: nice [PID] [PRIORIDAD] - cambia la prioridad del proceso cuyo PID se envia como parametro. Recibe un numero natural que es el PID del proceso y un numero natural que es la nueva prioridad del proceso\n"
+                              "Uso: nice [PID] [PRIORIDAD] - cambia la prioridad del proceso cuyo PID se envia como parametro. Recibe un numero natural que es el PID del proceso y un numero natural que es la nueva prioridad del proceso\n",
 
-                              
+                              "Uso: loop [SEGUNDOS] - ejecuta un bucle y cada SEGUNDOS imprime un saludo en pantalla. Recibe un numero natural que es el intervalo de segundos entre cada saludo\n",
+
+                              "Uso: cat - imprime el STDIN como lo recibe. No recibe parametros",
+
+                              "Uso: wc - imprime la cantidad de lineas del input. No recibe parametros",
+
+                              "Uso: filter - imprime solamente las vocales del input. No recibe parametros",
+
+                              "Uso: phylo - ejecuta la solucion del problema de los filosofos comensales. No recibe parametros",
+
+                              "Uso: testMemManager - ejecuta un test de la memoria. No recibe parametros",
+
+                              "Uso: testPriority - ejecuta un test de prioridades. No recibe parametros",
+
+                              "Uso: testProcesses - ejecuta un test de procesos. No recibe parametros",
+
+                              "Uso: testSync - ejecuta un test de sincronizacion. No recibe parametros"
+
                             };
 #endif

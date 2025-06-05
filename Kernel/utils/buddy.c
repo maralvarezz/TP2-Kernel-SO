@@ -48,7 +48,6 @@ MemoryManagerADT createMemoryManager(void * const restrict memoryForMemoryManage
     for (uint64_t i = 0; i < CANTNODES; i++) {
         memoryManager->tree[i].state = FREE;
     }
-    printf("terminé de crear la memoria\n");
     return memoryManager;
 }
 
@@ -65,12 +64,10 @@ void * allocMemory(const size_t memoryToAllocate){
     uint64_t nodo = getNewNode(exponent);
     printf("nodo: %d\n", nodo);
     if(nodo == -1){
-        printf("no hay espacio\n");
         return NULL;
     }
     splitTree(nodo);
     setSplitedChildren(nodo);
-    printf("se spliteo\n", nodo);
     memoryManager->tree[nodo].state = OCCUPIED;
     memoryManager->used += POW_2(exponent);
     return (void *) (memoryManager->treeStart + nodo * POW_2(exponent));
