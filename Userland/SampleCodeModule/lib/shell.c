@@ -13,6 +13,8 @@
 #define DEFAULT_FONT_SIZE 1
 #define MIN_FONT_SIZE 1
 #define MAX_FONT_SIZE 3
+#define BUILT_INS 14
+#define PROCESSES 9
 
 #define WELCOME "Bienvenido a eSeMeMe SO!\n"
 #define INVALID_COMMAND "Comando invalido!\n"
@@ -65,18 +67,20 @@ static void testProcess();
     { "font-size", "Cambio de dimensiones de la fuente. Para hacerlo escribir el comando seguido de un numero", (functionType) fontSize};
     { "printmem", "Realiza un vuelco de memoria de los 32 bytes posteriores a una direccion de memoria en formato hexadecimal enviada por parametro", (functionType) printmem};
     { "clear", "Limpia toda la pantalla", (functionType) myClear};
-    /*{ "mem", "Imprime el estado de la memoria", (functionType) mem};
+    { "mem", "Imprime el estado de la memoria", (functionType) memInfo};
+    { "block", "Cambia el estado de un proceso entre bloqueado y listo dado su ID", (functionType) block};
+    { "unblock", "Cambia el estado de un proceso entre listo y bloqueado dado su ID", (functionType) unblock};
     { "ps", "Imprime la lista de todos los procesos con sus propiedades", (functionType) ps};
-    { "loop", "Imprime el ID del proceso con un saludo cada una determinada cantidad de segundos",(functionType) loop};
     { "kill", "Mata un proceso dado su ID", (functionType) kill};
     { "nice", "Cambia la prioridad de un proceso dado su ID y la nueva prioridad", (functionType) nice};
-    { "block", "Cambia el estado de un proceso entre bloqueado y listo dado su ID", (functionType) block};
+    
+    { "loop", "Imprime el ID del proceso con un saludo cada una determinada cantidad de segundos",(functionType) loop};
     { "cat", "Imprime el stdin tal como lo recibe", (functionType) cat};
     { "wc", "Cuenta la cantidad de lineas del input", (functionType) wc};
     { "filter", "Filtra las vocales del input", (functionType) filter};
-    { "phylo", "Implementa el problema de los filósofos comensales", (functionType) phylo};
+    { "phylo", "Implementa el problema de los filósofos comensales", (functionType) mainPhilo};
     { "testMemManager", "Corre un test para los memory managers", (functionType) testMemManager};
-    { "testPrio", "Corre un test de prioridades", (functionType) testPrio};
+    { "testPriority", "Corre un test de prioridades", (functionType) testPriority};
     { "testProcesses", "Corre un test de procesos", (functionType) testProcesses};
     { "testSync", "Corre un test de sincronizacion", (functionType) testSync};
 };*/
@@ -189,6 +193,12 @@ static int getCommandIndex(char * command) {
 
 static void help() {
     for (int i = 0; i < QTY_COMMANDS; i++)
+        if(i == 0)
+            printf("-----------------Built-in commands-----------------\n");
+
+        if(i == BUILT_INS)
+            printf("-----------------Processes commands-----------------\n");
+        
         printf("%s: %s\r\n", commands[i].name, commands[i].description);
 }
 

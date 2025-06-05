@@ -24,7 +24,6 @@ typedef struct pipesCDT{
     uint16_t cantPipes;
 } pipesCDT;
 
-
 pipesADT pipesM = NULL;
 
 void pipesCreate(){

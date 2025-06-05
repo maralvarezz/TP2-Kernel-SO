@@ -10,7 +10,7 @@
 #define BUFFERSIZE 2 //Tamaño del buffer necesario para los filósofos
 
 typedef enum {
-    THINKING,
+    THINKING = 0,
     HUNGRY,
     EATING
 } philoState;
@@ -53,7 +53,7 @@ void mainPhilo(int argc, char *argv[]){
         exit();
         return;
     }
-    mutexPhilo = semCreate(1);
+    mutexPhilo = semCreate(1,"mutexPhilo");
     if(mutexPhilo == NULL){
         semWait(printSemPhilo);
         printf("Error al crear el semaforo de mutex.\n");
@@ -61,7 +61,7 @@ void mainPhilo(int argc, char *argv[]){
         exit();
         return;
     }
-    printSemPhilo = semCreate(1);
+    printSemPhilo = semCreate(1,"printSemPhilo");
     if(printSemPhilo == NULL){
         semWait(printSemPhilo);
         printf("Error al crear el semaforo de impresion.\n");

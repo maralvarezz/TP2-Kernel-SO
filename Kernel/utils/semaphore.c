@@ -1,6 +1,7 @@
 #include "semaphore.h"
 
 #define CANT_SEMS 64
+#define MAX_NAME_LEN 16
 
 extern void waitingProcess(uint8_t *state);
 extern void liberateProcess(uint8_t *state);
@@ -9,6 +10,7 @@ typedef struct semaphore_t{
     uint8_t idx;
     uint8_t value;
     uint8_t occupied;
+    char name[MAX_NAME_LEN];
     linkedListADT waitingList; 
 }semaphore_t;
 
@@ -36,12 +38,13 @@ void createSemaphores(){
         if(semaphore->semVec[i].waitingList == NULL){
             return;
         }
+        semaphore->semVec[i].name[0] = '\0';
     }
 }
 
-TSem buildSemaphore(uint8_t value){
+TSem buildSemaphore(uint8_t value, char *name){
     semaphoreADT sem = getSemaphore();
-    if(sem == NULL || sem->cantOccupied == CANT_SEMS){
+    if(sem == NULL || sem->cantOccupied == CANT_SEMS || name == NULL || strlen(name) >= MAX_NAME_LEN){
         return NULL;
     }
 
@@ -52,6 +55,7 @@ TSem buildSemaphore(uint8_t value){
     sem->semVec[sem->nextIdx].occupied = 1;
     sem->semVec[sem->nextIdx].value = value;
     sem->semVec[sem->nextIdx].idx = sem->nextIdx;
+    my_strcpy(sem->semVec[sem->nextIdx].name, name, MAX_NAME_LEN);
 
     TSem toRet = &sem->semVec[sem->nextIdx];
     sem->nextIdx = (sem->nextIdx + 1)  % CANT_SEMS;
@@ -111,9 +115,19 @@ void postSemaphore(TSem sem){
 semaphoreADT getSemaphore(){
     return semaphore;
 }
-//podria no ir creemos check
-uint16_t openSem(TSem sem){
-    return sem->occupied * (-1);
+
+
+Tsem openSem(char * name){
+    semaphoreADT sem = getSemaphore();
+    if(sem == NULL || name == NULL){
+        return NULL;
+    }
+    for(int i = 0; i < CANT_SEMS; i++){
+        if(sem->semVec[i].occupied == 1 && my_strcmp(sem->semVec[i].name, name, MAX_NAME_LEN) == 0){
+            return &sem->semVec[i];
+        }
+    }
+    return NULL;
 }
 
 

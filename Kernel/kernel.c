@@ -6,6 +6,7 @@
 #include <memoryManager.h>
 #include "scheduler.h"
 #include "semaphore.h"
+#include "pipes.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -49,6 +50,7 @@ void initializeKernelBinary()
 	clearBSS(&bss, &endOfKernel - &bss);
 	memoryManagerPtr = createMemoryManager( memoryManagerModuleAddress, HEAPSIZE);
 	createSemaphores();
+	pipesCreate();
 }
 
 void proceso1(){

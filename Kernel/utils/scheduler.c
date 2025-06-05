@@ -150,8 +150,6 @@ uint64_t changeProcess(uint64_t actualRSP){
         if(scheduler->actualProcess->pid != SHELLPID){
             printf("NO soy la shell! \n");
         }
-        //TPCB shellProcess = getProcess(SHELLPID);
-        //shellProcess->stackPos = actualRSP;
         scheduler->quantum = scheduler->actualProcess->priority;
         scheduler->actualProcess->status = RUNNING;
         scheduler->actualPid = scheduler->actualProcess->pid;
@@ -170,14 +168,6 @@ uint64_t changeProcess(uint64_t actualRSP){
             removeNode(scheduler->totalProcesses, scheduler->actualProcess);
             freeProcess(scheduler->actualProcess);
             scheduler->cantProcesses--;
-            /*if(scheduler->cantProcesses == 1){
-                TPCB shellProcess = getProcess(SHELLPID);
-                if(shellProcess != NULL){
-                    shellProcess->status = READY;
-                    addNode(scheduler->readyList, shellProcess);
-                    scheduler->cantProcesses++;
-                }
-            }*/
         }
     }
     //si el proceso actual es NULL, entonces tengo que sacar un proceso de la lista de listos y ponerlo a correr
@@ -194,7 +184,6 @@ uint64_t changeProcess(uint64_t actualRSP){
             return scheduler->actualProcess->stackPos;
         }
     }
-    //addNode(scheduler->readyList,auxProcess); 
     scheduler->actualProcess = auxProcess;
     scheduler->actualProcess->status = RUNNING;
     scheduler->quantum = scheduler->actualProcess->priority;

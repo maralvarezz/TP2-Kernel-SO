@@ -10,7 +10,7 @@ typedef struct semaphore_t * TSem;
 
 void createSemaphores();
 
-TSem buildSemaphore(uint8_t value);
+TSem buildSemaphore(uint8_t value,char *name);
 
 void waitSemaphore(TSem sem);
 
@@ -18,7 +18,7 @@ void postSemaphore(TSem sem);
 
 semaphoreADT getSemaphore();
 
-uint16_t openSem(TSem sem);
+TSem openSem(char *name);
 
 uint16_t closeSem(TSem sem);
 

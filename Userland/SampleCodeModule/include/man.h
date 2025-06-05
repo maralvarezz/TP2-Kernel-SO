@@ -21,6 +21,16 @@ char * usages [QTY_COMMANDS] = { "Uso: help - muestra todos los comandos que exi
                               "Uso: printmem [DIR] - imprime los primeros 32 bytes de memoria a partir de una direccion de memoria enviada como parametro\n"
                               "Ejemplo: printmem 10ff8c",
                               
-                              "Uso: clear - limpia la pantalla. No recibe parametros"
-                              };
+                              "Uso: clear - limpia la pantalla. No recibe parametros",
+
+                              "Uso: mem - imprime el estado de la memoria. No recibe parametros",
+
+                              "Uso: ps - muestra el PID, nombre, estado, priority, ground, stackPos, stackBase y RIP de los procesos que se estan ejecutando en el sistema. No recibe parametros",
+
+                              "Uso: kill [PID] - mata el proceso cuyo PID se envia como parametro. Recibe un numero natural que es el PID del proceso\n"
+
+                              "Uso: nice [PID] [PRIORIDAD] - cambia la prioridad del proceso cuyo PID se envia como parametro. Recibe un numero natural que es el PID del proceso y un numero natural que es la nueva prioridad del proceso\n"
+
+                              
+                            };
 #endif
