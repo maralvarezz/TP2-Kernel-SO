@@ -11,6 +11,7 @@ typedef struct semaphore_t{
     uint8_t idx;
     int8_t value;
     uint8_t occupied;
+    uint8_t state;
     char name[MAX_NAME_LEN];
     linkedListADT waitingList; 
 }semaphore_t;
@@ -40,6 +41,7 @@ void createSemaphores(){
             return;
         }
         semaphore->semVec[i].name[0] = '\0';
+        semaphore->semVec[i].state = 0;
     }
 }
 
@@ -69,24 +71,26 @@ void waitSemaphore(TSem sem){
     if(sem == NULL || sem->occupied == 0){
         return;
     }
-    uint8_t state = (sem->occupied == 0);
-    waitingProcess(&state);
-
+    printf("Process %d trying to acquire semaphore %s\n", getActualPid(), sem->name);
+    waitingProcess(&sem->state);
+    
     if(sem->value > 0){
         sem->value--;
-        liberateProcess(&state);
+        printf("proceso %d acquired semaphore %s\n", getActualPid(), sem->name);
+        liberateProcess(&sem->state);
         return;
     }
     
     uint64_t *pid = (uint64_t *) allocMemory(sizeof(uint64_t));
     if(pid == NULL){
         printf("Error allocating memory for process ID\n");
-        liberateProcess(&state);
+        liberateProcess(&sem->state);
         return;
     }
     *pid = getActualPid();
     addNode(sem->waitingList, (void *) pid);
-    liberateProcess(&state);
+    printf("Process %d added to semaphore %s waiting list\n", *pid, sem->name);
+    liberateProcess(&sem->state);
     blockProcess(*pid);
     printf("Process %d blocked on semaphore %s\n", *pid, sem->name);
 }
@@ -95,23 +99,25 @@ void postSemaphore(TSem sem){
     if(sem == NULL || sem->occupied == 0){
         return;
     }
-
-    uint8_t state = sem->value == 0;
-    waitingProcess(&state);
+    waitingProcess(&sem->state);
     
-    if(!isEmpty(sem->waitingList)){
+    while(!isEmpty(sem->waitingList)){
         uint64_t *pidPtr =  (uint64_t *) getFirst(sem->waitingList);
         TPCB process = getProcess(*pidPtr);
         if(process == NULL || process->status == KILLED){
-            return;
+            printf("process %d not found or killed, removing from semaphore %s waiting\n",*pidPtr ,sem->name);
+            freeMemory(pidPtr);
+            continue;
         }
+        printf("Process %d unblocked %s\n", *pidPtr, sem->name);
         readyProcess(*pidPtr);
         freeMemory(pidPtr);
+        break;
     }
-    else{
+    if(isEmpty(sem->waitingList)){
         sem->value++;
     }
-    liberateProcess(&state);
+    liberateProcess(&sem->state);
 }
 
 semaphoreADT getSemaphore(){

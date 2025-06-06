@@ -49,8 +49,8 @@ void proceso1(){
 	while(1) {
 		waitSemaphore(mySem);
 		printf("Proceso 1\n");
-		for(int i = 0; i < 10000000; i++) {
-			
+		for(int i = 0; i < 1000; i++) {
+			printf("P1 %d\n",i);
 		}
 		postSemaphore(mySem);
 	}
@@ -60,8 +60,8 @@ void proceso2(){
 	while(1) {
 		waitSemaphore(mySem);
 		printf("Proceso 2\n");
-		for(int i = 0; i < 10000000; i++) {
-			
+		for(int i = 0; i < 1000; i++) {
+			printf("P2 %d\n",i);
 		}
 		postSemaphore(mySem);
 	}
@@ -90,11 +90,10 @@ int main()
 	char * argv2[] = { "P2" };
 	int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { -1, 1, -1 };
 	//createProcess((uint64_t)foo, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
-	uint64_t pid1=createProcess((uint64_t)proceso1, argv1, 1, 1, fileDescriptors, 0);
-	uint64_t pid2=createProcess((uint64_t)proceso2, argv2, 1, 1, fileDescriptors, 0);
+	uint64_t pid1=createProcess((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);
+	uint64_t pid2=createProcess((uint64_t)proceso2, argv2, 1, 5, fileDescriptors, 0);
 	readyProcess(pid1);
 	readyProcess(pid2);
-	//waitSemaphore(mySem);
 	//createProcess((uint64_t)proceso3, argv2, 1, 5, fileDescriptors, 0);
     //char * argv[] = { "shell" };
     //int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
