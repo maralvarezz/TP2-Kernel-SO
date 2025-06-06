@@ -1,13 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <shell.h>
-#include <stdint.h>
-#include <syscalls.h>
-#include <man.h>
-#include <libasm.h>
-#include <processes.h>
-
+#include "shell.h"
 /* Enum para la cantidad de argumentos recibidos */    
 #define QTY_BYTES 32 /* Cantidad de bytes de respuesta del printmem */
 #define DEFAULT_FONT_SIZE 1
@@ -15,6 +6,8 @@
 #define MAX_FONT_SIZE 3
 #define BUILT_INS 14
 #define PROCESSES 9
+#define QTY_ARGS 3
+#define MAX_SIZE 128
 
 #define WELCOME "Bienvenido a eSeMeMe SO!\n"
 #define INVALID_COMMAND "Comando invalido!\n"
@@ -22,6 +15,7 @@
 #define INVALID_FONT_SIZE "Dimension invalida de fuente\n"
 #define CHECK_MAN "Escriba \"man %s\" para ver como funciona el comando\n"
 #define CHECK_MAN_FONT "Escriba \"man font-size\" para ver las dimensiones validas\n"
+
 /*
 typedef void (* functionType) (int argc, char * argv[]);
 
@@ -55,7 +49,7 @@ static void printMem(char * pos);
 static int getCommandIndex(char * command);
 static void myClear();
 static void testProcess();
-
+static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]);
 
 /*static Command commands[] = {
     { "help", "Listado de comandos", (functionType) help};
@@ -191,7 +185,7 @@ static int getCommandIndex(char * command) {
 }
 
 static void help() {
-    for (int i = 0; i < QTY_COMMANDS; i++)
+    for (int i = 0; i < QTY_COMMANDS; i++){
         if(i == 0)
             printf("-----------------Built-in commands-----------------\n");
 
@@ -199,6 +193,7 @@ static void help() {
             printf("-----------------Processes commands-----------------\n");
         
         printf("%s: %s\r\n", commands[i].name, commands[i].description);
+    }
 }
 
 static int div(char * num, char * div) {
@@ -244,6 +239,54 @@ static void printInfoReg() {
 }
 
 static void man(char * command){
+    char * usages [] = { "Uso: help - muestra todos los comandos que existen en la terminal. No recibe parametros",
+                              
+                              "Uso: man [COMANDO] - explica el funcionamiento de un comando enviado como parametro",
+                              
+                              "Uso: inforeg - muestra informacion de los registros en un momento arbitrario de ejecucion del sistema. No recibe parametros",
+                              
+                              "Uso: time - despliega la hora actual. No recibe parametros",
+
+                              "Uso: div [OP1] [OP2] - hace la division entera de dos numeros naturales que recibe por parametro\n"
+                              "Ejemplo: div 10 5",
+
+                              "Uso: kaboom - arroja una excepcion de invalid opcode. No recibe parametros",
+                              
+                              "Uso: font-size [1|2|3] - cambia la medida de la fuente. Para eso se deben enviar por parametro el numero 1, 2 o 3\n" 
+                              "Ejemplo: font-size 2",
+                              
+                              "Uso: printmem [DIR] - imprime los primeros 32 bytes de memoria a partir de una direccion de memoria enviada como parametro\n"
+                              "Ejemplo: printmem 10ff8c",
+                              
+                              "Uso: clear - limpia la pantalla. No recibe parametros",
+
+                              "Uso: mem - imprime el estado de la memoria. No recibe parametros",
+
+                              "Uso: ps - muestra el PID, nombre, estado, priority, ground, stackPos, stackBase y RIP de los procesos que se estan ejecutando en el sistema. No recibe parametros",
+
+                              "Uso: kill [PID] - mata el proceso cuyo PID se envia como parametro. Recibe un numero natural que es el PID del proceso\n",
+
+                              "Uso: nice [PID] [PRIORIDAD] - cambia la prioridad del proceso cuyo PID se envia como parametro. Recibe un numero natural que es el PID del proceso y un numero natural que es la nueva prioridad del proceso\n",
+
+                              "Uso: loop [SEGUNDOS] - ejecuta un bucle y cada SEGUNDOS imprime un saludo en pantalla. Recibe un numero natural que es el intervalo de segundos entre cada saludo\n",
+
+                              "Uso: cat - imprime el STDIN como lo recibe. No recibe parametros",
+
+                              "Uso: wc - imprime la cantidad de lineas del input. No recibe parametros",
+
+                              "Uso: filter - imprime solamente las vocales del input. No recibe parametros",
+
+                              "Uso: phylo - ejecuta la solucion del problema de los filosofos comensales. No recibe parametros",
+
+                              "Uso: testMemManager - ejecuta un test de la memoria. No recibe parametros",
+
+                              "Uso: testPriority - ejecuta un test de prioridades. No recibe parametros",
+
+                              "Uso: testProcesses - ejecuta un test de procesos. No recibe parametros",
+
+                              "Uso: testSync - ejecuta un test de sincronizacion. No recibe parametros"
+
+                            };
     int idx = getCommandIndex(command);
     if (idx != -1)
         printf("%s\n", usages[idx]);
@@ -285,7 +328,36 @@ static void testProcess(){
     unblockProc(pid2);
     waitProcess(pid1); 
     waitProcess(pid2);
-    
+}
+
+static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]){
+    int i,j,k;
+    for(i=0, j=0; commandLine[i] != ' ' && commandLine[i] != '\0'; i++){
+        command[j++] = commandLine[i];
+    }
+    command[j] = '\0';
+    if(commandLine[i] == '\0') {
+        return 0;   
+    }
+    while(commandLine[i] == ' '){
+        i++;
+    }
+    for(j = 0 ; j < QTY_ARGS; j++){
+        args[j] = (char *)allocMem(MAX_SIZE);
+        if(args[j] == NULL){
+            return -1;
+        }
+    }
+    for(k = 0; k < QTY_ARGS && commandLine[i] != '\0'; k++){
+        for(j = 0; commandLine[i] != ' ' && commandLine[i] != '\0'; i++){
+            args[k][j++] = commandLine[i];
+        }
+        args[k][j] = '\0';
+        while(commandLine[i] == ' '){
+            i++;
+        }
+    }
+    return k;
 }
 
 

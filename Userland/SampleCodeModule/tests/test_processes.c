@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "syscall.h"
+#include "syscalls.h"
 #include "test_util.h"
 
 enum State { RUNNING,
@@ -49,10 +49,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
         switch (action) {
           case 0:
             if (p_rqs[rq].state == RUNNING || p_rqs[rq].state == BLOCKED) {
-              if (killProcess(p_rqs[rq].pid) == -1) {
-                printf("test_processes: ERROR killing process\n");
-                return -1;
-              }
+              killProcess(p_rqs[rq].pid);
               p_rqs[rq].state = KILLED;
               alive--;
             }
@@ -60,10 +57,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
 
           case 1:
             if (p_rqs[rq].state == RUNNING) {
-              if (blockProc(p_rqs[rq].pid) == -1) {
-                printf("test_processes: ERROR blocking process\n");
-                return -1;
-              }
+              blockProc(p_rqs[rq].pid);
               p_rqs[rq].state = BLOCKED;
             }
             break;

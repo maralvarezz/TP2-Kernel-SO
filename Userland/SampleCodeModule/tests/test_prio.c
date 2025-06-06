@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
-#include "syscall.h"
+#include "syscalls.h"
 #include "test_util.h"
 
 #define MINOR_WAIT 1000000 // TODO: Change this value to prevent a process from flooding the screen
@@ -26,18 +26,18 @@ void test_prio() {
   bussy_wait(WAIT);
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    changePriority(pids[i], prio[i]);
+    changePrio(pids[i], prio[i]);
 
   bussy_wait(WAIT);
   printf("\nBLOCKING...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    blobkProc(pids[i]);
+    blockProc(pids[i]);
 
   printf("CHANGING PRIORITIES WHILE BLOCKED...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    changePriority(pids[i], MEDIUM);
+    changePrio(pids[i], MEDIUM);
 
   printf("UNBLOCKING...\n");
 

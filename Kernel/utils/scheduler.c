@@ -447,3 +447,24 @@ static void idle(){
     }
 }
 
+void killForegroundProcess(){
+    schedulerADT scheduler = getScheduler();
+    if(scheduler == NULL){
+        return;
+    }
+    if(scheduler->actualProcess->ground == FOREGROUND && scheduler->actualProcess->pid != SHELLPID){
+        killActualProcess(scheduler->actualProcess->pid);
+        return;
+    }
+
+    toBegin(scheduler->totalProcesses);
+    TPCB process;
+    while(hasNext(scheduler->totalProcesses)){
+        process = next(scheduler->totalProcesses);
+        if(process->ground == FOREGROUND && process->pid != SHELLPID){
+            killProcess(process->pid);
+            return;
+        }
+    }
+}
+

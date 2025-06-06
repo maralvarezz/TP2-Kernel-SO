@@ -1,4 +1,3 @@
-#include <syscalls.h>
 #include "builtins.h"
 #include "stdlib.h"
 
@@ -7,7 +6,7 @@ void memInfo(int argc, char *argv[]) {
         printf("Uso incorrecto de memoryInfo. No se esperan argumentos.\n");
         return;
     }
-    memoryInfo_t info = memoryInfo();
+    memoryInfo_t info = getMemInfo();
     printf("Memoria total: %d bytes\n", (int)info.size);
     printf("Memoria usada: %d bytes\n", (int)info.used);
     printf("Memoria libre: %d bytes\n", (int)info.free);
@@ -100,7 +99,7 @@ void nice(int argc, char *argv[]){
         printf("Prioridad invalida, debe ser un numero entre 1 y 5.\n");
         return;
     }
-    if(changePriority(pid, priority) == -1){
+    if(changePrio(pid, priority) == -1){
         printf("Error al cambiar la prioridad del proceso %d.\n", pid);
         return;
     }

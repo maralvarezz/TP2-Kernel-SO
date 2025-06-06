@@ -20,7 +20,7 @@ GLOBAL killProcess
 GLOBAL changePrio
 GLOBAL blockProc
 GLOBAL unblockProc
-GLOBAL yieldCPU
+GLOBAL yield
 GLOBAL chauCPU
 GLOBAL waitProcess
 GLOBAL openPipe
@@ -32,6 +32,7 @@ GLOBAL semOpen
 GLOBAL semClose
 GLOBAL allocMem
 GLOBAL freeMem
+GLOBAL sleep
 
 read:
     mov rax, 0
@@ -140,7 +141,7 @@ unblockProc:
     int 80h
     ret
 
-yieldCPU:
+yield:
     mov rax, 21
     int 80h
     ret
@@ -200,3 +201,7 @@ freeMem:
     int 80h
     ret
 
+sleep:
+    mov rax, 33
+    int 80h
+    ret

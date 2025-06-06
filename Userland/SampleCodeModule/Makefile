@@ -9,11 +9,15 @@ OBJECTS_ASM=$(SOURCES_ASM:asm/%.asm=obj/%.asm.o)
 LIB_SOURCES=$(wildcard lib/*.c)
 LIB_OBJECTS=$(LIB_SOURCES:lib/%.c=obj/%.o)
 
+# Add tests sources and objects
+TESTS_SOURCES=$(wildcard tests/*.c)
+TESTS_OBJECTS=$(TESTS_SOURCES:tests/%.c=obj/%.tests.o)
+
 all: $(MODULE)
 
-$(MODULE): $(SOURCES) $(OBJECTS_ASM) $(LIB_OBJECTS)
-	$(GCC) $(GCCFLAGS) -I./include -I./lib -T sampleCodeModule.ld _loader.c $(OBJECTS_ASM) $(LIB_OBJECTS) $(SOURCES) -o ../$(MODULE)
-	$(GCC) $(GCCFLAGS) -I./include -I./lib -T sampleCodeModule.ld -Wl,--oformat=elf64-x86-64 _loader.c $(OBJECTS_ASM) $(LIB_OBJECTS) $(SOURCES) -o ../0000-sampleCodeModule.elf
+$(MODULE): $(SOURCES) $(OBJECTS_ASM) $(LIB_OBJECTS) $(TESTS_OBJECTS)
+	$(GCC) $(GCCFLAGS) -I./include -I./lib -T sampleCodeModule.ld _loader.c $(OBJECTS_ASM) $(LIB_OBJECTS) $(TESTS_OBJECTS) $(SOURCES) -o ../$(MODULE)
+	$(GCC) $(GCCFLAGS) -I./include -I./lib -T sampleCodeModule.ld -Wl,--oformat=elf64-x86-64 _loader.c $(OBJECTS_ASM) $(LIB_OBJECTS) $(TESTS_OBJECTS) $(SOURCES) -o ../0000-sampleCodeModule.elf
 
 obj/%.asm.o : asm/%.asm
 	mkdir -p obj
@@ -21,6 +25,11 @@ obj/%.asm.o : asm/%.asm
 
 # Rule to build lib objects
 obj/%.o: lib/%.c
+	mkdir -p obj
+	$(GCC) $(GCCFLAGS) -I./include -I./lib -c $< -o $@
+
+# Rule to build tests objects
+obj/%.tests.o: tests/%.c
 	mkdir -p obj
 	$(GCC) $(GCCFLAGS) -I./include -I./lib -c $< -o $@
 

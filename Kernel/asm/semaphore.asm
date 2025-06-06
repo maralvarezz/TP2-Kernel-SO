@@ -6,7 +6,7 @@ section .text
 waitingProcess:
     mov al, 1
 .loop:
-    xchg al, [rdi]
+    xchg [rdi], al
     test al, al
     jz .loop
     ret

@@ -9,7 +9,7 @@ extern void liberateProcess(uint8_t *state);
 
 typedef struct semaphore_t{
     uint8_t idx;
-    uint8_t value;
+    int8_t value;
     uint8_t occupied;
     char name[MAX_NAME_LEN];
     linkedListADT waitingList; 
@@ -69,7 +69,7 @@ void waitSemaphore(TSem sem){
     if(sem == NULL || sem->occupied == 0){
         return;
     }
-    uint8_t state = sem->occupied == 0;
+    uint8_t state = (sem->occupied == 0);
     waitingProcess(&state);
 
     if(sem->value > 0){
@@ -80,6 +80,7 @@ void waitSemaphore(TSem sem){
     
     uint64_t *pid = (uint64_t *) allocMemory(sizeof(uint64_t));
     if(pid == NULL){
+        printf("Error allocating memory for process ID\n");
         liberateProcess(&state);
         return;
     }
@@ -87,6 +88,7 @@ void waitSemaphore(TSem sem){
     addNode(sem->waitingList, (void *) pid);
     liberateProcess(&state);
     blockProcess(*pid);
+    printf("Process %d blocked on semaphore %s\n", *pid, sem->name);
 }
 
 void postSemaphore(TSem sem){
@@ -97,15 +99,14 @@ void postSemaphore(TSem sem){
     uint8_t state = sem->value == 0;
     waitingProcess(&state);
     
-    if(isEmpty(sem->waitingList) > 0){
-        uint64_t *processPtr =  (uint64_t *) getFirst(sem->waitingList);
-        TPCB process = getProcess(*processPtr);
+    if(!isEmpty(sem->waitingList)){
+        uint64_t *pidPtr =  (uint64_t *) getFirst(sem->waitingList);
+        TPCB process = getProcess(*pidPtr);
         if(process == NULL || process->status == KILLED){
             return;
         }
-        readyProcess(*processPtr);
-        removeNode(sem->waitingList, (void *) processPtr);
-        freeMemory(processPtr);
+        readyProcess(*pidPtr);
+        freeMemory(pidPtr);
     }
     else{
         sem->value++;

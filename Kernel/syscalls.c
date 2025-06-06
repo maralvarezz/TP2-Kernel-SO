@@ -62,6 +62,7 @@ static uint16_t syscall_closePipe(uint16_t fd);
 static memoryInfo_t syscall_memoryInfo();
 static void syscall_malloc(const size_t memoryToAllocate);
 static void syscall_free(void * const restrict memoryToFree);
+static void syscall_sleep(int seconds);
 
 
 typedef uint64_t (*syscallFunc)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
@@ -102,7 +103,8 @@ uint64_t syscallDispatcher(uint64_t nr, uint64_t arg0, uint64_t arg1, uint64_t a
         (syscallFunc) syscall_semOpen,
         (syscallFunc) syscall_semClose,
         (syscallFunc) syscall_malloc,
-        (syscallFunc) syscall_free
+        (syscallFunc) syscall_free,
+        (syscallFunc) syscall_sleep,
     };
 
     return syscalls[nr](arg0, arg1, arg2, arg3, arg4, arg5);
@@ -304,6 +306,13 @@ static void syscall_malloc(const size_t memoryToAllocate){
 
 static void syscall_free(void * const restrict memoryToFree){
     freeMemory(memoryToFree);
+}
+
+static void syscall_sleep(int seconds){
+    uint32_t limite = syscall_seconds() + seconds;
+    while(syscall_seconds() < limite){
+        yieldProcess();
+    }
 }
 
 

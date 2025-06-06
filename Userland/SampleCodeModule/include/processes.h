@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <tests.h>
 
 #define MAX_PROCESSES 100
 

@@ -1,8 +1,9 @@
-#include "syscall.h"
+#include "syscalls.h"
 #include "test_util.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "loader.h"
 
 // #define MAX_BLOCKS 128
 
@@ -89,7 +90,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
 
     while (rq < MAX_BLOCKS && total < max_memory) {
         uint32_t size_to_alloc = GetUniform(max_memory - total - 1) + 1;
-        mm_rqs[rq].address = malloc(size_to_alloc);
+        mm_rqs[rq].address = allocMem(size_to_alloc);
 
         if (mm_rqs[rq].address != NULL) {
             mm_rqs[rq].size = size_to_alloc;
@@ -115,7 +116,8 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
 
     for (i = 0; i < rq; i++) {
         if (mm_rqs[i].address) {
-            free(mm_rqs[i].address); 
+            freeMem(mm_rqs[i].address); 
         }
     }
+    return 0;
 }

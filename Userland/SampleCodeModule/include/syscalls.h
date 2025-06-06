@@ -20,7 +20,7 @@ typedef struct PInfo{
 typedef struct PInfo * TPInfo;
 
 typedef struct Node {
-    void * info; //se va a usar para guardar estructuras de control de procesos (TPCB)
+    void * info; 
     struct Node * next;
     struct Node * prev;
 } Node;
@@ -140,7 +140,7 @@ void setFontColor(uint8_t r, uint8_t g, uint8_t b);
  */
 Color getFontColor();
 
-memoryInfo_t memoryInfo();
+memoryInfo_t getMemInfo();
 
 void exit();
 
@@ -152,7 +152,7 @@ uint64_t getPid();
 
 void killProcess(uint64_t pid);
 
-uint64_t changePriority(uint64_t pid, uint8_t priority);
+uint64_t changePrio(uint64_t pid, uint8_t priority);
 
 void blockProc(uint64_t pid);
 
@@ -178,8 +178,10 @@ TSem semOpen(char * name);
 
 uint16_t semClose(TSem sem);
 
-void allocMem(size_t memoryToAllocate);
+void* allocMem(size_t memoryToAllocate);
 
 void freeMem(void * const restrict memoryToFree);
+
+void sleep(int seconds);
 
 #endif

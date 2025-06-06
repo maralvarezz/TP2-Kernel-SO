@@ -1,3 +1,6 @@
+#ifndef __KERNEL_IRQ_DISPATCHER_C__
+#define __KERNEL_IRQ_DISPATCHER_C__
+
 #include <time.h>
 #include <keyboard.h>
 #include <stdint.h>
@@ -24,3 +27,5 @@ void int_20() {
 void int_21() {
 	keyboardHandler();
 }
+
+#endif // __KERNEL_IRQ_DISPATCHER_C__
