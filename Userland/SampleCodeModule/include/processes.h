@@ -1,5 +1,12 @@
 #ifndef PROCESSES_H
 #define PROCESSES_H
+
+#include <stdio.h>
+#include <syscalls.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
+
 #define MAX_PROCESSES 100
 
 

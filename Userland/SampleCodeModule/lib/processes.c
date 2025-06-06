@@ -18,7 +18,7 @@ void loop(int argc, char *argv[]){
     }
 
     while(1){
-        printf("Hola, soy el proceso de PID: %d\n", getpid());
+        printf("Hola, soy el proceso de PID: %d\n", getPid());
         sleep(sec);
     }
     exit();
@@ -66,7 +66,7 @@ void filter(int argc, char *argv[]){
     }
     
     char c;
-    while((int)(c = getChar()) != -1){
+    while((int)(c = getchar()) != -1){
         if(isVowel(toLower(c))){
             putchar(c);
         }
