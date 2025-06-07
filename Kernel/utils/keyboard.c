@@ -3,7 +3,7 @@
 #include <lib.h>
 #include <video.h>
 #include <time.h>
-#define BUFFER_CAPACITY 64 
+#define BUFFER_CAPACITY 256 
 #define LCTRL 29
 #define LSHIFT 42
 #define C 0x2E
@@ -86,7 +86,7 @@ static void writeKey(int8_t key) {
 	if (((key & 0x7F) < sizeof(charHexMap) && charHexMap[key & 0x7F] != 0) || (int) key == EOF) {
 		_buffer[getBufferIndex(_bufferSize)] = key;
 		_bufferSize++;
-		postSemaphore(keyboardSem);
+		//postSemaphore(keyboardSem);
 	}
 }
 
@@ -101,7 +101,7 @@ char getScancode() {
 }
 
 int8_t getAscii() {
-	waitSemaphore(keyboardSem);
+	//waitSemaphore(keyboardSem);
 	int scanCode = getScancode();
 	if (scanCode == EOF)
 		return EOF;

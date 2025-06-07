@@ -360,5 +360,9 @@ static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]){
     return k;
 }
 
+void executePipeCommands(char *leftCom, char *leftParam[], int leftParamQuantity, int leftId, int isBackGround, char ^*right){
+
+}
+
 
 //static void testMemManager()

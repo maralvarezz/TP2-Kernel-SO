@@ -71,29 +71,28 @@ void waitSemaphore(TSem sem){
     if(sem == NULL || sem->occupied == 0){
         return;
     }
-    printf("Process %d trying to acquire semaphore %s\n", getActualPid(), sem->name);
+    
     waitingProcess(&sem->state);
+
     
     if(sem->value > 0){
         sem->value--;
-        printf("proceso %d acquired semaphore %s\n", getActualPid(), sem->name);
         liberateProcess(&sem->state);
         return;
     }
     
     uint64_t *pid = (uint64_t *) allocMemory(sizeof(uint64_t));
     if(pid == NULL){
-        printf("Error allocating memory for process ID\n");
         liberateProcess(&sem->state);
         return;
     }
-    //sem->value--;
+    sem->value--;
     *pid = getActualPid();
     addNode(sem->waitingList, (void *) pid);
-    printf("Process %d added to semaphore %s waiting list\n", *pid, sem->name);
+
     liberateProcess(&sem->state);
     blockProcess(*pid);
-    printf("Process %d blocked on semaphore %s\n", *pid, sem->name);
+    
 }
 
 void postSemaphore(TSem sem){
@@ -101,22 +100,20 @@ void postSemaphore(TSem sem){
         return;
     }
     waitingProcess(&sem->state);
-    
-    while(!isEmpty(sem->waitingList)){
+    int unblocked = 0;
+    while(!isEmpty(sem->waitingList) && !unblocked){
         int64_t *pidPtr =  (int64_t *) getFirst(sem->waitingList);
         int64_t pid = *pidPtr;
         TPCB process = getProcess(pid);
         if(process == NULL || process->status == KILLED){
-            printf("process %d not found or killed, removing from semaphore %s waiting\n",*pidPtr ,sem->name);
             freeMemory(pidPtr);
             continue;
         }
-        printf("Process %d unblocked %s\n", *pidPtr, sem->name);
         freeMemory(pidPtr);
         readyProcess(pid);
-        break;
+        unblocked = 1;
     }
-    if(isEmpty(sem->waitingList)){
+    if(!unblocked){
         sem->value++;
     }
     liberateProcess(&sem->state);

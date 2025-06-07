@@ -48,8 +48,8 @@ void proceso1(){
 	while(1) {
 		waitSemaphore(mySem);
 		printf("Proceso 1\n");
-		for(int i = 0; i < 100; i++) {
-			printf("P1 %d\n",i);
+		for(int i = 0; i < 10000; i++) {
+			// Simulate some work
 		}
 		postSemaphore(mySem);
 	}
@@ -59,14 +59,35 @@ void proceso2(){
 	while(1) {
 		waitSemaphore(mySem);
 		printf("Proceso 2\n");
-		for(int i = 0; i < 100; i++) {
-			printf("P2 %d\n",i);
+		for(int i = 0; i < 10000; i++) {
+			// Simulate some work
 		}
 		postSemaphore(mySem);
 	}
 }
 
+void proceso4(){
+	while(1) {
+		waitSemaphore(mySem);
+		printf("Proceso 4\n");
+		for(int i = 0; i < 10000; i++) {
+			// Simulate some work
+		}
+		postSemaphore(mySem);
+	}
+}
 void proceso3(){
+	while(1) {
+		waitSemaphore(mySem);
+		printf("Proceso 3\n");
+		for(int i = 0; i < 10000; i++) {
+			// Simulate some work
+		}
+		postSemaphore(mySem);
+	}
+}
+
+void proceso(){
 	while(1) {
 		print("Proceso 3\n");
 	}
@@ -83,20 +104,25 @@ int main()
 	_cli();
     
     createScheduler();
-	mySem = buildSemaphore(1, "sem");
-	char * argv[] = { "shell" };
-	char * argv1[] = { "P1" };
-	char * argv2[] = { "P2" };
-	int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { -1, 1, -1 };
+	//char * argv[] = { "shell" };
+	//char * argv1[] = { "P1" };
+	//char * argv2[] = { "P2" };
+	//char * argv3[] = { "P3" };
+	//char * argv4[] = { "P4" };
+	//int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { -1, 1, -1 };
 	//createProcess((uint64_t)foo, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
-	uint64_t pid1=createProcess((uint64_t)proceso1, argv1, 1, 5, fileDescriptors, 0);
-	uint64_t pid2=createProcess((uint64_t)proceso2, argv2, 1, 5, fileDescriptors, 0);
-	readyProcess(pid1);
-	readyProcess(pid2);
+	//uint64_t pid1=createProcess((uint64_t)proceso1, argv1, 1, 1, fileDescriptors, 0);
+	//uint64_t pid2=createProcess((uint64_t)proceso2, argv2, 1, 1, fileDescriptors, 0);
+	//uint64_t pid3=createProcess((uint64_t)proceso3, argv3, 1, 1, fileDescriptors, 0);
+	//uint64_t pid4=createProcess((uint64_t)proceso4, argv4, 1, 1, fileDescriptors, 0);
+	//readyProcess(pid1);
+	//readyProcess(pid2);
+	//readyProcess(pid3);
+	//readyProcess(pid4);
 	//createProcess((uint64_t)proceso3, argv2, 1, 5, fileDescriptors, 0);
-    //char * argv[] = { "shell" };
-    //int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
-    //createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
+    char * argv[] = { "shell" };
+    int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
+    createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
 	load_idt();
 	_sti();
     while(1) {

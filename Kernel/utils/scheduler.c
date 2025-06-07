@@ -147,7 +147,7 @@ uint64_t changeProcess(uint64_t actualRSP){
         if(scheduler->actualProcess == NULL){
             return actualRSP;
         }
-        scheduler->quantum = scheduler->actualProcess->priority;
+        scheduler->quantum = 3 * scheduler->actualProcess->priority;
         scheduler->actualProcess->status = RUNNING;
         scheduler->actualPid = scheduler->actualProcess->pid;
         return scheduler->actualProcess->stackPos;
@@ -183,7 +183,7 @@ uint64_t changeProcess(uint64_t actualRSP){
     }
     scheduler->actualProcess = auxProcess;
     scheduler->actualProcess->status = RUNNING;
-    scheduler->quantum = scheduler->actualProcess->priority;
+    scheduler->quantum = 3 * scheduler->actualProcess->priority;
     scheduler->actualPid = scheduler->actualProcess->pid;
     return scheduler->actualProcess->stackPos;
 }
@@ -352,13 +352,11 @@ int readyProcess(uint64_t pid){
         return 0;
     }
     if(!removeNode(scheduler->blockedList, process)){
-        printf("Error removing process %d from blocked list\n", pid);
         return 0;
     }
     if(!addNode(scheduler->readyList, process)){
         return 0;
     }
-    printf("Ready process %d\n", pid);
     process->status = READY;
     return 1;
 }
