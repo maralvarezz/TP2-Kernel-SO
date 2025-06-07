@@ -324,9 +324,6 @@ int blockProcess(uint64_t pid){
     if(process == NULL){
         return 0;
     }
-    // if(process->status == BLOCKED){
-    //     return 0;
-    // }
     if(process->status == READY || process->status == RUNNING){
         if(process->status == READY ){
             if(!removeNode(scheduler->readyList, process)){

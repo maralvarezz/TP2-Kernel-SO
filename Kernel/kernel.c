@@ -44,12 +44,11 @@ void initializeKernelBinary()
 }
 
 
-
 void proceso1(){
 	while(1) {
 		waitSemaphore(mySem);
 		printf("Proceso 1\n");
-		for(int i = 0; i < 1000; i++) {
+		for(int i = 0; i < 100; i++) {
 			printf("P1 %d\n",i);
 		}
 		postSemaphore(mySem);
@@ -60,7 +59,7 @@ void proceso2(){
 	while(1) {
 		waitSemaphore(mySem);
 		printf("Proceso 2\n");
-		for(int i = 0; i < 1000; i++) {
+		for(int i = 0; i < 100; i++) {
 			printf("P2 %d\n",i);
 		}
 		postSemaphore(mySem);

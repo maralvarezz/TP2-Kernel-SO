@@ -87,6 +87,7 @@ void waitSemaphore(TSem sem){
         liberateProcess(&sem->state);
         return;
     }
+    //sem->value--;
     *pid = getActualPid();
     addNode(sem->waitingList, (void *) pid);
     printf("Process %d added to semaphore %s waiting list\n", *pid, sem->name);
@@ -102,16 +103,17 @@ void postSemaphore(TSem sem){
     waitingProcess(&sem->state);
     
     while(!isEmpty(sem->waitingList)){
-        uint64_t *pidPtr =  (uint64_t *) getFirst(sem->waitingList);
-        TPCB process = getProcess(*pidPtr);
+        int64_t *pidPtr =  (int64_t *) getFirst(sem->waitingList);
+        int64_t pid = *pidPtr;
+        TPCB process = getProcess(pid);
         if(process == NULL || process->status == KILLED){
             printf("process %d not found or killed, removing from semaphore %s waiting\n",*pidPtr ,sem->name);
             freeMemory(pidPtr);
             continue;
         }
         printf("Process %d unblocked %s\n", *pidPtr, sem->name);
-        readyProcess(*pidPtr);
         freeMemory(pidPtr);
+        readyProcess(pid);
         break;
     }
     if(isEmpty(sem->waitingList)){

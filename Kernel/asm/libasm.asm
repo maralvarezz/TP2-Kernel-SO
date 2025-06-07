@@ -73,8 +73,6 @@ getKeyPressed:
     pop rbp
     ret
 
-
-
 int_80:
     push rbp
     mov rbp, rsp
