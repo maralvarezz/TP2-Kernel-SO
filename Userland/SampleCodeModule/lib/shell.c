@@ -1,4 +1,6 @@
 #include "shell.h"
+#define READ 0
+#define WRITE 1
 /* Enum para la cantidad de argumentos recibidos */    
 #define QTY_BYTES 32 /* Cantidad de bytes de respuesta del printmem */
 #define DEFAULT_FONT_SIZE 1
@@ -147,23 +149,9 @@ void run_shell() {
                 printErr(INVALID_COMMAND);
             continue;
         }
-        int funcParams = commands[index].ftype;
-        if(qtyParams - 1 != funcParams){
-            printErr(WRONG_PARAMS);
-            printf(CHECK_MAN, command);
-            continue;
-        }
-        switch (commands[index].ftype)
-        {
-            case NO_PARAMS: 
-                commands[index].f();
-                break;
-            case SINGLE_PARAM:
-                commands[index].g(arg1);
-                break;
-            case DUAL_PARAM:
-                commands[index].h(arg1, arg2);
-                break;
+        else if (index == 1){
+            
+        
         }
     }
 }
@@ -360,8 +348,70 @@ static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]){
     return k;
 }
 
-void executePipeCommands(char *leftCom, char *leftParam[], int leftParamQuantity, int leftId, int isBackGround, char ^*right){
-
+void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[], char *rightParam[], int leftParamQuantity, int rightParamQuantity, int leftId, int rightId,int isBackGroundLeft, int isBackGroundRight) {
+    int16_t fileDescriptors[3] = { 0, 1, 2 };
+    
+    int16_t leftPipePid = createProc((uint64_t)commands[leftId].ftype, (char **)leftParam, leftParamQuantity, 1, fileDescriptors, isBackGroundLeft);
+    if( leftPipePid == -1) {
+        printErr("Error al crear el proceso izquierdo del pipe\n");
+        return;
+    }
+    int writeFd, readFd;
+    if((writeFd = openPipe(leftPipePid, WRITE)) == -1) {
+        printErr("Error al abrir el pipe de escritura\n");
+        killProcess(leftPipePid);
+        return;
+    }
+    if(changeFd(leftPipePid, (int16_t[]) {STDIN, writeFd, STDERR}) == -1) {
+        printErr("Error al cambiar los file descriptors del proceso izquierdo\n");
+        closePipe(writeFd);
+        killProcess(leftPipePid);
+        return;
+    }
+    int16_t rightPipePid = createProc((uint64_t)commands[rightId].ftype, (char **)rightParam, rightParamQuantity, 1, fileDescriptors, isBackGroundRight);
+    if(rightPipePid == -1) {
+        printErr("Error al crear el proceso derecho del pipe\n");
+        killProcess(leftPipePid);
+        return;
+    }
+    if((readFd = openPipe(rightPipePid, READ)) == -1) {
+        printErr("Error al abrir el pipe de lectura\n");
+        killProcess(rightPipePid);
+        closePipe(writeFd);
+        killProcess(leftPipePid);
+        return;
+    }
+    if(changeFd(rightPipePid, (int16_t[]) {readFd, STDOUT, STDERR}) == -1) {
+        printErr("Error al cambiar los file descriptors del proceso derecho\n");
+        closePipe(writeFd);
+        killProcess(rightPipePid);
+        killProcess(leftPipePid);
+        return;
+    }
+    if(unblockProc(leftPipePid) == -1) {
+        printErr("Error al desbloquear el proceso izquierdo del pipe\n");
+        closePipe(writeFd);
+        killProcess(leftPipePid);
+        killProcess(rightPipePid);
+        return;
+    }
+    if(unblockProc(rightPipePid) == -1) {
+        printErr("Error al desbloquear el proceso derecho del pipe\n");
+        closePipe(writeFd);
+        killProcess(leftPipePid);
+        killProcess(rightPipePid);
+        return;
+    }
+    if(!isBackGroundLeft) {
+        waitProcess(leftPipePid);
+        waitProcess(rightPipePid);
+    }
+    if(closePipe(writeFd) == -1) {
+        printErr("Error al cerrar el pipe de escritura\n");
+        killProcess(leftPipePid);
+        killProcess(rightPipePid);
+        return;
+    }
 }
 
 

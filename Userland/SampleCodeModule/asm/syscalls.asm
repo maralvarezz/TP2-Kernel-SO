@@ -33,6 +33,7 @@ GLOBAL semClose
 GLOBAL allocMem
 GLOBAL freeMem
 GLOBAL sleep
+GLOBAL changeFd
 
 read:
     mov rax, 0
@@ -205,3 +206,9 @@ sleep:
     mov rax, 33
     int 80h
     ret
+
+changeFd:
+    mov rax, 34
+    int 80h
+    ret
+

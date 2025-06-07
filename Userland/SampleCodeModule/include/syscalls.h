@@ -184,4 +184,6 @@ void freeMem(void * const restrict memoryToFree);
 
 void sleep(int seconds);
 
+int changeFd(uint64_t pid, int16_t fileDescriptors[]);
+
 #endif

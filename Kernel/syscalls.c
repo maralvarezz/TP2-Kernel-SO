@@ -63,10 +63,9 @@ static memoryInfo_t syscall_memoryInfo();
 static void syscall_malloc(const size_t memoryToAllocate);
 static void syscall_free(void * const restrict memoryToFree);
 static void syscall_sleep(int seconds);
-
+static int syscall_changeFd(uint64_t pid, int16_t fileDescriptors[]);
 
 typedef uint64_t (*syscallFunc)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
-
 
 uint64_t syscallDispatcher(uint64_t nr, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5) {
 
@@ -105,6 +104,7 @@ uint64_t syscallDispatcher(uint64_t nr, uint64_t arg0, uint64_t arg1, uint64_t a
         (syscallFunc) syscall_malloc,
         (syscallFunc) syscall_free,
         (syscallFunc) syscall_sleep,
+        (syscallFunc) syscall_changeFd,
     };
 
     return syscalls[nr](arg0, arg1, arg2, arg3, arg4, arg5);
@@ -313,6 +313,11 @@ static void syscall_sleep(int seconds){
     while(syscall_seconds() < limite){
         yieldProcess();
     }
+}
+
+static int syscall_changeFd(uint64_t pid, int16_t fileDescriptors[]){
+    int resp = changeFds(pid, fileDescriptors);
+    return resp;
 }
 
 
