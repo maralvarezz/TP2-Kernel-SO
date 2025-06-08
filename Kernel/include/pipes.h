@@ -12,11 +12,11 @@ void pipesCreate();
 
 pipesADT getPipes();
 
-uint16_t openPipe(uint16_t pid, uint8_t use);
+int64_t openPipe(int16_t pid, uint8_t use);
 
-uint16_t closePipe(uint16_t fd);
+int16_t closePipe(int64_t fd);
 
-uint16_t readPipe(uint16_t fd, char * buffer, uint16_t size);
+int64_t readPipe(int64_t fd, char * buffer, int64_t size);
 
 uint16_t writePipe(uint16_t fd, char * buffer, uint16_t size);
 

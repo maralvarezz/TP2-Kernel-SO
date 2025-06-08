@@ -71,3 +71,28 @@ int strtoh(char* s, char ** end) {
     *end = s; 
     return num;
 }
+
+int scanLine(char *line) {
+	int id = 0;
+	char ch;
+	while ((ch = getchar()) != -1) {
+		if (ch != 0) {
+			if (ch == '\b' && id > 0) {
+				id--;
+				putchar(ch);
+				putchar(' ');
+				line[id] = '\0';
+			}
+			if (ch == '\n') {
+				line[id] = '\0';
+				putchar(ch);
+				return 0;
+			}
+			else if (ch != '\b' && ch != '\t') {
+				line[id++] = ch;
+			}
+			putchar(ch);
+		}
+	}
+	return -1;
+}

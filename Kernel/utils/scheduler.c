@@ -130,8 +130,11 @@ uint64_t changeProcess(uint64_t actualRSP){
     scheduler->quantum--; 
     
     if(scheduler->quantum > 0 || scheduler->cantProcesses == 0){ 
+        
         return actualRSP;
     }
+
+
 
     if(scheduler->actualPid < SHELLPID){      
         scheduler->actualProcess->stackPos = actualRSP;
@@ -171,7 +174,9 @@ uint64_t changeProcess(uint64_t actualRSP){
         }
     }
     scheduler->actualProcess = auxProcess;
-    scheduler->actualProcess->status = RUNNING;
+    if(auxProcess->status != KILLED){
+        scheduler->actualProcess->status = RUNNING;    
+    }
     scheduler->quantum = 1 * scheduler->actualProcess->priority;
     scheduler->actualPid = scheduler->actualProcess->pid;
     return scheduler->actualProcess->stackPos;
@@ -223,8 +228,7 @@ void killProcess(uint64_t pid){
         return;
     }
     
-    //cuando implementemos sincro, tenemos que hacer aca que el proceso antes de liberar memoria, ponga en ready a los procesos que lo estan esperando
-    // despues de eso, libero la memoria del proceso y lo saco de las listas
+    
     /* Necesito pipes para cerrar fd (ayudame sancho) */
     // no
     //TPCB shellProcess = getProcess(SHELLPID);
@@ -239,7 +243,6 @@ void killProcess(uint64_t pid){
     }
     else if(process->status == BLOCKED){
         removeNode(scheduler->blockedList, process);
-    
     }
     myKill(process);
     yieldProcess(); 
@@ -261,7 +264,8 @@ void myKill(TPCB process){
         }
         readyProcess(blockedProcess->pid);
     }
-    process->status= KILLED;
+    process->status = KILLED;
+    addNode(scheduler->readyList, process);
 }
 
 
@@ -303,16 +307,18 @@ int readyProcess(uint64_t pid){
     if(process == NULL){
         return 0;
     }
-    if(process->status == READY || process->status == RUNNING){
+    if(process->status == RUNNING){
         return 0;
     }
-    if(!removeNode(scheduler->blockedList, process)){
+    if(!removeNode(scheduler->blockedList, process) && process->status == BLOCKED){
         return 0;
     }
     if(!addNode(scheduler->readyList, process)){
         return 0;
     }
-    process->status = READY;
+    if(process->status != KILLED){
+        process->status = READY;
+    }
     return 1;
 }
 

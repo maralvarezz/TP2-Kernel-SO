@@ -44,6 +44,7 @@ static int hasPipe(char * line);
 static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[], char *rightParam[], int leftParamQuantity, int rightParamQuantity, int leftId, int rightId,int isBackGroundLeft, int isBackGroundRight);
 
 
+
 static Command commands[] = {
     { "help", "Listado de comandos", (functionType) help},
     { "man", "Manual de uso de los comandos", (functionType) man},
@@ -244,6 +245,8 @@ static int getCommandIndex(char * command) {
 }
 
 static void help() {
+    printf("Para poner un pipe entre dos procesos: [PROCESO1] | [PROCESO2]\n");
+    printf("Para poner un proceso en background: [PROCESO] &\n");
     for (int i = 0; i < QTY_COMMANDS; i++){
         if(i == 0)
             printf("-----------------Built-in commands-----------------\n");
@@ -428,55 +431,54 @@ static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]){
 
 
 
-static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[], char *rightParam[], int leftParamQuantity, int rightParamQuantity, int leftId, int rightId,int isBackGroundLeft, int isBackGroundRight) {
+static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[], char *rightParam[], int leftParamQuantity, int rightParamQuantity, int leftId, int rightId, int isBackGroundLeft, int isBackGroundRight) {
     int16_t fileDescriptors[3] = { 0, 1, 2 };
-    
     int16_t leftPipePid = createProc((uint64_t)commands[leftId].ftype, (char **)leftParam, leftParamQuantity, 1, fileDescriptors, isBackGroundLeft);
     if( leftPipePid == -1) {
-        printErr("Error al crear el proceso izquierdo del pipe\n");
+        printf("Error al crear el proceso izquierdo del pipe\n");
         return;
     }
     int writeFd, readFd;
     if((writeFd = openPipe(leftPipePid, WRITE)) == -1) {
-        printErr("Error al abrir el pipe de escritura\n");
+        printf("Error al abrir el pipe de escritura\n");
         killProcess(leftPipePid);
         return;
     }
     if(changeFd(leftPipePid, (int16_t[]) {STDIN, writeFd, STDERR}) == -1) {
-        printErr("Error al cambiar los file descriptors del proceso izquierdo\n");
+        printf("Error al cambiar los file descriptors del proceso izquierdo\n");
         closePipe(writeFd);
         killProcess(leftPipePid);
         return;
     }
     int16_t rightPipePid = createProc((uint64_t)commands[rightId].ftype, (char **)rightParam, rightParamQuantity, 1, fileDescriptors, isBackGroundRight);
     if(rightPipePid == -1) {
-        printErr("Error al crear el proceso derecho del pipe\n");
+        printf("Error al crear el proceso derecho del pipe\n");
         killProcess(leftPipePid);
         return;
     }
     if((readFd = openPipe(rightPipePid, READ)) == -1) {
-        printErr("Error al abrir el pipe de lectura\n");
+        printf("Error al abrir el pipe de lectura\n");
         killProcess(rightPipePid);
         closePipe(writeFd);
         killProcess(leftPipePid);
         return;
     }
     if(changeFd(rightPipePid, (int16_t[]) {readFd, STDOUT, STDERR}) == -1) {
-        printErr("Error al cambiar los file descriptors del proceso derecho\n");
+        printf("Error al cambiar los file descriptors del proceso derecho\n");
         closePipe(writeFd);
         killProcess(rightPipePid);
         killProcess(leftPipePid);
         return;
     }
     if(unblockProc(leftPipePid) == -1) {
-        printErr("Error al desbloquear el proceso izquierdo del pipe\n");
+        printf("Error al desbloquear el proceso izquierdo del pipe\n");
         closePipe(writeFd);
         killProcess(leftPipePid);
         killProcess(rightPipePid);
         return;
     }
     if(unblockProc(rightPipePid) == -1) {
-        printErr("Error al desbloquear el proceso derecho del pipe\n");
+        printf("Error al desbloquear el proceso derecho del pipe\n");
         closePipe(writeFd);
         killProcess(leftPipePid);
         killProcess(rightPipePid);
@@ -487,7 +489,7 @@ static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[]
         waitProcess(rightPipePid);
     }
     if(closePipe(writeFd) == -1) {
-        printErr("Error al cerrar el pipe de escritura\n");
+        printf("Error al cerrar el pipe de escritura\n");
         killProcess(leftPipePid);
         killProcess(rightPipePid);
         return;

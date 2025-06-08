@@ -59,7 +59,7 @@ void ps(int argc, char *argv[]){
 
     for(int i = 0; i < cantProcess + 1; i++) {
         PInfo process = processes[i];
-        printf("PID: %d\n Nombre: %s\n Estado: %s\n Priority: %d\n Ground: %s\n StackPos: %d\n StackBase: %d\n RIP: %d\n", process.pid, process.name, process.status == 0 ? "Bloqueado" : "Activo", process.priority, process.ground == 0 ? "Background" : "Foreground", process.stackPos, process.stackBase, process.rip);
+        printf("PID: %d\n Nombre: %s\n Estado: %s\n Priority: %d\n Ground: %s\n StackPos: %d\n StackBase: %d\n RIP: %d\n", process.pid, process.name, process.status == 0 ? "Bloqueado" : (process.status == 3 ? "Muerto" : "Activo"), process.priority, process.ground == 0 ? "Background" : "Foreground", process.stackPos, process.stackBase, process.rip);
     }
     
     //aca faltaria un free??????? (de processes)
@@ -70,6 +70,7 @@ void ps(int argc, char *argv[]){
 void kill(int argc, char *argv[]){
     if(argc != 1){
         printf("Uso incorrecto de kill. Debe especificar el PID del proceso a terminar.\n");
+        exit();
         return;
     }
 
@@ -87,22 +88,27 @@ void kill(int argc, char *argv[]){
 void nice(int argc, char *argv[]){
     if(argc != 2){
         printf("Uso incorrecto de nice. Debe especificar el PID del proceso y la nueva prioridad.\n");
+        exit();
         return;
     }
     int pid = atoi(argv[0]);
     int priority = atoi(argv[1]);
     if(pid <= 1){
         printf("PID invalido, tiene que ser mayor a 1.\n");
+        exit();
         return;
     }
     if(priority < 1 || priority > 5){
         printf("Prioridad invalida, debe ser un numero entre 1 y 5.\n");
+        exit();
         return;
     }
     if(changePrio(pid, priority) == -1){
         printf("Error al cambiar la prioridad del proceso %d.\n", pid);
+        exit();
         return;
     }
     printf("Prioridad del proceso %d cambiada a %d.\n", pid, priority);
+    exit();
     return;
 }

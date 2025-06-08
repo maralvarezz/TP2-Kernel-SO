@@ -2,7 +2,7 @@
 
 #define isVowel(c) ((c == 'a') || (c == 'e') || (c == 'i') || (c == 'o') || (c == 'u'))
 #define toLower(n) ((n) >= 'A' && (n) <= 'Z' ? (n) - ('A' - 'a') : (n))
-
+#define EOF (-1)
 
 void loop(int argc, char *argv[]){
     if(argc != 2){
@@ -34,12 +34,11 @@ void cat(int argc, char *argv[]){
         return;
     }
 
-    char c;
-    while((int)(c = getchar()) != -1){
-        putchar(c);
+    char line[MAX_CHARS] = {0};
+    while(scanLine(line) != -1){
+        printf("%s\n",line);
     }
     exit();
-
 }
 
 void wc(int argc, char *argv[]){
@@ -50,11 +49,11 @@ void wc(int argc, char *argv[]){
     }
 
     int count = 0;
-    char c;
-    while((int) (c = getchar()) != -1){
-        if(c == '\n'){
+    char line[MAX_CHARS] = {0};
+    int scan;
+    while((scan = scanLine(line)) != EOF){
+        if(scan == 0)
             count++;
-        }
     }
     printf("Cantidad de lineas: %d\n", count);
     exit();
@@ -66,13 +65,14 @@ void filter(int argc, char *argv[]){
         exit();
         return;
     }
-    
     char c;
-    while((int)(c = getchar()) != -1){
-        if(isVowel(toLower(c))){
+    while((c = getchar()) != EOF){
+        if(!isVowel(toLower(c)) && c != 0){
             putchar(c);
         }
     }
+    putchar('\n');
+    exit();
 }
 
 void testMemManager(int argc, char *argv[]){
@@ -165,6 +165,12 @@ void testSync(int argc, char *argv[]){
     printf("Test de sincronizacion finalizado correctamente.\n");
     exit();
     return;
+}
+
+static void simpleProcess(){
+    while(1){
+    }
+    exit();
 }
 
 

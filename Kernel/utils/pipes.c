@@ -2,8 +2,8 @@
 
 #define MAXPIPES 50
 #define PIPESIZE 256
-#define WRITE 0
-#define READ 1
+#define WRITE 1
+#define READ 0
 
 typedef struct pipe_t{
     char buffer[PIPESIZE];
@@ -46,6 +46,7 @@ static pipe_t initializePipe(){
     pipe.writeBlock = 0;
     pipe.readPid = -1;
     pipe.writePid = -1;
+    pipe.fd= -1;
     return pipe;
 }
 
@@ -53,44 +54,46 @@ pipesADT getPipes(){
     return pipesM;
 }
 
-uint16_t openPipe(uint16_t pid, uint8_t use){
+int64_t openPipe(int16_t pid, uint8_t use){
     pipesADT pipesM = getPipes();
+    int freePipe = -1;
     if(pipesM == NULL || pipesM->cantPipes >= MAXPIPES){
         return -1;
     }
-
     for(int j = 0; j < MAXPIPES; j++){
-        if(pipesM->pipes[j].writePid != -1 && use == READ){
-            pipesM->pipes[j].readPid = pid;
-            return pipesM->pipes[j].fd;
-        }
-        if(pipesM->pipes[j].readPid != -1 && use == WRITE){
-            pipesM->pipes[j].writePid = pid;
-            return pipesM->pipes[j].fd;
+        if(pipesM->pipes[j].fd == -1){
+            if(pipesM->pipes[j].writePid != -1 && use == READ){
+                pipesM->pipes[j].readPid = pid;
+                return pipesM->pipes[j].fd;
+            }
+            if(pipesM->pipes[j].readPid != -1 && use == WRITE){
+                pipesM->pipes[j].writePid = pid;
+                return pipesM->pipes[j].fd;
+            }
         }
     }
-
     for(int i = 0; i < MAXPIPES; i++){
         if(pipesM->pipes[i].fd == -1){
-            pipesM->pipes[i] = initializePipe();
-            if(use == READ){
-                pipesM->pipes[i].readPid = pid;
-            }
-            else if(use == WRITE){
-                pipesM->pipes[i].writePid = pid;
-            }
-            else{
-                return -1;
-            }
-            pipesM->pipes[i].fd = i + 3; 
-            pipesM->cantPipes++;
-            return i + 3; 
+            freePipe = i;
+            break;
         }
     }
-    return -1; 
+    if(freePipe == -1){
+        return -1;
+    }
+    pipe_t auxPipe = initializePipe();
+    auxPipe.fd = freePipe + 3;
+    if(use == WRITE){
+        auxPipe.writePid = pid;
+    } else if(use == READ){
+        auxPipe.readPid = pid;
+    }
+    pipesM->pipes[freePipe] = auxPipe;
+    pipesM->cantPipes++;
+    return auxPipe.fd; 
 }
 
-uint16_t closePipe(uint16_t fd){
+int16_t closePipe(int64_t fd){
     pipesADT pipesM = getPipes();
     if(pipesM == NULL){
         return -1;
@@ -99,22 +102,21 @@ uint16_t closePipe(uint16_t fd){
         return -1;
     }
 
-    /* REVISAR SI ESTA BIEN */
-    for(int i = 0; i < MAXPIPES; i++){
-        if(pipesM->pipes[i].fd == fd){
-            pipesM->cantPipes--;
-            pipesM->pipes[i].fd = -1;
-            pipesM->pipes[i].readPid = -1;
-            pipesM->pipes[i].writePid = -1;
-            pipesM->pipes[i].readPos = 0;
-            pipesM->pipes[i].writePos = 0;
-            pipesM->pipes[i].cantOcu = 0;
-        }
+    pipe_t *pipeToClose = &pipesM->pipes[fd - 3];
+    if(pipeToClose->writePid == -1  && pipeToClose->readPid == -1){
+        return -1;
     }
-    return -1;
+    pipeToClose->fd = -1;
+    pipeToClose->readPos = 0;
+    pipeToClose->writePos = 0;
+    pipeToClose->cantOcu = 0;
+    pipeToClose->writePid = -1;
+    pipeToClose->readPid = -1;
+    pipesM->cantPipes--;
+    return 0;
 }
 
-uint16_t readPipe(uint16_t fd, char * buffer, uint16_t size){
+int64_t readPipe(int64_t fd, char * buffer, int64_t size){
     pipesADT pipesM = getPipes();
     if(pipesM == NULL){
         return -1;
