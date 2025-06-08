@@ -1,8 +1,7 @@
 #include "shell.h"
 #define READ 0
 #define WRITE 1
-/* Enum para la cantidad de argumentos recibidos */    
-#define QTY_BYTES 32 /* Cantidad de bytes de respuesta del printmem */
+#define QTY_BYTES 32
 #define DEFAULT_FONT_SIZE 1
 #define MIN_FONT_SIZE 1
 #define MAX_FONT_SIZE 3
@@ -10,6 +9,8 @@
 #define PROCESSES 9
 #define QTY_ARGS 3
 #define MAX_SIZE 128
+#define MAX_PARAMS 3
+#define QTY_COMMANDS (BUILT_INS + PROCESSES) 
 
 #define WELCOME "Bienvenido a eSeMeMe SO!\n"
 #define INVALID_COMMAND "Comando invalido!\n"
@@ -18,7 +19,7 @@
 #define CHECK_MAN "Escriba \"man %s\" para ver como funciona el comando\n"
 #define CHECK_MAN_FONT "Escriba \"man font-size\" para ver las dimensiones validas\n"
 
-/*
+
 typedef void (* functionType) (int argc, char * argv[]);
 
 typedef struct {
@@ -26,137 +27,207 @@ typedef struct {
     char * description;             
     functionType ftype;             
 } Command;
-*/
-
-typedef enum {NO_PARAMS = 0, SINGLE_PARAM, DUAL_PARAM} functionType;    
-
-typedef struct {
-    char * name;                    // Nombre del comando
-    char * description;             // Descripcion del comando (para help)
-    union {                         // Puntero a la funcion
-       int (*f)(void);
-       int (*g)(char *);
-       int (*h)(char *, char *);
-    };
-    functionType ftype;             // Cantidad de argumentos del comando
-} Command;
 
 static void help();
 static void man(char * command);
 static void printInfoReg();
 static void time();
-static int div(char * num, char * div);
+static int div(int num, char * div[]);
+//static int div(char * num, char * div);
 static void fontSize(char * size);
 static void printMem(char * pos);
 static int getCommandIndex(char * command);
 static void myClear();
 static void testProcess();
 static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]);
+static int hasPipe(char * line);
+static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[], char *rightParam[], int leftParamQuantity, int rightParamQuantity, int leftId, int rightId,int isBackGroundLeft, int isBackGroundRight);
 
-/*static Command commands[] = {
-    { "help", "Listado de comandos", (functionType) help};
-    { "man", "Manual de uso de los comandos", (functionType) man};
-    { "inforeg", "Informacion de los registos que fueron capturados en un momento arbitrario de ejecucion del sistema", (functionType) inforeg};
-    { "time", "Despliega la hora actual UTC - 3", (functionType) time};
-    { "div", "Hace la division entera de dos numeros naturales enviados por parametro",(functionType) div};
-    { "kaboom", "Ejecuta una excepcion de Invalid Opcode", (functionType) kaboom};
-    { "font-size", "Cambio de dimensiones de la fuente. Para hacerlo escribir el comando seguido de un numero", (functionType) fontSize};
-    { "printmem", "Realiza un vuelco de memoria de los 32 bytes posteriores a una direccion de memoria en formato hexadecimal enviada por parametro", (functionType) printmem};
-    { "clear", "Limpia toda la pantalla", (functionType) myClear};
-    { "mem", "Imprime el estado de la memoria", (functionType) memInfo};
-    { "block", "Cambia el estado de un proceso entre bloqueado y listo dado su ID", (functionType) block};
-    { "unblock", "Cambia el estado de un proceso entre listo y bloqueado dado su ID", (functionType) unblock};
-    { "ps", "Imprime la lista de todos los procesos con sus propiedades", (functionType) ps};
-    { "kill", "Mata un proceso dado su ID", (functionType) kill};
-    { "nice", "Cambia la prioridad de un proceso dado su ID y la nueva prioridad", (functionType) nice};
-    { "loop", "Imprime el ID del proceso con un saludo cada una determinada cantidad de segundos",(functionType) loop};
-    { "cat", "Imprime el stdin tal como lo recibe", (functionType) cat};
-    { "wc", "Cuenta la cantidad de lineas del input", (functionType) wc};
-    { "filter", "Filtra las vocales del input", (functionType) filter};
-    { "phylo", "Implementa el problema de los filósofos comensales", (functionType) mainPhilo};
-    { "testMemManager", "Corre un test para los memory managers", (functionType) testMemManager};
-    { "testPriority", "Corre un test de prioridades", (functionType) testPriority};
-    { "testProcesses", "Corre un test de procesos", (functionType) testProcesses};
-    { "testSync", "Corre un test de sincronizacion", (functionType) testSync};
-};*/
 
-static Command commands[QTY_COMMANDS];
-
-void init() {
-    commands[0] = (Command){"help", "Listado de comandos", .f = (void*) &help, NO_PARAMS};
-    commands[1] = (Command){ "man", "Manual de uso de los comandos", .g = (void*) &man, SINGLE_PARAM};
-    commands[2] = (Command){"inforeg", "Informacion de los registos que fueron capturados en un momento arbitrario de ejecucion del sistema", .f = (void*)&printInfoReg, NO_PARAMS}; 
-    commands[3] = (Command){"time", "Despliega la hora actual UTC - 3", .f = (void*) &time, NO_PARAMS};
-    commands[4] = (Command){ "div", "Hace la division entera de dos numeros naturales enviados por parametro", .h = (void*) &div, DUAL_PARAM};
-    commands[5] = (Command){ "kaboom", "Ejecuta una excepcion de Invalid Opcode", .f = (void*) &kaboom, NO_PARAMS};
-    commands[6] = (Command){ "font-size", "Cambio de dimensiones de la fuente. Para hacerlo escribir el comando seguido de un numero", .g = (void*) &fontSize, SINGLE_PARAM};
-    commands[7] = (Command){ "printmem", "Realiza un vuelco de memoria de los 32 bytes posteriores a una direccion de memoria en formato hexadecimal enviada por parametro", .g = (void*) &printMem, SINGLE_PARAM};
-    commands[8] = (Command){ "clear", "Limpia toda la pantalla", .f = (void*) &myClear, NO_PARAMS};
-    //commands[9] = (Command){ "testMemManager", "Corre un test para los memory managers", .g = (void*) &testMemManager, SINGLE_PARAM};
-    commands[9] = (Command){ "prueba", "corre 2 procesos en simultaneo que imprimen en pantalla para testear prioridades", .f = (void*)&testProcess, NO_PARAMS};
-    commands[10] = (Command){ "filosofos", "Implementa el problema de los filósofos comensales", .g = (void*)&mainPhilo, SINGLE_PARAM};
-}
+static Command commands[] = {
+    { "help", "Listado de comandos", (functionType) help},
+    { "man", "Manual de uso de los comandos", (functionType) man},
+    { "inforeg", "Informacion de los registos que fueron capturados en un momento arbitrario de ejecucion del sistema", (functionType) printInfoReg},
+    { "time", "Despliega la hora actual UTC - 3", (functionType) time},
+    { "div", "Hace la division entera de dos numeros naturales enviados por parametro",(functionType) div},
+    { "kaboom", "Ejecuta una excepcion de Invalid Opcode", (functionType) kaboom},
+    { "font-size", "Cambio de dimensiones de la fuente. Para hacerlo escribir el comando seguido de un numero", (functionType) fontSize},
+    { "printmem", "Realiza un vuelco de memoria de los 32 bytes posteriores a una direccion de memoria en formato hexadecimal enviada por parametro", (functionType) printMem},
+    { "clear", "Limpia toda la pantalla", (functionType) myClear},
+    { "mem", "Imprime el estado de la memoria", (functionType) memInfo},
+    { "block", "Cambia el estado de un proceso entre bloqueado y listo dado su ID", (functionType) block},
+    { "unblock", "Cambia el estado de un proceso entre listo y bloqueado dado su ID", (functionType) unblock},
+    { "ps", "Imprime la lista de todos los procesos con sus propiedades", (functionType) ps},
+    { "kill", "Mata un proceso dado su ID", (functionType) kill},
+    { "nice", "Cambia la prioridad de un proceso dado su ID y la nueva prioridad", (functionType) nice},
+    { "loop", "Imprime el ID del proceso con un saludo cada una determinada cantidad de segundos",(functionType) loop},
+    { "cat", "Imprime el stdin tal como lo recibe", (functionType) cat},
+    { "wc", "Cuenta la cantidad de lineas del input", (functionType) wc},
+    { "filter", "Filtra las vocales del input", (functionType) filter},
+    { "phylo", "Implementa el problema de los filósofos comensales", (functionType) mainPhilo},
+    { "testMemManager", "Corre un test para los memory managers", (functionType) testMemManager},
+    { "testPriority", "Corre un test de prioridades", (functionType) testPriority},
+    { "testProcesses", "Corre un test de procesos", (functionType) testProcesses},
+    { "testSync", "Corre un test de sincronizacion", (functionType) testSync},
+};
 
 
 void run_shell() {
-    init();
     int index;
     puts(WELCOME);
+    char *line = (char *)allocMem(MAX_CHARS* sizeof(char));
+    if(line == NULL) {
+        printErr("Error al asignar memoria para la linea de comandos\n");
+        exit();
+        return;
+    }
     while(1){
         putchar('>');
-        char command[MAX_CHARS] = {0};
-        char arg1[MAX_CHARS];
-        char arg2[MAX_CHARS];
-        int qtyParams = scanf("%s %s %s", command, arg1, arg2);   
-        index = getCommandIndex(command);
-        if (index == -1) {
-            if (command[0] != 0)
-                printErr(INVALID_COMMAND);
+        scanf("%l", line);
+        char * leftCom = allocMem(MAX_CHARS * sizeof(char *));
+        if(leftCom == NULL) {
+            printErr("Error al asignar memoria para el comando izquierdo\n");
             continue;
         }
-        int funcParams = commands[index].ftype;
-        if(qtyParams - 1 != funcParams){
-            printErr(WRONG_PARAMS);
-            printf(CHECK_MAN, command);
+        char ** leftParam = (char **)allocMem(MAX_CHARS * sizeof(char *));
+        if(leftParam == NULL) {
+            printErr("Error al asignar memoria para los parametros del comando izquierdo\n");
+            freeMem(leftCom);
             continue;
         }
-        switch (commands[index].ftype)
-        {
-            case NO_PARAMS: 
-                commands[index].f();
-                break;
-            case SINGLE_PARAM:
-                commands[index].g(arg1);
-                break;
-            case DUAL_PARAM:
-                commands[index].h(arg1, arg2);
-                break;
+        int cantLeft;
+        char *pipePos = strchr(line, '|');
+        if(hasPipe(line)){
+            char * rightCom = allocMem(MAX_CHARS*sizeof(char *)); //ver si no poner un MAX_LENGTH
+            if(rightCom == NULL) {
+                printErr("Error al asignar memoria para el comando derecho\n");
+                freeMem(leftCom);
+                freeMem(leftParam);
+                continue;
+            }
+
+            char ** rightParam = (char **)allocMem(MAX_CHARS * sizeof(char *)); //ver si no poner un MAX_LENGTH 
+            if(rightParam == NULL) {
+                printErr("Error al asignar memoria para los parametros del comando derecho\n");
+                freeMem(leftCom);
+                freeMem(leftParam);
+                freeMem(rightCom);
+                continue;
+            }
+            *pipePos = '\0';
+            cantLeft = scanCommand(line, leftCom, leftParam);
+
+            int cantRight = scanCommand(pipePos + 2, rightCom, rightParam);
+
+            int leftIdx = getCommandIndex(leftCom);
+
+            int rightIdx = getCommandIndex(rightCom);
+
+            if(strcmp(leftCom, commands[leftIdx].name) == 0 && strcmp(rightCom, commands[rightIdx].name) == 0){
+                char *newParams1[QTY_ARGS+1] = {0};
+                newParams1[0] = commands[leftIdx].name;
+                for(int i = 0; i < cantLeft; i++) {
+                    newParams1[i + 1] = leftParam[i];
+                }
+                int isBackGroundLeft = 0;
+                if(cantLeft){
+                    isBackGroundLeft = (leftParam[cantLeft - 1][0] == '&');
+                }
+                char *newParams2[QTY_ARGS+1] = {0};
+                newParams2[0] = commands[rightIdx].name;
+                for(int i = 0; i < cantRight; i++) {
+                    newParams2[i + 1] = rightParam[i];
+                }
+                int isBackGroundRight = 0;
+                if(cantRight){
+                    isBackGroundRight = (rightParam[cantRight - 1][0] == '&');
+                }
+                if(!isBackGroundLeft && !isBackGroundRight) {
+                    executePipeCommands(leftCom, rightCom, newParams1, newParams2, cantLeft + 1, cantRight + 1, leftIdx, rightIdx, isBackGroundLeft, isBackGroundRight);
+                }
+                else {
+                    printf("No se pueden tener procesos en background con pipes\n");
+                }
+                for(int i = 0; i < cantLeft; i++) {
+                    freeMem(leftParam[i]);
+                }
+                for(int i = 0; i < cantRight; i++) {
+                    freeMem(rightParam[i]);
+                }
+                freeMem(rightParam);
+                freeMem(rightCom);
+            }
+            else {
+                printf("Para ejecutar un pipe, ambos comandos deben ser procesos\n");
+            }
         }
+        else {
+            cantLeft = scanCommand(line, leftCom, leftParam);
+            int id = getCommandIndex(leftCom);
+            if(id < BUILT_INS && id >=0) {
+                commands[id].ftype(cantLeft, leftParam);
+            }
+            else if(id >= BUILT_INS && id < BUILT_INS + PROCESSES) {
+                char *newParams[QTY_ARGS+1] = {0};
+                int indexProc = id - BUILT_INS;
+                uint64_t rip = (uint64_t)commands[id].ftype;
+                newParams[0] = commands[id].name;
+                for(int i = 0; i < cantLeft; i++) {
+                    newParams[i + 1] = leftParam[i];
+                }
+                int isBackGround = 0;
+                int16_t fileDescriptors[] = { STDIN, STDOUT, STDERR };
+                if(cantLeft){
+                    isBackGround = (leftParam[cantLeft - 1][0] == '&');
+                }
+                cantLeft += isBackGround ? -1 : 0;
+                uint64_t pid = createProc(rip, newParams, cantLeft + 1, 2, fileDescriptors, !isBackGround);
+                if(pid == -1) {
+                    printErr("Error al crear el proceso\n");
+                    for(int i = 0; i < cantLeft; i++) {
+                        freeMem(leftParam[i]);
+                    }
+                    continue;
+                }
+                if(unblockProc(pid) == -1) {
+                    printErr("Error al desbloquear el proceso\n");
+                    killProcess(pid);
+                    for(int i = 0; i < cantLeft; i++) {
+                        freeMem(leftParam[i]);
+                    }
+                    freeMem(leftCom);
+                    continue;
+                }
+                if(!isBackGround) {
+                    waitProcess(pid);
+                }
+            }
+            else{
+                printf("El comando %s no es un comando valido\n", leftCom);
+            }
+        }
+        for(int i = 0; line[i] != '\0'; i++) {
+            line[i] = '\0';
+        }
+        for(int i = 0; i < cantLeft; i++) {
+            freeMem(leftParam[i]);
+        }
+        freeMem(leftParam);
+        freeMem(leftCom);
     }
+    freeMem(line);
+    exit();
 }
 
-/* 
-void run_shell() {
-    int index;
-    puts(WELCOME);
-    while(1){
-        putchar('>');
-        char command[MAX_CHARS] = {0};
-        scanf("%s", command); 
-        index = getCommandIndex(command);
-        if (index == -1) {
-            if (command[0] != 0)
-                printErr(INVALID_COMMAND);
-            continue;
-        }
-        else if (index == 1){
-            
-        
+
+static int hasPipe(char * line) {
+    for(int i = 0; line[i] != '\0'; i++) {
+        if(line[i] == '|') {
+            return 1;
         }
     }
+    return 0;
 }
-
-*/
 
 /**
  * @brief  Devuelve el indice del vector de comandos dado su nombre
@@ -184,10 +255,17 @@ static void help() {
     }
 }
 
-static int div(char * num, char * div) {
-    printf("%s/%s=%d\r\n", num, div, atoi(num)/atoi(div));
+static int div(int num, char * div[]) {
+    printf("Dividiendo %s entre %s\r\n", div[0], div[1]); 
+    //printf("%s/%s=%d\r\n", num, div, n/d);
     return 1;
 }
+
+/*static int div(char * num, char * div) {
+    printf("Dividiendo %s entre %s\r\n", num, div); 
+    //printf("%s/%s=%d\r\n", num, div, n/d);
+    return 1;
+}*/
 
 static void time(){
     uint32_t secs = getSeconds();
@@ -337,8 +415,8 @@ static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]){
         }
     }
     for(k = 0; k < QTY_ARGS && commandLine[i] != '\0'; k++){
-        for(j = 0; commandLine[i] != ' ' && commandLine[i] != '\0'; i++){
-            args[k][j++] = commandLine[i];
+        for(j = 0; commandLine[i] != ' ' && commandLine[i] != '\0'; i++,j++){
+            args[k][j] = commandLine[i];
         }
         args[k][j] = '\0';
         while(commandLine[i] == ' '){
@@ -348,7 +426,9 @@ static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]){
     return k;
 }
 
-void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[], char *rightParam[], int leftParamQuantity, int rightParamQuantity, int leftId, int rightId,int isBackGroundLeft, int isBackGroundRight) {
+
+
+static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[], char *rightParam[], int leftParamQuantity, int rightParamQuantity, int leftId, int rightId,int isBackGroundLeft, int isBackGroundRight) {
     int16_t fileDescriptors[3] = { 0, 1, 2 };
     
     int16_t leftPipePid = createProc((uint64_t)commands[leftId].ftype, (char **)leftParam, leftParamQuantity, 1, fileDescriptors, isBackGroundLeft);
@@ -413,6 +493,3 @@ void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[], char 
         return;
     }
 }
-
-
-//static void testMemManager()

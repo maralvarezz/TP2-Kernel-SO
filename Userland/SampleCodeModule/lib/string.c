@@ -29,3 +29,14 @@ int strlen(const char * str) {
     }
     return idx;
 }
+
+char * strchr(const char * str, char c) {
+    char ch;
+    ch=c;
+	for (;; ++str) {
+		if (*str == ch)
+			return ((char *) str);
+		if (*str == '\0')
+			return (void *) 0;
+	}
+}

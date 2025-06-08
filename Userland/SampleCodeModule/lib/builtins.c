@@ -51,11 +51,11 @@ void ps(int argc, char *argv[]){
     TPInfo processes = processInfo(&cantProcess);
 
     if(processes == NULL || cantProcess == 0){
-        printf("No hay procesos en ejecución.\n");
+        printf("No hay procesos en ejecucion.\n");
         return;
     }
 
-    printf("Los %d procesos en ejecución son:\n", cantProcess);
+    printf("Los %d procesos en ejecucion son:\n", cantProcess);
 
     for(int i = 0; i < cantProcess; i++) {
         PInfo process = processes[i];

@@ -30,6 +30,7 @@
 #define GET_FONT_COLOR 12
 
 static uint8_t syscall_read(uint32_t fd);
+// static void syscall_read(int64_t fd, char *buffer, uint64_t size);
 static void syscall_write(uint32_t fd, char c);
 static void syscall_clear();
 static uint32_t syscall_seconds();
@@ -154,6 +155,20 @@ static uint8_t syscall_read(uint32_t fd){
     }
     return 0;
 }
+
+// static void syscall_read(int64_t fd, char *buffer, uint64_t size) {
+// 	int64_t fdProcess = fd; //getFileDescriptor(fd);
+// 	if (fd >= 3) {
+// 		readPipe(fdProcess, buffer, size);
+// 	}
+// 	else if (fd == STDIN) {
+// 		char c;
+// 		while( (c = getAscii()) == 0){
+// 			blockProcess(getActualPid());
+// 		}
+// 		buffer[0] = c;
+// 	}
+// }
 
 // Write char
 static void syscall_write(uint32_t fd, char c){

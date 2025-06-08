@@ -1,7 +1,4 @@
-#include <syscalls.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "processes.h"
+#include "philosophers.h"
 
 #define MAXPHILOS 9 //Maxima cantidad de filósofos
 #define MINPHILOS 3 //Minima cantidad de filósofos
@@ -26,6 +23,7 @@ philosopher_t philosophers[MAXPHILOS] = {0};
 uint64_t cantPhilo = 0;
 TSem mutexPhilo;
 TSem printSemPhilo;
+static int id = 0;
 
 void startPhilosophers();
 static void sumPhilo();
@@ -38,6 +36,17 @@ static void dibujarPhilo();
 static void waitTime();
 
 void mainPhilo(int argc, char *argv[]){
+    printf("Iniciando el programa de filosofos.\n");
+
+    printSemPhilo = semCreate(1,"printSemPhilo");
+    if(printSemPhilo == NULL){
+        semWait(printSemPhilo);
+        printf("Error al crear el semaforo de impresion.\n");
+        semPost(printSemPhilo);
+        exit();
+        return;
+    }
+    
     if(argc != 2){
         semWait(printSemPhilo);
         printf("Debe insertar un parametro con la cantidad de filosofos que desea.\n");
@@ -48,7 +57,7 @@ void mainPhilo(int argc, char *argv[]){
     int cantInicial = atoi(argv[1]);
     if(cantInicial < MINPHILOS || cantInicial > MAXPHILOS){
         semWait(printSemPhilo);
-        printf("El número de filosofos debe estar entre %d y %d.\n", MINPHILOS, MAXPHILOS);
+        printf("El numero de filosofos debe estar entre %d y %d.\n", MINPHILOS, MAXPHILOS);
         semPost(printSemPhilo);
         exit();
         return;
@@ -61,14 +70,6 @@ void mainPhilo(int argc, char *argv[]){
         exit();
         return;
     }
-    printSemPhilo = semCreate(1,"printSemPhilo");
-    if(printSemPhilo == NULL){
-        semWait(printSemPhilo);
-        printf("Error al crear el semaforo de impresion.\n");
-        semPost(printSemPhilo);
-        exit();
-        return;
-    }
     semWait(printSemPhilo);
     printf("Los comandos son (A):Agregar, (Q):Quitar, (S):Salir\n");
     semPost(printSemPhilo);
@@ -76,8 +77,9 @@ void mainPhilo(int argc, char *argv[]){
         sumPhilo();
         cantInicial--;
     }
+    
     startPhilosophers();
-    cantPhilo = 0;
+    //cantPhilo = 0;
     exit();
     return;
 }
@@ -104,17 +106,13 @@ void startPhilosophers(){
             printf("Saliendo del programa de filosofos.\n");
             semPost(printSemPhilo);
             break;
-        } else {
-            semWait(printSemPhilo);
-            printf("Comando no reconocido. Intente nuevamente.\n");
-            semPost(printSemPhilo);
         }
     }
 
     for(int i = 0; i < cantPhilo; i++){
         killProcess(philosophers[i].pid);
         if(semClose(philosophers[i].semPhilo)){
-            printf("Error al cerrar el semáforo del filosofo %d.\n", i);
+            printf("Error al cerrar el semaforo del filosofo %d.\n", i);
             exit();
             return;
         }
@@ -135,7 +133,10 @@ void startPhilosophers(){
 static void sumPhilo(){
     semWait(mutexPhilo);
     philosophers[cantPhilo].state = THINKING;
-    philosophers[cantPhilo].semPhilo = semCreate(0, "semPhilo");
+    char semName[16] = "semPhilo";
+    semName[8] = '0' + id++;
+    semName[9] = '\0'; 
+    philosophers[cantPhilo].semPhilo = semCreate(0, semName);
     if(philosophers[cantPhilo].semPhilo == NULL){
         semWait(printSemPhilo);
         printf("Error al crear el semaforo del filosofo %d.\n", cantPhilo);
@@ -147,8 +148,8 @@ static void sumPhilo(){
     char bufferPhilo[BUFFERSIZE]= {0};
     itoa(cantPhilo, bufferPhilo, 10);
     char *argsPhilo[] = {"philosopher", bufferPhilo};
-    int16_t fileDescriptors[] = {0,1,2};
-    philosophers[cantPhilo].pid = createProc((uint64_t)philosophing, argsPhilo, 2, 1, fileDescriptors, 1);
+    int16_t fileDescriptors[] = {-1,-1,-1};
+    philosophers[cantPhilo].pid = createProc((uint64_t)philosophing, argsPhilo, 2, 1, fileDescriptors, 0);
     if(philosophers[cantPhilo].pid == -1){
         semWait(printSemPhilo);
         printf("Error al crear el proceso del filosofo %d.\n", cantPhilo);

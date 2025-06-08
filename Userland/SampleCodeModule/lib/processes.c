@@ -92,7 +92,7 @@ void testMemManager(int argc, char *argv[]){
         exit();
         return;
     }
-    printf("Test de memoria finalizado corrextamente\n");
+    printf("Test de memoria finalizado correctamente\n");
     exit();
     return;
 }

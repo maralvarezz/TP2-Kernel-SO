@@ -162,6 +162,9 @@ int scanf(char * fmt, ...) {
                 case 's':
                     end = &buffer[bIdx] + strcpychar((char *) va_arg(v, char *), &buffer[bIdx], ' ');
                     break;
+                case 'l':
+                    end = &buffer[bIdx] + strcpychar((char *) va_arg(v, char *), &buffer[bIdx], '\n');
+                    break;
             }
             bIdx += end - &buffer[bIdx];
             qtyParams++;

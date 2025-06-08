@@ -7,10 +7,11 @@
 #include <stdint.h>
 #include <syscalls.h>
 #include <libasm.h>
+#include "builtins.h"
 #include <processes.h>
 #include "tests.h"
+#include "philosophers.h"
 
-#define QTY_COMMANDS 11   //26
 /**
  * @brief Corre la terminal
  * 
