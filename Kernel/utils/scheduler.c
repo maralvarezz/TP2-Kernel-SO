@@ -9,7 +9,7 @@ typedef struct schedulerCDT{
     linkedListADT readyList;
     linkedListADT blockedList;
     TPCB actualProcess;
-    int32_t quantum; //el quantum va a depender directamente de la prioridad del proceso
+    int32_t quantum; 
     uint64_t actualPid;
     uint64_t nextPid;
     uint64_t cantProcesses;
@@ -57,31 +57,29 @@ void createScheduler(){
     createdScheduler = 1;
     char *idleArg[] = { "idle" };
     int16_t fileDescriptors[] = {-1,-1,2};
-    createProcess((uint64_t) idle, idleArg, 1, 1, fileDescriptors, 1);
+    createProcess((uint64_t) idle, idleArg, 1, 1, fileDescriptors, 0);
     scheduler->cantProcesses = 0;
 }
 
-//este bro, va a agarrar un proceso, si es que hay, lo va a METER running agarrando uno de los readys y lo va  amandar a la cola de bloqueados o de ready dependiendo el caso
-//esto va a devolver la stackPosition del procesoActual para que el scheduler lo pueda usar
+
 /*uint64_t changeProcess(uint64_t actualRSP){ 
     
-    if(createdScheduler == 0){ //si no está creado el scheduler devolvemos el puntero a la pila del proceso actual
+    if(createdScheduler == 0){ 
         return actualRSP;
     }
     schedulerADT scheduler = getScheduler();
-    scheduler->quantum--; //simulo el tiempo del proceso en ejecución
+    scheduler->quantum--; 
     if(scheduler->quantum > 0 || scheduler->cantProcesses == 0){ 
         return actualRSP;
     }
-    //si el proceso actual es el kernel, entonces tengo que sacar un proceso el primer proceso de la lista de listos y ponerlo a correr
+    
 
-    if(scheduler->actualPid == SHELLPID){      //si el proceso no existe, entonces no hay nada para correr    
+    if(scheduler->actualPid == SHELLPID){       
         scheduler->actualProcess = (TPCB) next(scheduler->readyList);
         if(scheduler->actualProcess == NULL){   
             return actualRSP;
         }
         
-        //actualizo los datos del proceso 
         
         scheduler->quantum = scheduler->actualProcess->priority;
         scheduler->actualProcess->status = RUNNING;
@@ -89,12 +87,9 @@ void createScheduler(){
         return scheduler->actualProcess->stackPos;
     }
 
-    //si el proceso actual no es el kernel y no es NULL, entonces guardo la posición del RSP del proceso actual y saco de RUNNING al proces y lo meto en la lista de READY
-    //en el caso de que el proceso actual sea KILLED, entonces lo libero y no lo meto en la lista de READY
-    printf("scheduler->actualProcess: %d\n", (uint64_t)scheduler->actualProcess);
-    printf("scheduler->actualProcess->pid: %d\n", scheduler->actualProcess->pid);
+
     if(scheduler->actualProcess != NULL){
-        scheduler->actualProcess->stackPos = actualRSP; //guardo la posición de la pila del proceso actual
+        scheduler->actualProcess->stackPos = actualRSP; 
         printf("scheduler->actualProcess->status: %d\n", scheduler->actualProcess->status);
         if(scheduler->actualProcess->status == RUNNING){
             scheduler->actualProcess->status = READY;
@@ -104,10 +99,9 @@ void createScheduler(){
             freeProcess(scheduler->actualProcess);
         }
     }
-    //si el proceso actual es NULL, entonces tengo que sacar un proceso de la lista de listos y ponerlo a correr
-    //si no hay procesos en la lista de listos, entonces no hay nada para correr y lo pongo a correr al idle
+
     TPCB auxProcess = getFirst(scheduler->readyList);
-    printf("auxProcess: %d\n", (uint64_t)auxProcess);
+
     if(auxProcess == NULL){
         TPCB process = getProcess(IDLEPROCESS);
         printf("process: %d\n", (uint64_t)process);
@@ -119,7 +113,6 @@ void createScheduler(){
             scheduler->actualProcess = auxProcess;
             return scheduler->actualProcess->stackPos;
         }
-        printf("No hay procesos listos, corriendo idle\n");
     }
     addNode(scheduler->readyList,auxProcess); 
     scheduler->actualProcess = auxProcess;
@@ -130,33 +123,30 @@ void createScheduler(){
 }*/
 uint64_t changeProcess(uint64_t actualRSP){ 
     
-    if(createdScheduler == 0){ //si no está creado el scheduler devolvemos el puntero a la pila del proceso actual
+    if(createdScheduler == 0){ 
         return actualRSP;
     }
     schedulerADT scheduler = getScheduler();
-    scheduler->quantum--; //simulo el tiempo del proceso en ejecución
+    scheduler->quantum--; 
     
     if(scheduler->quantum > 0 || scheduler->cantProcesses == 0){ 
         return actualRSP;
     }
-    //si el proceso actual es el kernel, entonces tengo que sacar un proceso el primer proceso de la lista de listos y ponerlo a correr
-    
-    if(scheduler->actualPid < SHELLPID){      //si el proceso no existe, entonces no hay nada para correr   
+
+    if(scheduler->actualPid < SHELLPID){      
         scheduler->actualProcess->stackPos = actualRSP;
         scheduler->actualProcess = (TPCB) getFirst(scheduler->readyList);
         if(scheduler->actualProcess == NULL){
             return actualRSP;
         }
-        scheduler->quantum = 3 * scheduler->actualProcess->priority;
+        scheduler->quantum = 1 * scheduler->actualProcess->priority;
         scheduler->actualProcess->status = RUNNING;
         scheduler->actualPid = scheduler->actualProcess->pid;
         return scheduler->actualProcess->stackPos;
     }
 
-    //si el proceso actual no es el kernel y no es NULL, entonces guardo la posición del RSP del proceso actual y saco de RUNNING al proces y lo meto en la lista de READY
-    //en el caso de que el proceso actual sea KILLED, entonces lo libero y no lo meto en la lista de READY
     if(scheduler->actualProcess != NULL){
-        scheduler->actualProcess->stackPos = actualRSP; //guardo la posición de la pila del proceso actual
+        scheduler->actualProcess->stackPos = actualRSP; 
         if(scheduler->actualProcess->status == RUNNING){
             scheduler->actualProcess->status = READY;
             addNode(scheduler->readyList, scheduler->actualProcess);
@@ -167,8 +157,7 @@ uint64_t changeProcess(uint64_t actualRSP){
             scheduler->cantProcesses--;
         }
     }
-    //si el proceso actual es NULL, entonces tengo que sacar un proceso de la lista de listos y ponerlo a correr
-    //si no hay procesos en la lista de listos, entonces no hay nada para correr y lo pongo a correr al idle
+
     TPCB auxProcess = getFirst(scheduler->readyList);
     if(auxProcess == NULL){
         TPCB process = getProcess(IDLEPROCESS);
@@ -183,12 +172,12 @@ uint64_t changeProcess(uint64_t actualRSP){
     }
     scheduler->actualProcess = auxProcess;
     scheduler->actualProcess->status = RUNNING;
-    scheduler->quantum = 3 * scheduler->actualProcess->priority;
+    scheduler->quantum = 1 * scheduler->actualProcess->priority;
     scheduler->actualPid = scheduler->actualProcess->pid;
     return scheduler->actualProcess->stackPos;
 }
 
-/* Devuelve 0 si no se pudo crear y si no su pid */
+
 uint64_t createProcess(uint64_t rip, char **args, int argc, uint8_t priority, int16_t fileDescriptors[], int ground){
     schedulerADT scheduler = getScheduler();
     if(scheduler == NULL){
@@ -275,40 +264,6 @@ void myKill(TPCB process){
     process->status= KILLED;
 }
 
-//las girls
-// int64_t kill(schedulerADT scheduler, PCB *process) {
-// 	if (process->status == READY) {
-// 		if (removeNode(scheduler->readyProcess, process) == NULL) {
-// 			return -1;
-// 		}
-// 	}
-// 	else if (process->status == BLOCKED) {
-// 		if (removeNode(scheduler->blockedProcess, process) == NULL) {
-// 			return -1;
-// 		}
-// 	}
-
-// 	toBegin(process->waitingList);
-// 	PCB *aux;
-// 	while (hasNext(process->waitingList)) {
-// 		aux = nextInList(process->waitingList);
-// 		if (readyProcess(aux->pid) == -1) {
-// 			return -1;
-// 		}
-// 		readyProcess(aux->pid);
-// 	}
-// 	if (removeNode(scheduler->processList, process) == NULL) {
-// 		return -1;
-// 	}
-// 	process->status = KILLED;
-
-// 	scheduler->processQty--;
-
-// 	free(process);
-
-// 	return 0;
-// }
-
 
 void killActualProcess(){
     schedulerADT scheduler = getScheduler();
@@ -335,7 +290,7 @@ int blockProcess(uint64_t pid){
         }
         process->status = BLOCKED;
     }
-    //si es el proceso que estoy corriendo, interrumpime y llama al timmertick
+
     if(pid == getActualPid()){
         yieldProcess();
     }

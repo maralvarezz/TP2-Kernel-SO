@@ -2,9 +2,11 @@
 #include <stdio.h>
 #include "syscalls.h"
 
+#define MINOR_WAIT 1000000
 // Random
 static uint32_t m_z = 362436069;
 static uint32_t m_w = 521288629;
+
 
 uint32_t GetUint() {
   m_z = 36969 * (m_z & 65535) + (m_z >> 16);
@@ -68,7 +70,7 @@ void endless_loop_print(uint64_t wait) {
   int64_t pid = getPid();
 
   while (1) {
-    printf("%ld ", pid);
-    bussy_wait(wait);
+    printf("%d ", pid);
+    bussy_wait(MINOR_WAIT);
   }
 }

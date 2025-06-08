@@ -18,8 +18,9 @@ void loop(int argc, char *argv[]){
         return;
     }
 
+    uint64_t pid = getPid();
     while(1){
-        printf("Hola, soy el proceso de PID: %d\n", getPid());
+        printf("Hola, soy el proceso de PID: %d\n", pid);
         sleep(sec);
     }
     exit();
@@ -76,12 +77,12 @@ void filter(int argc, char *argv[]){
 
 void testMemManager(int argc, char *argv[]){
     if(argc != 2){
-        printf("Debe ingresar un un argumento con el tamaño de la memoria que desea testear.\n");
+        printf("Debe ingresar un un argumento con el tamano de la memoria que desea testear.\n");
         exit();
         return;
     }
     if(atoi(argv[1]) <= 0){
-        printf("El tamaño de la memoria debe ser un número positivo.\n");
+        printf("El tamano de la memoria debe ser un numero positivo.\n");
         exit();
         return;
     }
@@ -116,7 +117,7 @@ void testProcesses(int argc, char *argv[]){
     }
     int cant = atoi(argv[1]);
     if(cant <= 0 || cant > MAX_PROCESSES){
-        printf("La cantidad de procesos debe ser un número entre 1 y %d.\n", MAX_PROCESSES);
+        printf("La cantidad de procesos debe ser un numero entre 1 y %d.\n", MAX_PROCESSES);
         exit();
         return;
     }
@@ -134,19 +135,19 @@ void testProcesses(int argc, char *argv[]){
 
 void testSync(int argc, char *argv[]){
     if(argc != 3){
-        printf("Debe ingresar dos argumentos con la cantidad de iteraciones queridas y si se desea usar semáforos o no.\n");
+        printf("Debe ingresar dos argumentos con la cantidad de iteraciones queridas y si se desea usar semaforos o no.\n");
         exit();
         return;
     }
 
     if(atoi(argv[1]) <= 0){
-        printf("La cantidad de iteraciones debe ser un número positivo.\n");
+        printf("La cantidad de iteraciones debe ser un numero positivo.\n");
         exit();
         return;
     }
 
     if(atoi(argv[2]) < 0){
-        printf("El segundo argumento debe ser 0 si no se desea usar semáforos o mayor a 0 de lo contrario.\n");
+        printf("El segundo argumento debe ser 0 si no se desea usar semaforos o mayor a 0 de lo contrario.\n");
         exit();
         return;
     }
@@ -156,12 +157,12 @@ void testSync(int argc, char *argv[]){
     int passed = test_sync(2, args);
 
     if(passed == -1){
-        printf("Error al correr el test de sincronización.\n");
+        printf("Error al correr el test de sincronizacion.\n");
         exit();
         return;
     }
 
-    printf("Test de sincronización finalizado correctamente.\n");
+    printf("Test de sincronizacion finalizado correctamente.\n");
     exit();
     return;
 }

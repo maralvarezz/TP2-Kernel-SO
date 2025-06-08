@@ -268,7 +268,7 @@ static uint64_t syscall_changePriority(uint64_t pid, uint8_t priority){
 
 static void syscall_blockProcess(uint64_t pid){
     blockProcess(pid);
-    yieldProcess();
+    //yieldProcess();
 }
 
 static int syscall_unblockProcess(uint64_t pid){

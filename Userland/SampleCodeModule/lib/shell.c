@@ -10,7 +10,7 @@
 #define QTY_ARGS 3
 #define MAX_SIZE 128
 #define MAX_PARAMS 3
-#define QTY_COMMANDS (BUILT_INS + PROCESSES) 
+#define QTY_COMMANDS (BUILT_INS + PROCESSES + 1) 
 
 #define WELCOME "Bienvenido a eSeMeMe SO!\n"
 #define INVALID_COMMAND "Comando invalido!\n"
@@ -64,7 +64,7 @@ static Command commands[] = {
     { "cat", "Imprime el stdin tal como lo recibe", (functionType) cat},
     { "wc", "Cuenta la cantidad de lineas del input", (functionType) wc},
     { "filter", "Filtra las vocales del input", (functionType) filter},
-    { "phylo", "Implementa el problema de los filósofos comensales", (functionType) mainPhilo},
+    { "phylo", "Implementa el problema de los filosofos comensales", (functionType) mainPhilo},
     { "testMemManager", "Corre un test para los memory managers", (functionType) testMemManager},
     { "testPriority", "Corre un test de prioridades", (functionType) testPriority},
     { "testProcesses", "Corre un test de procesos", (functionType) testProcesses},
@@ -167,7 +167,7 @@ void run_shell() {
             if(id < BUILT_INS && id >=0) {
                 commands[id].ftype(cantLeft, leftParam);
             }
-            else if(id >= BUILT_INS && id < BUILT_INS + PROCESSES) {
+            else if(id >= BUILT_INS && id < QTY_COMMANDS) {
                 char *newParams[QTY_ARGS+1] = {0};
                 int indexProc = id - BUILT_INS;
                 uint64_t rip = (uint64_t)commands[id].ftype;

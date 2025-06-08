@@ -3,7 +3,6 @@
 #include "syscalls.h"
 #include "test_util.h"
 
-#define SEM_ID 20
 #define TOTAL_PAIR_PROCESSES 2
 
 int64_t global; // shared memory
@@ -20,58 +19,73 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
   int8_t inc;
   int8_t use_sem;
 
-  if (argc != 4)
+  if (argc != 4){
+    exit();
     return -1;
+  }
 
-  if ((n = satoi(argv[0])) <= 0)
+  if ((n = satoi(argv[1])) <= 0){
+    exit();
     return -1;
-  if ((inc = satoi(argv[1])) == 0)
+  }
+  if ((inc = satoi(argv[2])) == 0){
+    exit();
     return -1;
-  if ((use_sem = satoi(argv[2])) < 0)
+  }
+  if ((use_sem = satoi(argv[3])) < 0){
+    exit();
     return -1;
-
-  if (use_sem)
-    if (!semCreate(1,"test")) {
-      printf("test_sync: ERROR opening semaphore\n");
-      return -1;
-    }
-
-  uint64_t i;
-  for (i = 0; i < n; i++) {
-    if (use_sem)
-      semWait(semOpen("test"));
-    slowInc(&global, inc);
-    if (use_sem)
-      semPost(semOpen("test"));
   }
 
   if (use_sem)
-    semClose(semOpen("test"));
-
+    if (!semOpen("test")) {
+      printf("test_sync: ERROR opening semaphore\n");
+      exit();
+      return -1;
+    }
+    
+  uint64_t i;
+  for (i = 0; i < n; i++) {
+    if (use_sem){
+      semWait(semOpen("test"));
+    }
+    slowInc(&global, inc);
+    if (use_sem){
+      semPost(semOpen("test"));
+    }
+  }
+  exit();
   return 0;
 }
 
 uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
   uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
-  if (argc != 2)
+  if (argc != 2){
+    exit();
     return -1;
+  }
 
 
-  int8_t useSem = satoi(argv[2]); //no se si es argv[0] o argv[1]
+  int8_t useSem = satoi(argv[1]);
   if(useSem){
     if (!semCreate(1, "test")) {
       printf("test_sync: ERROR creating semaphore\n");
+      exit();
       return -1;
     }
+    printf("Semaforo creado correctamente\n");
   } 
-  char *argvDec[] = {argv[0], "-1", argv[1], NULL};
-  char *argvInc[] = {argv[0], "1", argv[1], NULL};
+	char *argvDec[] = {"my_process_inc", argv[0], "-1", argv[1]};
+	char *argvInc[] = {"my_process_inc", argv[0], "1", argv[1]};
   int16_t fileDescriptors[] = {STDIN, STDOUT, STDERR};
 
   global = 0;
 
   uint64_t i;
+  
+  printf("Empezando el testeo...\n");
+  
   for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
     pids[i] = createProc((uint64_t)my_process_inc, argvDec, 4, 1, fileDescriptors, 1);
     unblockProc(pids[i]);
@@ -84,7 +98,7 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem, 0}
     waitProcess(pids[i + TOTAL_PAIR_PROCESSES]);
   }
 
-  printf("Final value: %d\n", global);
+  printf("Final value: %d\n", (int)global);
 
   if(useSem)
     semClose(semOpen("test"));

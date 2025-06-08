@@ -122,7 +122,7 @@ int main()
 	//createProcess((uint64_t)proceso3, argv2, 1, 5, fileDescriptors, 0);
     char * argv[] = { "shell" };
     int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
-    createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
+    createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, SHELL_PRIORITY, fileDescriptors, 1);
 	load_idt();
 	_sti();
     while(1) {

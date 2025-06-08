@@ -1,10 +1,10 @@
 #include "philosophers.h"
 
-#define MAXPHILOS 9 //Maxima cantidad de filósofos
-#define MINPHILOS 3 //Minima cantidad de filósofos
-#define RIGHT(philoId) (((philoId) + 1) % cantPhilo) //calculo del filósofo de la derecha
-#define LEFT(philoId) (((philoId) + cantPhilo - 1) % cantPhilo) //calculo del filósofo de la izquierda
-#define BUFFERSIZE 2 //Tamaño del buffer necesario para los filósofos
+#define MAXPHILOS 9 
+#define MINPHILOS 3 
+#define RIGHT(philoId) (((philoId) + 1) % cantPhilo) 
+#define LEFT(philoId) (((philoId) + cantPhilo - 1) % cantPhilo) 
+#define BUFFERSIZE 2 
 
 typedef enum {
     THINKING = 0,
@@ -15,7 +15,7 @@ typedef enum {
 typedef struct{
     philoState state;
     int pid;
-    TSem semPhilo; //Semáforo para controlar el estado del filósofo
+    TSem semPhilo; 
 } philosopher_t;
 
 philosopher_t philosophers[MAXPHILOS] = {0};
@@ -37,7 +37,6 @@ static void waitTime();
 
 void mainPhilo(int argc, char *argv[]){
     printf("Iniciando el programa de filosofos.\n");
-
     printSemPhilo = semCreate(1,"printSemPhilo");
     if(printSemPhilo == NULL){
         semWait(printSemPhilo);
@@ -154,13 +153,13 @@ static void sumPhilo(){
 static void quitarPhilo(){
     if(cantPhilo <= MINPHILOS){
         semWait(printSemPhilo);
-        printf("No se pueden quitar más filosofos, debe haber al menos %d.\n", MINPHILOS);
+        printf("No se pueden quitar mas filosofos, debe haber al menos %d.\n", MINPHILOS);
         semPost(printSemPhilo);
         return;
     }
     cantPhilo--;
     semWait(mutexPhilo);
-    //espera activa hasta que los filósofos de la izquierda o el de la derecha no estén comiendo
+
     while(philosophers[LEFT(cantPhilo)].state == EATING && philosophers[RIGHT(cantPhilo)].state == EATING) {
 		semPost(mutexPhilo);
 		semWait(philosophers[cantPhilo].semPhilo);
@@ -178,8 +177,6 @@ static void quitarPhilo(){
 
     semPost(mutexPhilo);
 }
-
-/*Funcionamiento que vimos en clase de los filósofos*/
 
 static int philosophing(int argc, char *argv[]){
     int arg = atoi(argv[1]);
@@ -215,8 +212,6 @@ static void testForks(int id){
     }
     dibujarPhilos();
 }
-
-/*Dibujo simple que pide la consigna de los filósofos*/
 
 static void dibujarPhilos() {
     semWait(printSemPhilo);

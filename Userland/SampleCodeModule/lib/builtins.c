@@ -19,7 +19,7 @@ void block(int argc, char *argv[]) {
     }
     int pid = atoi(argv[0]);
     if (pid < 0) {
-        printf("PID inválido.\n");
+        printf("PID invalido.\n");
         return;
     }
     blockProc(pid);
@@ -33,7 +33,7 @@ void unblock(int argc, char *argv[]) {
     }
     int pid = atoi(argv[0]);
     if (pid <= 1) {
-        printf("PID inválido, debe ser un número mayor a 1.\n");
+        printf("PID invalido, debe ser un numero mayor a 1.\n");
         return;
     }
     unblockProc(pid);
@@ -55,11 +55,11 @@ void ps(int argc, char *argv[]){
         return;
     }
 
-    printf("Los %d procesos en ejecucion son:\n", cantProcess);
+    printf("Los %d procesos en ejecucion son:\n", cantProcess + 1);
 
-    for(int i = 0; i < cantProcess; i++) {
+    for(int i = 0; i < cantProcess + 1; i++) {
         PInfo process = processes[i];
-        printf("PID: %d, Nombre: %s, Estado: %s, Priority: %d, Ground: %s, StackPos: %d, StackBase: %d, RIP: %d\n", process.pid, process.name, process.status == 0 ? "Activo" : "Bloqueado", process.priority, process.ground == 0 ? "Background" : "Foreground", process.stackPos, process.stackBase, process.rip);
+        printf("PID: %d\n Nombre: %s\n Estado: %s\n Priority: %d\n Ground: %s\n StackPos: %d\n StackBase: %d\n RIP: %d\n", process.pid, process.name, process.status == 0 ? "Bloqueado" : "Activo", process.priority, process.ground == 0 ? "Background" : "Foreground", process.stackPos, process.stackBase, process.rip);
     }
     
     //aca faltaria un free??????? (de processes)
