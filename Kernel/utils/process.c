@@ -79,8 +79,10 @@ int waitProcess(int16_t pid){
     if (process == NULL || currentPid == pid) {
         return -1;
     }
-    addNode(process->waitingList, getProcess(currentPid));
-    blockProcess(currentPid);
+    if(process->status != KILLED){
+        addNode(process->waitingList, getProcess(currentPid));
+        blockProcess(currentPid);
+    }
     return 0;
 }
 

@@ -15,6 +15,8 @@ typedef struct schedulerCDT{
     uint64_t cantProcesses;
 } schedulerCDT;
 
+static int16_t getPipedFD(int16_t *FDs);
+TPCB searchPipedProcess(int16_t fd,TPCB otherPipedProcess);
 
 static void idle();
 schedulerADT scheduler = NULL;
@@ -134,8 +136,6 @@ uint64_t changeProcess(uint64_t actualRSP){
         return actualRSP;
     }
 
-
-
     if(scheduler->actualPid < SHELLPID){      
         scheduler->actualProcess->stackPos = actualRSP;
         scheduler->actualProcess = (TPCB) getFirst(scheduler->readyList);
@@ -175,9 +175,11 @@ uint64_t changeProcess(uint64_t actualRSP){
     }
     scheduler->actualProcess = auxProcess;
     if(auxProcess->status != KILLED){
-        scheduler->actualProcess->status = RUNNING;    
+        scheduler->actualProcess->status = RUNNING;
+        scheduler->quantum = 1 * scheduler->actualProcess->priority;  
+    }else{
+        scheduler->quantum = 0;
     }
-    scheduler->quantum = 1 * scheduler->actualProcess->priority;
     scheduler->actualPid = scheduler->actualProcess->pid;
     return scheduler->actualProcess->stackPos;
 }
@@ -228,23 +230,15 @@ void killProcess(uint64_t pid){
         return;
     }
     
-    
-    /* Necesito pipes para cerrar fd (ayudame sancho) */
-    // no
-    //TPCB shellProcess = getProcess(SHELLPID);
-    //removeNode(scheduler->readyList, process);
-    //scheduler->cantProcesses--;
-    // if(scheduler->cantProcesses == 0){
-    //     addNode(scheduler->readyList, shellProcess);
-    //     scheduler->cantProcesses++;
-    // }
-    if(process->status == READY){
-        removeNode(scheduler->readyList, process);
-    }
-    else if(process->status == BLOCKED){
-        removeNode(scheduler->blockedList, process);
-    }
+    int16_t fd = getPipedFD(process->fileDescriptors);
     myKill(process);
+    if(fd!=-1){
+        TPCB pipedProcess = searchPipedProcess(fd, process);
+        if(pipedProcess!=NULL){
+            myKill(pipedProcess);
+        }
+    }
+
     if(scheduler->actualProcess->pid == pid){
         yieldProcess();
     }
@@ -258,6 +252,12 @@ void myKill(TPCB process){
     if(scheduler == NULL){
         return;
     }
+    if(process->status == READY){
+        removeNode(scheduler->readyList, process);
+    }
+    else if(process->status == BLOCKED){
+        removeNode(scheduler->blockedList, process);
+    }
     toBegin(process->waitingList);
     while(hasNext(process->waitingList)){
         TPCB blockedProcess = next(process->waitingList);
@@ -267,7 +267,9 @@ void myKill(TPCB process){
         readyProcess(blockedProcess->pid);
     }
     process->status = KILLED;
-    addNode(scheduler->readyList, process);
+    if(scheduler->actualProcess != process){
+        addNode(scheduler->readyList, process);
+    }
 }
 
 
@@ -414,10 +416,10 @@ void killForegroundProcess(){
     if(scheduler == NULL){
         return;
     }
-    /*if(scheduler->actualProcess->ground == FOREGROUND && scheduler->actualProcess->pid != SHELLPID){
+    if(scheduler->actualProcess->ground == FOREGROUND && scheduler->actualProcess->pid != SHELLPID){
         killActualProcess();
         return;
-    }*/
+    }
 
     toBegin(scheduler->totalProcesses);
     TPCB process;
@@ -425,10 +427,10 @@ void killForegroundProcess(){
         process = next(scheduler->totalProcesses);
         if(process->ground == FOREGROUND && process->pid != SHELLPID){
             killProcess(process->pid);
-            //return;
+            return;
         }
     }
-    yieldProcess();
+    //yieldProcess();
 }
 
 int64_t getFD(int64_t fd) {
@@ -437,3 +439,27 @@ int64_t getFD(int64_t fd) {
     return process->fileDescriptors[fd];
 }
 
+
+int16_t getPipedFD(int16_t *FDs) {
+	if (FDs[STDIN] != STDIN) {
+		return FDs[STDIN];
+	}
+	else if (FDs[STDOUT] != STDOUT) {
+		return FDs[STDOUT];
+	}
+	return -1;
+}
+
+
+TPCB searchPipedProcess(int16_t fd,TPCB otherPipedProcess) {
+	schedulerADT scheduler = getScheduler();
+	TPCB process;
+	toBegin(scheduler->totalProcesses);
+	while (hasNext(scheduler->totalProcesses)) {
+		process = next(scheduler->totalProcesses);
+		if ((process -> fileDescriptors[STDIN] == fd || process -> fileDescriptors[STDOUT] == fd) && process != otherPipedProcess) {
+			return process;
+		}
+	}
+	return NULL;
+}

@@ -74,7 +74,7 @@ static Command commands[] = {
 
 
 void run_shell() {
-    int index;
+    int index, flag;
     puts(WELCOME);
     char *line = allocMem(MAX_CHARS * sizeof(char *));
     if(line == NULL) {
@@ -82,7 +82,9 @@ void run_shell() {
         exit();
         return;
     }
+    
     while(1){  // deje los char * !
+        
         putchar('>');
         scanf("%l", line);
         char * leftCom = (char *)allocMem(MAX_CHARS * sizeof(char *));
@@ -167,6 +169,7 @@ void run_shell() {
         else {
             cantLeft = scanCommand(line, leftCom, leftParam);
             int id = getCommandIndex(leftCom);
+            flag = 1;
             if(id < BUILT_INS && id >=0) {
                 commands[id].ftype(cantLeft, leftParam);
             }
@@ -194,6 +197,8 @@ void run_shell() {
                     }
                     continue;
                 }
+                flag = 0;
+
                 if(unblockProc(pid) == 0) {
                     printErr("Error al desbloquear el proceso\n");
                     killProcess(pid);
@@ -210,14 +215,18 @@ void run_shell() {
             else{
                 printf("El comando %s no es un comando valido\n", leftCom);
             }
+            
         }
-        for(int i = 0; line[i] != '\0'; i++) {
+        for(int i = 0; line[i] != 0; i++) {
             line[i] = '\0';
         }
-        for(int i = 0; i < cantLeft; i++) {
-            freeMem(leftParam[i]);
+        if(flag){
+            for(int i = 0; i < cantLeft; i++) {
+                freeMem(leftParam[i]);
+            }
+            freeMem(leftParam);
         }
-        freeMem(leftParam);
+        
         freeMem(leftCom);
     }
     freeMem(line);
@@ -378,7 +387,7 @@ static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]){
         command[j++] = commandLine[i];
     }
     command[j] = '\0';
-    if(commandLine[i] == '\0') {
+    if(commandLine[i] == '\0' || commandLine[i] == -1){
         return 0;   
     }
     while(commandLine[i] == ' '){
@@ -390,7 +399,7 @@ static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]){
             return -1;
         }
     }
-    for(k = 0; k < QTY_ARGS && commandLine[i] != '\0'; k++){
+    for(k = 0; k < QTY_ARGS && commandLine[i] != '\0' ; k++){
         for(j = 0; commandLine[i] != ' ' && commandLine[i] != '\0'; i++,j++){
             args[k][j] = commandLine[i];
         }

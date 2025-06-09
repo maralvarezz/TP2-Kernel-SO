@@ -55,6 +55,8 @@ void wc(int argc, char *argv[]){
         if(scan == 0)
             count++;
     }
+    count++;
+    putchar('\n');
     printf("Cantidad de lineas: %d\n", count);
     exit();
 }
@@ -106,6 +108,7 @@ void testPriority(int argc, char *argv[]){
         return;
     }
     test_prio();
+    putchar('\n');
     exit();
     return;
 }
