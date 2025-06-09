@@ -5,12 +5,12 @@
 #define DEFAULT_FONT_SIZE 1
 #define MIN_FONT_SIZE 1
 #define MAX_FONT_SIZE 3
-#define BUILT_INS 14
+#define BUILT_INS 15
 #define PROCESSES 9
 #define QTY_ARGS 3
 #define MAX_SIZE 128
 #define MAX_PARAMS 3
-#define QTY_COMMANDS (BUILT_INS + PROCESSES + 1) 
+#define QTY_COMMANDS (BUILT_INS + PROCESSES) 
 
 #define WELCOME "Bienvenido a eSeMeMe SO!\n"
 #define INVALID_COMMAND "Comando invalido!\n"
@@ -47,7 +47,7 @@ static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[]
 
 static Command commands[] = {
     { "help", "Listado de comandos", (functionType) help},
-    { "man", "Manual de uso de los comandos", (functionType) man},
+    { "man", "Manual de uso de los comandos - Comando anulado proveniente de Arquitectura-", (functionType) man},
     { "inforeg", "Informacion de los registos que fueron capturados en un momento arbitrario de ejecucion del sistema", (functionType) printInfoReg},
     { "time", "Despliega la hora actual UTC - 3", (functionType) time},
     { "div", "Hace la division entera de dos numeros naturales enviados por parametro",(functionType) div},

@@ -88,27 +88,22 @@ void kill(int argc, char *argv[]){
 void nice(int argc, char *argv[]){
     if(argc != 2){
         printf("Uso incorrecto de nice. Debe especificar el PID del proceso y la nueva prioridad.\n");
-        exit();
         return;
     }
     int pid = atoi(argv[0]);
     int priority = atoi(argv[1]);
     if(pid <= 1){
         printf("PID invalido, tiene que ser mayor a 1.\n");
-        exit();
         return;
     }
     if(priority < 1 || priority > 5){
         printf("Prioridad invalida, debe ser un numero entre 1 y 5.\n");
-        exit();
         return;
     }
     if(changePrio(pid, priority) == -1){
         printf("Error al cambiar la prioridad del proceso %d.\n", pid);
-        exit();
         return;
     }
     printf("Prioridad del proceso %d cambiada a %d.\n", pid, priority);
-    exit();
     return;
 }

@@ -386,7 +386,8 @@ TPInfo processInformation(uint64_t * pQuantity){
         infoProc[i].status = aux->status;
         infoProc[i].rip = aux->rip;
         if(aux->name !=NULL){
-            infoProc[i].name = allocMemory(my_strlen(aux->name) + 1);
+            infoProc[i].name = (char *)allocMemory(my_strlen(aux->name) + 1);
+            printf("CantChars: %d\n", my_strlen(aux->name) + 1);
             if(infoProc[i].name == NULL){
                 freeMemory(infoProc[i].name);
                 freeMemory(infoProc);
@@ -394,14 +395,16 @@ TPInfo processInformation(uint64_t * pQuantity){
                 return NULL;
             }
             my_strcpy(infoProc[i].name, aux->name);
+            printf("Process name: %s\n", infoProc[i].name);
         }else{
             infoProc[i].name = NULL;
         }
         i++;
     }
+    printf("Process name: %s\n", infoProc[0].name);
+    printf("Process name: %s\n", infoProc[1].name);
     *pQuantity = scheduler->cantProcesses;
     return infoProc;
-    
 }
 
 static void idle(){

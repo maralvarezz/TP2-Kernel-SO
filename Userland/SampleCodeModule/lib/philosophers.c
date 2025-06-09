@@ -214,12 +214,10 @@ static void testForks(int id){
 }
 
 static void dibujarPhilos() {
-    semWait(printSemPhilo);
 	for (int i = 0; i < cantPhilo; i++) {
 		printf(philosophers[i].state == EATING ? "C " : ". ");
 	}
 	putchar('\n');
-    semPost(printSemPhilo);
 }
 
 static void waitTime() {
