@@ -10,7 +10,7 @@
 
 static uint8_t getExponentPtr(void *memoryToFree);
 static uint8_t getExponent(uint64_t size);
-static uint64_t getNewNode(uint8_t exponent);
+static int64_t findFreeNode(uint64_t node, uint8_t level, uint8_t targetLevel);
 static uint64_t getNodeLevel(uint8_t exponent);
 static int64_t getNodeIndex(uint8_t *ptr, uint8_t *exponent);
 static void setMerge(uint64_t node);
@@ -57,20 +57,13 @@ void * allocMemory(const size_t memoryToAllocate){
         return NULL;
     }
     uint8_t exponent = getExponent(memoryToAllocate);
-    printf("exponent: %d\n", exponent);
-    if(exponent > MAXEXPONENT){
+    int64_t nodo = findFreeNode(0, 0, MAXEXPONENT - exponent);
+    if (nodo == -1) 
         return NULL;
-    }
-    uint64_t nodo = getNewNode(exponent);
-    printf("nodo: %d\n", nodo);
-    if(nodo == -1){
-        return NULL;
-    }
     splitTree(nodo);
     setSplitedChildren(nodo);
-    memoryManager->tree[nodo].state = OCCUPIED;
     memoryManager->used += POW_2(exponent);
-    return (void *) (memoryManager->treeStart + nodo * POW_2(exponent));
+    return (void *)(memoryManager->treeStart + (nodo - getNodeLevel(exponent)) * POW_2(exponent));
 }
 
 /* Me setea la memoria libre y en caso de ser necesario mergea */
@@ -100,7 +93,7 @@ static int64_t getNodeIndex(uint8_t *ptr, uint8_t *exponent) {
 	int64_t node = 0;
 	uint8_t levelExponent = *exponent;
 	while (levelExponent > 0 && memoryManager->tree[node].state != OCCUPIED){
-		node = ((ptr - memoryManager->treeStart) >> levelExponent) + getNewNode(levelExponent);
+		node = ((ptr - memoryManager->treeStart) >> levelExponent) + getNodeLevel(levelExponent);
 		levelExponent--;
 	}
 	*exponent = levelExponent;
@@ -119,34 +112,37 @@ static uint8_t getExponentPtr(void *memoryToFree) {
 	return exponent;
 }
 
-static uint8_t getExponent(uint64_t size){
+static uint8_t getExponent(uint64_t size) {
     uint8_t exponent = MINEXPONENT;
-    while(size > 1){
-        size = size >> 1;
+    uint64_t power = (uint64_t)1 << MINEXPONENT;
+
+    while (power < size) {
+        power = power << 1;
         exponent++;
     }
+
     return exponent;
 }
-
-/* Me devulve la posicion en la que puedo allocar y -1 si no */
-static uint64_t getNewNode(uint8_t exponent){
+static int64_t findFreeNode(uint64_t node, uint8_t level, uint8_t targetLevel) {
     MemoryManagerADT memoryManager = getMM();
-    uint64_t current = getNodeLevel(exponent);
-    uint64_t next = getNodeLevel(exponent - 1);
-    while(current < next && (memoryManager->tree[current].state == SPLIT || memoryManager->tree[current].state == OCCUPIED)){
-        current++;
+    if (level == targetLevel) {
+        if (memoryManager->tree[node].state == FREE)
+            return node;
+        else
+            return -1;
     }
-    if(current == next){
+    if (memoryManager->tree[node].state != SPLIT && memoryManager->tree[node].state != FREE)
         return -1;
-    }
-    return current;
+    int64_t left = findFreeNode(node * 2 + 1, level + 1, targetLevel);
+    if (left != -1) return left;
+    return findFreeNode(node * 2 + 2, level + 1, targetLevel);
 }
 
 static uint64_t getNodeLevel(uint8_t exponent){
     return (POW_2(MAXEXPONENT - exponent) - 1);
 }
 
-static void setMerge(uint64_t node){
+/*static void setMerge(uint64_t node){
     MemoryManagerADT memoryManager = getMM();
     if(node % 2 == 0 && memoryManager->tree[node - 1].state == FREE){
         memoryManager->tree[(node - 1) / 2].state = FREE;
@@ -154,7 +150,32 @@ static void setMerge(uint64_t node){
     else if(node % 2 && memoryManager->tree[node + 1].state == FREE){
         memoryManager->tree[node / 2].state = FREE;
     }
+}*/
+
+
+static void setMerge(uint64_t node) {
+    MemoryManagerADT memoryManager = getMM();
+    if (node == 0)
+        return;
+
+    uint64_t buddy;
+    if (node % 2 == 0) {
+        if (node == 0) return; // Evita underflow
+        buddy = node - 1;
+    } else {
+        buddy = node + 1;
+        if (buddy >= CANTNODES) return; // Evita overflow
+    }
+
+    if (memoryManager->tree[buddy].state == FREE && memoryManager->tree[node].state == FREE) {
+        uint64_t parent = (node - 1) / 2;
+        if (parent < CANTNODES && memoryManager->tree[parent].state == SPLIT) {
+            memoryManager->tree[parent].state = FREE;
+            setMerge(parent);
+        }
+    }
 }
+
 
 static void splitTree(uint64_t node){
     MemoryManagerADT memoryManager = getMM();
@@ -164,12 +185,10 @@ static void splitTree(uint64_t node){
     }
 }
 
+
 static void setSplitedChildren(uint64_t node){
     MemoryManagerADT memoryManager = getMM();
-    if(node >= CANTNODES){
-        return;
+    if(node < CANTNODES){
+        memoryManager->tree[node].state = OCCUPIED;
     }
-    memoryManager->tree[node].state = OCCUPIED;
-    setSplitedChildren((node * 2) + 2);
-    setSplitedChildren((node * 2) + 1);
 }
