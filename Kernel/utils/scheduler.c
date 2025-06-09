@@ -16,6 +16,7 @@ typedef struct schedulerCDT{
 } schedulerCDT;
 
 static int16_t getPipedFD(int16_t *FDs);
+static void removeKilledProcess(TPCB process);
 TPCB searchPipedProcess(int16_t fd,TPCB otherPipedProcess);
 
 static void idle();
@@ -155,32 +156,30 @@ uint64_t changeProcess(uint64_t actualRSP){
             addNode(scheduler->readyList, scheduler->actualProcess);
         }
         else if(scheduler->actualProcess->status == KILLED){
-            removeNode(scheduler->totalProcesses, scheduler->actualProcess);
-            freeProcess(scheduler->actualProcess);
-            scheduler->cantProcesses--;
+            removeKilledProcess(scheduler->actualProcess);
         }
     }
-
     TPCB auxProcess = getFirst(scheduler->readyList);
-    if(auxProcess == NULL){
-        TPCB process = getProcess(IDLEPROCESS);
-        if(process == NULL){
-            return actualRSP;
+    while(auxProcess != NULL){
+        if(auxProcess->status != KILLED){  //&& auxProcess->pid != 0
+            scheduler->actualProcess = auxProcess;
+            scheduler->actualProcess->status = RUNNING;
+            scheduler->quantum = 1 * scheduler->actualProcess->priority;
+            scheduler->actualPid = scheduler->actualProcess->pid;
+            return scheduler->actualProcess->stackPos;  
+        }/*else if(auxProcess->pid == 0){
+            break;
+        }*/else{
+            removeKilledProcess(auxProcess);
         }
-        else{
-            scheduler->actualProcess = process;
-            scheduler->actualPid = process->pid;
-            return scheduler->actualProcess->stackPos;
-        }
+        auxProcess = getFirst(scheduler->readyList);
     }
-    scheduler->actualProcess = auxProcess;
-    if(auxProcess->status != KILLED){
-        scheduler->actualProcess->status = RUNNING;
-        scheduler->quantum = 1 * scheduler->actualProcess->priority;  
-    }else{
-        scheduler->quantum = 0;
+    TPCB process = getProcess(IDLEPROCESS);
+    if(process == NULL){
+        return actualRSP;
     }
-    scheduler->actualPid = scheduler->actualProcess->pid;
+    scheduler->actualProcess = process;
+    scheduler->actualPid = process->pid;
     return scheduler->actualProcess->stackPos;
 }
 
@@ -462,4 +461,11 @@ TPCB searchPipedProcess(int16_t fd,TPCB otherPipedProcess) {
 		}
 	}
 	return NULL;
+}
+
+static void removeKilledProcess(TPCB process){
+    schedulerADT scheduler = getScheduler();
+    removeNode(scheduler->totalProcesses, process);
+    freeProcess(process);
+    scheduler->cantProcesses--;
 }
