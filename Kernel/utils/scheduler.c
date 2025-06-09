@@ -368,7 +368,7 @@ TPInfo processInformation(uint64_t * pQuantity){
         *pQuantity = 0;
         return NULL;
     }
-    TPInfo infoProc = (TPInfo) allocMemory(scheduler->cantProcesses * sizeof(PInfo));
+    TPInfo infoProc = (TPInfo) allocMemory(scheduler->cantProcesses * sizeof(PCB_t));
     if(infoProc == NULL){
         *pQuantity = 0;
         return NULL;
@@ -387,7 +387,6 @@ TPInfo processInformation(uint64_t * pQuantity){
         infoProc[i].rip = aux->rip;
         if(aux->name !=NULL){
             infoProc[i].name = (char *)allocMemory(my_strlen(aux->name) + 1);
-            printf("CantChars: %d\n", my_strlen(aux->name) + 1);
             if(infoProc[i].name == NULL){
                 freeMemory(infoProc[i].name);
                 freeMemory(infoProc);
@@ -395,14 +394,11 @@ TPInfo processInformation(uint64_t * pQuantity){
                 return NULL;
             }
             my_strcpy(infoProc[i].name, aux->name);
-            printf("Process name: %s\n", infoProc[i].name);
         }else{
             infoProc[i].name = NULL;
         }
         i++;
     }
-    printf("Process name: %s\n", infoProc[0].name);
-    printf("Process name: %s\n", infoProc[1].name);
     *pQuantity = scheduler->cantProcesses;
     return infoProc;
 }

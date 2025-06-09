@@ -365,7 +365,7 @@ static void man(char * command){
 
                               "Uso: testPriority - ejecuta un test de prioridades. No recibe parametros",
 
-                              "Uso: testProcesses - ejecuta un test de procesos. No recibe parametros",
+                              "Uso: testProcesses [PROCESOS] - ejecuta un test de procesos. Recibe un numero natural que es la cantidad de procesos a crear\n",
 
                               "Uso: testSync - ejecuta un test de sincronizacion. No recibe parametros"
 
