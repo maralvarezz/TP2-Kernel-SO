@@ -27,6 +27,6 @@ int strcpy(char * dest, const char * origin);
 
 int strlen(const char * s);
 
-char * strchr(const char * str, char c);
+char * strchr(const char * str, int c);
 
 #endif

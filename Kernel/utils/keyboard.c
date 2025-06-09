@@ -3,6 +3,8 @@
 #include <lib.h>
 #include <video.h>
 #include <time.h>
+#include "scheduler.h"
+
 #define BUFFER_CAPACITY 256 
 #define LCTRL 29
 #define LSHIFT 42

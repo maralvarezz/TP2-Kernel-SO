@@ -7,14 +7,14 @@
 
 typedef struct pipe_t{
     char buffer[PIPESIZE];
-    uint16_t readPos;
-    uint16_t writePos;
-    uint16_t fd;
-    uint16_t cantOcu;
-    uint16_t readBlock;
-    uint16_t writeBlock;
-    uint16_t readPid;
-    uint16_t writePid;
+    int readPos;
+    int writePos;
+    int64_t fd;
+    int cantOcu;
+    int readBlock;
+    int writeBlock;
+    int64_t readPid;
+    int64_t writePid;
 } pipe_t;
 
 typedef struct pipe_t * TPipe;
@@ -121,28 +121,29 @@ int64_t readPipe(int64_t fd, char * buffer, int64_t size){
     if(pipesM == NULL){
         return -1;
     }
-    if(fd < 3 || fd > MAXPIPES + 2 || size > PIPESIZE){
+    if(size < 0 || fd < 3 || fd > MAXPIPES + 2){
         return -1;
     }
     
-    int index = fd - 3;
-    while(pipesM->pipes[index].cantOcu <= 0){
-        pipesM->pipes[index].readBlock = 1;
-        blockProcess(pipesM->pipes[index].readPid);
-    }
-    
-    for(int j = 0; j < size; j++){
-        buffer[j] = pipesM->pipes[index].buffer[(pipesM->pipes[index].readPos + j) % PIPESIZE];
-        if(pipesM->pipes[index].writeBlock == 1){
-            pipesM->pipes[index].writeBlock = 0;
-            readyProcess(pipesM->pipes[index].writePid);
+    pipe_t *pipeToRead = &pipesM->pipes[fd - 3];
+    int index;
+    for(index = 0; index < size; index++){
+        while(pipeToRead->cantOcu == 0){
+            pipeToRead->readBlock = 1;
+            blockProcess(pipeToRead->readPid);
+        }
+        buffer[index] = pipeToRead->buffer[pipeToRead->readPos];
+        pipeToRead->readPos = (pipeToRead->readPos + 1) % PIPESIZE;
+        pipeToRead->cantOcu--;
+        if(pipeToRead->writeBlock == 1){
+            pipeToRead->writeBlock = 0;
+            readyProcess(pipeToRead->writePid);
         }
     }
-    pipesM->pipes[index].readPos = (pipesM->pipes[index].readPos + size) % PIPESIZE;
-    return 1;
+    return index;
 }
 
-uint16_t writePipe(uint16_t fd, char * buffer, uint16_t size){
+int64_t writePipe(int64_t fd, char * buffer, int64_t size){
     pipesADT pipesM = getPipes();
     if(pipesM == NULL){
         return -1;
@@ -150,21 +151,20 @@ uint16_t writePipe(uint16_t fd, char * buffer, uint16_t size){
     if(fd < 3 || fd > MAXPIPES + 2 || size > PIPESIZE){
         return -1;
     }
-    int index = fd - 3;
-
-    while(pipesM->pipes[index].cantOcu <= PIPESIZE){
-        pipesM->pipes[index].writeBlock = 1;
-        blockProcess(pipesM->pipes[index].writePid);
-    }
-
-    for(int j = 0; j < size; j++){
-        pipesM->pipes[index].buffer[(pipesM->pipes[index].writePos + j) % PIPESIZE] = buffer[j];
-        if(pipesM->pipes[index].readBlock == 1){
-            pipesM->pipes[index].readBlock = 0;
-            readyProcess(pipesM->pipes[index].readPid);
+    pipe_t *pipeToWrite = &pipesM->pipes[fd - 3];
+    int index;
+    for(index = 0; index < size; index++){
+        while(pipeToWrite->cantOcu == PIPESIZE){
+            pipeToWrite->writeBlock = 1;
+            blockProcess(pipeToWrite->writePid);
+        }
+        pipeToWrite->buffer[pipeToWrite->writePos] = buffer[index];
+        pipeToWrite->writePos = (pipeToWrite->writePos + 1) % PIPESIZE;
+        pipeToWrite->cantOcu++;
+        if(pipeToWrite->readBlock == 1){
+            pipeToWrite->readBlock = 0;
+            readyProcess(pipeToWrite->readPid);
         }
     }
-    pipesM->pipes[index].writePos = (pipesM->pipes[index].writePos + size) % PIPESIZE;
-    pipesM->pipes[index].cantOcu += size;
-    return 1;
+    return index;
 }

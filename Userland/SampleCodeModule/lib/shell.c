@@ -76,16 +76,16 @@ static Command commands[] = {
 void run_shell() {
     int index;
     puts(WELCOME);
-    char *line = (char *)allocMem(MAX_CHARS* sizeof(char));
+    char *line = allocMem(MAX_CHARS * sizeof(char *));
     if(line == NULL) {
         printErr("Error al asignar memoria para la linea de comandos\n");
         exit();
         return;
     }
-    while(1){
+    while(1){  // deje los char * !
         putchar('>');
         scanf("%l", line);
-        char * leftCom = allocMem(MAX_CHARS * sizeof(char *));
+        char * leftCom = (char *)allocMem(MAX_CHARS * sizeof(char *));
         if(leftCom == NULL) {
             printErr("Error al asignar memoria para el comando izquierdo\n");
             continue;
@@ -99,7 +99,7 @@ void run_shell() {
         int cantLeft;
         char *pipePos = strchr(line, '|');
         if(hasPipe(line)){
-            char * rightCom = allocMem(MAX_CHARS*sizeof(char *)); //ver si no poner un MAX_LENGTH
+            char * rightCom = (char *)allocMem(MAX_CHARS*sizeof(char *)); //ver si no poner un MAX_LENGTH
             if(rightCom == NULL) {
                 printErr("Error al asignar memoria para el comando derecho\n");
                 freeMem(leftCom);
@@ -115,7 +115,9 @@ void run_shell() {
                 freeMem(rightCom);
                 continue;
             }
+
             *pipePos = '\0';
+            
             cantLeft = scanCommand(line, leftCom, leftParam);
 
             int cantRight = scanCommand(pipePos + 2, rightCom, rightParam);
@@ -140,14 +142,14 @@ void run_shell() {
                     newParams2[i + 1] = rightParam[i];
                 }
                 int isBackGroundRight = 0;
-                if(cantRight){
+                if(isBackGroundLeft || isBackGroundRight) {
+                    printf("No se pueden tener procesos en background con pipes\n");
+                }
+                if(cantRight != 0) {
                     isBackGroundRight = (rightParam[cantRight - 1][0] == '&');
                 }
-                if(!isBackGroundLeft && !isBackGroundRight) {
-                    executePipeCommands(leftCom, rightCom, newParams1, newParams2, cantLeft + 1, cantRight + 1, leftIdx, rightIdx, isBackGroundLeft, isBackGroundRight);
-                }
                 else {
-                    printf("No se pueden tener procesos en background con pipes\n");
+                    executePipeCommands(leftCom, rightCom, newParams1, newParams2, cantLeft + 1, cantRight + 1, leftIdx, rightIdx, isBackGroundLeft, isBackGroundRight);
                 }
                 for(int i = 0; i < cantLeft; i++) {
                     freeMem(leftParam[i]);
@@ -174,15 +176,17 @@ void run_shell() {
                 uint64_t rip = (uint64_t)commands[id].ftype;
                 newParams[0] = commands[id].name;
                 for(int i = 0; i < cantLeft; i++) {
-                    newParams[i + 1] = leftParam[i];
+                    if(leftParam[cantLeft][0] != '&'){
+                        newParams[i + 1] = leftParam[i];
+                    }
                 }
                 int isBackGround = 0;
                 int16_t fileDescriptors[] = { STDIN, STDOUT, STDERR };
-                if(cantLeft){
+                if(cantLeft != 0){
                     isBackGround = (leftParam[cantLeft - 1][0] == '&');
                 }
                 cantLeft += isBackGround ? -1 : 0;
-                uint64_t pid = createProc(rip, newParams, cantLeft + 1, 2, fileDescriptors, !isBackGround);
+                int64_t pid = createProc(rip, newParams, cantLeft + 1, 2, fileDescriptors, !isBackGround);
                 if(pid == -1) {
                     printErr("Error al crear el proceso\n");
                     for(int i = 0; i < cantLeft; i++) {
@@ -190,13 +194,13 @@ void run_shell() {
                     }
                     continue;
                 }
-                if(unblockProc(pid) == -1) {
+                if(unblockProc(pid) == 0) {
                     printErr("Error al desbloquear el proceso\n");
                     killProcess(pid);
+                    freeMem(leftCom);
                     for(int i = 0; i < cantLeft; i++) {
                         freeMem(leftParam[i]);
                     }
-                    freeMem(leftCom);
                     continue;
                 }
                 if(!isBackGround) {
@@ -218,6 +222,7 @@ void run_shell() {
     }
     freeMem(line);
     exit();
+    return;
 }
 
 
@@ -367,38 +372,6 @@ static void myClear(){
     clear();
 }
 
-
-static void proceso2(){
-    int aux = 25;
-    while(aux--){
-        printf("Proceso 2\n");
-    }
-    killProcess(getPid());
-}
-
-
-static void proceso1(){
-    int aux = 15;
-    while(aux--){
-        printf("Proceso 1\n");
-    }
-    killProcess(getPid());
-}
-
-
-static void testProcess(){
-    char * argv1[] = { "P1" };
-    char * argv2[] = { "P2" };
-	int16_t fileDescriptors[3] = { -1, 1, -1 };
-    uint64_t pid1, pid2;
-    pid1=createProc((uint64_t)proceso1, argv1, 1, 1, fileDescriptors, 0);
-    pid2=createProc((uint64_t)proceso2, argv2, 1, 1, fileDescriptors, 0);
-    unblockProc(pid1);
-    unblockProc(pid2);
-    waitProcess(pid1); 
-    waitProcess(pid2);
-}
-
 static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]){
     int i,j,k;
     for(i=0, j=0; commandLine[i] != ' ' && commandLine[i] != '\0'; i++){
@@ -433,7 +406,7 @@ static int scanCommand(char *commandLine, char *command, char *args[QTY_ARGS]){
 
 static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[], char *rightParam[], int leftParamQuantity, int rightParamQuantity, int leftId, int rightId, int isBackGroundLeft, int isBackGroundRight) {
     int16_t fileDescriptors[3] = { 0, 1, 2 };
-    int16_t leftPipePid = createProc((uint64_t)commands[leftId].ftype, (char **)leftParam, leftParamQuantity, 1, fileDescriptors, isBackGroundLeft);
+    int16_t leftPipePid = createProc((uint64_t)commands[leftId].ftype, (char **)leftParam, leftParamQuantity, 1, fileDescriptors, !isBackGroundLeft);
     if( leftPipePid == -1) {
         printf("Error al crear el proceso izquierdo del pipe\n");
         return;
@@ -450,7 +423,7 @@ static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[]
         killProcess(leftPipePid);
         return;
     }
-    int16_t rightPipePid = createProc((uint64_t)commands[rightId].ftype, (char **)rightParam, rightParamQuantity, 1, fileDescriptors, isBackGroundRight);
+    int16_t rightPipePid = createProc((uint64_t)commands[rightId].ftype, (char **)rightParam, rightParamQuantity, 1, fileDescriptors, !isBackGroundRight);
     if(rightPipePid == -1) {
         printf("Error al crear el proceso derecho del pipe\n");
         killProcess(leftPipePid);
@@ -470,14 +443,14 @@ static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[]
         killProcess(leftPipePid);
         return;
     }
-    if(unblockProc(leftPipePid) == -1) {
+    if(unblockProc(leftPipePid) == 0) {
         printf("Error al desbloquear el proceso izquierdo del pipe\n");
         closePipe(writeFd);
         killProcess(leftPipePid);
         killProcess(rightPipePid);
         return;
     }
-    if(unblockProc(rightPipePid) == -1) {
+    if(unblockProc(rightPipePid) == 0) {
         printf("Error al desbloquear el proceso derecho del pipe\n");
         closePipe(writeFd);
         killProcess(leftPipePid);
@@ -488,7 +461,7 @@ static void executePipeCommands(char *leftCom, char *rightCom, char *leftParam[]
         waitProcess(leftPipePid);
         waitProcess(rightPipePid);
     }
-    if(closePipe(writeFd) == -1) {
+    if(closePipe(readFd) == -1) {
         printf("Error al cerrar el pipe de escritura\n");
         killProcess(leftPipePid);
         killProcess(rightPipePid);

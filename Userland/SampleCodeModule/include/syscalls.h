@@ -59,14 +59,14 @@ typedef struct MemoryManagerCDT * MemoryManagerADT;
  * @param fd: FileDescriptor (STDOUT | STDERR)
  * @param c: Caracter a escribir
  */
-void write(int fd, char c);
+void write(int fd, char * c, uint64_t size);
 
 /**
  * @brief Lee un byte a partir del descriptor recibido
  * @param fd: FileDescriptor (STDIN | KBDIN)
  * @return Byte leido
  */
-uint8_t read(int fd);
+uint8_t read(int32_t fd, char * c, uint64_t size);
 
 /**
  * @brief Devuelve la hora expresada en segundos

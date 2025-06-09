@@ -73,6 +73,7 @@ void filter(int argc, char *argv[]){
     }
     putchar('\n');
     exit();
+    return;
 }
 
 void testMemManager(int argc, char *argv[]){

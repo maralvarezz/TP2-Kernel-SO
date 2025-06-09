@@ -29,9 +29,8 @@
 #define SET_FONT_COLOR 11
 #define GET_FONT_COLOR 12
 
-static uint8_t syscall_read(uint32_t fd);
-// static void syscall_read(int64_t fd, char *buffer, uint64_t size);
-static void syscall_write(uint32_t fd, char c);
+static int64_t syscall_read(int64_t fd, char *buffer, uint64_t size);
+static void syscall_write(int32_t fd, char * c, uint64_t size);
 static void syscall_clear();
 static uint32_t syscall_seconds();
 static uint64_t * syscall_registerArray(uint64_t * regarr);
@@ -146,14 +145,21 @@ uint64_t syscallDispatcher(uint64_t nr, uint64_t arg0, uint64_t arg1, uint64_t a
 }
 
 // Read char
-static uint8_t syscall_read(uint32_t fd){
-    switch (fd){
-        case STDIN:
-            return getAscii();
-        case KBDIN:
-            return getScancode();
+static int64_t syscall_read(int64_t fd, char *buffer, uint64_t size){
+    int64_t processFD = getFD(fd);
+    if(processFD >= 3) {
+        readPipe(processFD, buffer, size);
     }
-    return 0;
+    else if(processFD == STDIN) {
+        for(uint64_t i = 0; i < size; i++) {
+            buffer[i] = getAscii();
+            if((int)buffer[i] == -1) {
+                return i+1;
+            }
+        }
+        return size;
+    }
+    return -1;
 }
 
 // static void syscall_read(int64_t fd, char *buffer, uint64_t size) {
@@ -171,14 +177,27 @@ static uint8_t syscall_read(uint32_t fd){
 // }
 
 // Write char
-static void syscall_write(uint32_t fd, char c){
-    Color prevColor = getFontColor();
-    if(fd == STDERR)
-        setFontColor(ERROR_COLOR);
-    else if(fd != STDOUT)
+static void syscall_write(int32_t fd, char * c, uint64_t size){
+    if(fd <= (-1)){
         return;
-    printChar(c);
-    setFontColor(prevColor);
+    }
+    int64_t fdProc = getFD(fd);
+    if(fdProc >= 3) {
+        writePipe(fdProc, c, size);
+        return;
+    }
+    else if(fdProc == STDOUT || fdProc == STDERR) {
+        Color prevColor = getFontColor();
+
+        if(fd == STDERR)
+            setFontColor(ERROR_COLOR);
+
+        for(uint64_t i = 0; i < size; i++) {
+            printChar(c[i]);
+        }
+        setFontColor(prevColor);
+    }
+   
 }
 
 // Clear
@@ -268,7 +287,6 @@ static uint64_t syscall_changePriority(uint64_t pid, uint8_t priority){
 
 static void syscall_blockProcess(uint64_t pid){
     blockProcess(pid);
-    //yieldProcess();
 }
 
 static int syscall_unblockProcess(uint64_t pid){

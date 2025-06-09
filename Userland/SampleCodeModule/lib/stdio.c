@@ -17,11 +17,11 @@
 static void vprintf(char * fmt, va_list args);
 
 void putchar(char c) {
-    write(STDOUT, c);
+    write(STDOUT, &c, 1);
 }
 
 void putcharErr(char c) {
-    write(STDERR, c);
+    write(STDERR, &c, 1);
 }
 
 void puts(const char * s) {
@@ -30,17 +30,13 @@ void puts(const char * s) {
 }
 
 void printErr(const char * s) {
-    while (*s) putcharErr(*s++); 
+    while (*s) putcharErr(*s++);
 }
 
 int getchar() {
-    char c;
-    c = read(STDIN);
-    return c;
-}
-
-char getScanCode() {
-    return read(KBDIN);
+    char buffer;
+    read(STDIN, &buffer, 1);
+    return buffer;
 }
 
 void printf(char * fmt, ...) {
@@ -101,31 +97,15 @@ void printNChars(char c, int n) {
         putchar(c);
 }
 
+
 int scanf(char * fmt, ...) {
     va_list v;
     va_start(v, fmt);
     char c;
-    int ticks = getTicks();
-    int cursorTicks = 0;
-    char cursorDrawn = 0;
     char buffer[MAX_CHARS];
     uint64_t bIdx = 0;
     while((c = getchar()) != '\n' && bIdx < MAX_CHARS-1){
-        cursorTicks = getTicks() - ticks;
-         if(cursorTicks > CURSOR_FREQ){
-            ticks = getTicks();
-            cursorTicks = 0;
-            if(cursorDrawn)
-                putchar('\b');
-            else
-                putchar('_');
-            cursorDrawn = !cursorDrawn;
-        }
         if (c != 0) {
-            if(cursorDrawn){
-                putchar('\b');
-                cursorDrawn = !cursorDrawn;
-            }
             if (c != '\b'){
                 buffer[bIdx++] = c;
                 putchar(c);
@@ -136,8 +116,6 @@ int scanf(char * fmt, ...) {
             } 
         }
     }
-    if(cursorDrawn)
-        putchar('\b');
     putchar('\n');
     buffer[bIdx] = 0;
     char * fmtPtr = fmt;

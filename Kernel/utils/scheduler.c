@@ -245,7 +245,9 @@ void killProcess(uint64_t pid){
         removeNode(scheduler->blockedList, process);
     }
     myKill(process);
-    yieldProcess(); 
+    if(scheduler->actualProcess->pid == pid){
+        yieldProcess();
+    }
 }
 
 void myKill(TPCB process){
@@ -412,10 +414,10 @@ void killForegroundProcess(){
     if(scheduler == NULL){
         return;
     }
-    if(scheduler->actualProcess->ground == FOREGROUND && scheduler->actualProcess->pid != SHELLPID){
-        killActualProcess(scheduler->actualProcess->pid);
+    /*if(scheduler->actualProcess->ground == FOREGROUND && scheduler->actualProcess->pid != SHELLPID){
+        killActualProcess();
         return;
-    }
+    }*/
 
     toBegin(scheduler->totalProcesses);
     TPCB process;
@@ -423,8 +425,15 @@ void killForegroundProcess(){
         process = next(scheduler->totalProcesses);
         if(process->ground == FOREGROUND && process->pid != SHELLPID){
             killProcess(process->pid);
-            return;
+            //return;
         }
     }
+    yieldProcess();
+}
+
+int64_t getFD(int64_t fd) {
+    schedulerADT scheduler = getScheduler();
+    TPCB process = scheduler->actualProcess;
+    return process->fileDescriptors[fd];
 }
 

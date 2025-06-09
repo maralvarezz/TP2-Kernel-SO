@@ -11,6 +11,22 @@
 
 typedef struct schedulerCDT * schedulerADT;
 
+typedef struct PInfo{
+    uint8_t priority;
+    int16_t pid;
+    int ground;
+    uint64_t stackPos;
+    uint64_t stackBase;
+    uint8_t status;
+    uint64_t rip;
+    char * name;
+}PInfo;
+
+typedef struct PInfo * TPInfo;
+
+TPInfo processInformation(uint64_t * pQuantity);
+
+
 
 void createScheduler();
 
@@ -38,19 +54,6 @@ void myKill(TPCB process);
 
 void timerTickInt();
 
-typedef struct PInfo{
-    uint8_t priority;
-    int16_t pid;
-    int ground;
-    uint64_t stackPos;
-    uint64_t stackBase;
-    uint8_t status;
-    uint64_t rip;
-    char * name;
-}PInfo;
-
-typedef struct PInfo * TPInfo;
-
-TPInfo processInformation(uint64_t * pQuantity);
+int64_t getFD(int64_t fd);
 
 #endif 
