@@ -221,6 +221,6 @@ static void dibujarPhilos() {
 }
 
 static void waitTime() {
-    for (int i = 0; i < 500000; i++); // Simula un tiempo de espera
+    for (int i = 0; i < 500000; i++);
 }
 

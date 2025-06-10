@@ -33,7 +33,6 @@ static void man(char * command);
 static void printInfoReg();
 static void time();
 static int div(int num, char * div[]);
-//static int div(char * num, char * div);
 static void fontSize(char * size);
 static void printMem(char * pos);
 static int getCommandIndex(char * command);
@@ -83,7 +82,7 @@ void run_shell() {
         return;
     }
     
-    while(1){  // deje los char * !
+    while(1){
         
         putchar('>');
         scanf("%l", line);
@@ -101,7 +100,7 @@ void run_shell() {
         int cantLeft;
         char *pipePos = strchr(line, '|');
         if(hasPipe(line)){
-            char * rightCom = (char *)allocMem(MAX_CHARS*sizeof(char *)); //ver si no poner un MAX_LENGTH
+            char * rightCom = (char *)allocMem(MAX_CHARS*sizeof(char *));
             if(rightCom == NULL) {
                 printErr("Error al asignar memoria para el comando derecho\n");
                 freeMem(leftCom);
@@ -109,7 +108,7 @@ void run_shell() {
                 continue;
             }
 
-            char ** rightParam = (char **)allocMem(MAX_CHARS * sizeof(char *)); //ver si no poner un MAX_LENGTH 
+            char ** rightParam = (char **)allocMem(MAX_CHARS * sizeof(char *));
             if(rightParam == NULL) {
                 printErr("Error al asignar memoria para los parametros del comando derecho\n");
                 freeMem(leftCom);
@@ -274,15 +273,8 @@ static void help() {
 
 static int div(int num, char * div[]) {
     printf("Dividiendo %s entre %s\r\n", div[0], div[1]); 
-    //printf("%s/%s=%d\r\n", num, div, n/d);
     return 1;
 }
-
-/*static int div(char * num, char * div) {
-    printf("Dividiendo %s entre %s\r\n", num, div); 
-    //printf("%s/%s=%d\r\n", num, div, n/d);
-    return 1;
-}*/
 
 static void time(){
     uint32_t secs = getSeconds();

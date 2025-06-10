@@ -25,10 +25,10 @@ typedef struct Philosopher {
 typedef struct shared_data {
     philo_t philosophers[MAXPHILOS];
     TSem forks[MAXPHILOS];
-    int cantPhilos; // Puntero a la cantidad de filósofos compartida
-    TSem mutex; // Semáforo para proteger el acceso a la lista de filósofos
-    char names[MAXPHILOS][14]; // Array de nombres para los filósofos
-    char aux[MAXPHILOS][2]; // Array auxiliar para convertir el id a string
+    int cantPhilos; 
+    TSem mutex;
+    char names[MAXPHILOS][14];
+    char aux[MAXPHILOS][2];
 } shared_data_t;
 
 shared_data_t *shared_data;
@@ -215,13 +215,11 @@ void mainPhilo(int argc, char * argv[]) {
     
 
     for (int i = 0; i < shared_data->cantPhilos; i++) {
-        createPhilosopher(i); // Crear filósofos
+        createPhilosopher(i); 
     }
-    //para que 
     for(int i = 0; i < shared_data->cantPhilos; i++) {
         unblockProc(shared_data->philosophers[i].pid);
     }
-    //sleep(5); // Give time for all philosophers to initialize
     int aux=0;
     int exitFlag = 0;
     printf("Presione 'a' para agregar un filosofo, 'q' para quitar un filosofo, 's' para parar el proceso: \n");
@@ -241,7 +239,7 @@ void mainPhilo(int argc, char * argv[]) {
         }
     semWait(shared_data->mutex);
     for(int i = 0; i < shared_data->cantPhilos; i++) {
-        shared_data->philosophers[i].haveToLeave = 1; // Marcar todos los filósofos para que terminen
+        shared_data->philosophers[i].haveToLeave = 1;
     }
     semPost(shared_data->mutex);
     

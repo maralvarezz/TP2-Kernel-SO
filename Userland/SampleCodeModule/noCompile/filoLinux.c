@@ -29,16 +29,14 @@ typedef struct Philosopher {
 typedef struct shared_data {
     philo_t philosophers[MAXPHILOS];
     sem_t forks[MAXPHILOS];
-    int cantPhilos; // Puntero a la cantidad de filósofos compartida
-    sem_t mutex; // Semáforo para proteger el acceso a la lista de filósofos
+    int cantPhilos;
+    sem_t mutex;
 } shared_data_t;
 
 shared_data_t *shared_data;
 
-// Agregar variable global
 int cantPhilos;
 
-// Función para crear la memoria compartida (solo el proceso padre)
 void create_shared_memory() {
     int shm_fd = shm_open("/shared_data_shm", O_CREAT | O_RDWR, 0666);
     if (shm_fd == -1) {
@@ -60,11 +58,9 @@ void create_shared_memory() {
     
     close(shm_fd);
     
-    // Inicializar la estructura compartida
     shared_data->cantPhilos = cantPhilos;
 }
 
-// Función para abrir la memoria compartida (procesos hijos)
 void open_shared_memory() {
     int shm_fd = shm_open("/shared_data_shm", O_RDWR, 0666);
     if (shm_fd == -1) {
@@ -82,14 +78,13 @@ void open_shared_memory() {
     close(shm_fd);
 }
 
-// Función para limpiar la memoria compartida
 void cleanup_shared_memory() {
     munmap(shared_data, sizeof(shared_data_t));
     shm_unlink("/shared_data_shm");
 }
 
 void philo_init(int id, pid_t pid) {
-    open_shared_memory(); // Abrir memoria compartida en cada proceso hijo
+    open_shared_memory();
     sem_wait(&shared_data->mutex);
     shared_data->philosophers[id].pid = pid;
     shared_data->philosophers[id].state = THINKING;
@@ -196,7 +191,7 @@ void addPhilo() {
         sem_post(&shared_data->mutex);
         if(fork() == 0) {
             philosophing(aux);
-            return; // Exit child process after finishing
+            return;
         }
         printf("Added philosopher %d\n", aux );
     } else {
@@ -228,18 +223,16 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Number of philosophers must be between 1 and %d\n", MAXPHILOS);
         return 1;
     }
-    create_shared_memory(); // Crear memoria compartida antes de los forks
+    create_shared_memory();
     init_sems();
     
 
     for (int i = 0; i < cantPhilos; i++) {
         if(fork() == 0) {
-            // Child process for each philosopher
-            philosophing(i);
-            return 0; // Exit child process after finishing
+ç            philosophing(i);
+            return 0;
         }
     }
-    //sleep(5); // Give time for all philosophers to initialize
     int aux=0;
     int exitFlag = 0;
     while(!exitFlag ) {
@@ -263,14 +256,14 @@ int main(int argc, char *argv[]) {
     }
     sem_wait(&shared_data->mutex);
     for(int i = 0; i < shared_data->cantPhilos; i++) {
-        shared_data->philosophers[i].haveToLeave = 1; // Marcar todos los filósofos para que terminen
+        shared_data->philosophers[i].haveToLeave = 1;
     }
     sem_post(&shared_data->mutex);
     
     for(int i = 0; i < shared_data->cantPhilos; i++) {
-        waitpid(shared_data->philosophers[i].pid, NULL, 0); // Esperar a que todos los filósofos terminen
+        waitpid(shared_data->philosophers[i].pid, NULL, 0);
     }
     destroy_sems();
-    cleanup_shared_memory(); // Limpiar memoria compartida al final
+    cleanup_shared_memory();
     return 0;
 }

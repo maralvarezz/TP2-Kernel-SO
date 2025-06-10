@@ -70,7 +70,7 @@ void vprintf(char * fmt, va_list args) {
                     puts(buffer);
                     break;
                 case 's':
-                    printNChars(' ', dx); // A diferencia %x y %d, la cantidad de espacios es igual al numero
+                    printNChars(' ', dx);
                     puts((char *) va_arg(args, char *));
                     break;
             }

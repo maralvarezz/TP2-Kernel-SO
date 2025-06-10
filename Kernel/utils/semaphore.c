@@ -18,7 +18,7 @@ typedef struct semaphore_t{
 
 typedef struct semaphoreCDT{
     uint8_t cantOccupied;
-    uint8_t nextIdx; 
+    uint8_t nextIdx;
     semaphore_t semVec[CANT_SEMS];
 } semaphoreCDT;
 
@@ -38,6 +38,7 @@ void createSemaphores(){
         semaphore->semVec[i].occupied = 0;
         semaphore->semVec[i].waitingList = createList();
         if(semaphore->semVec[i].waitingList == NULL){
+            freeMemory(semaphore);
             return;
         }
         semaphore->semVec[i].name[0] = '\0';
@@ -86,7 +87,6 @@ void waitSemaphore(TSem sem){
         liberateProcess(&sem->state);
         return;
     }
-    //sem->value--;
     *pid = getActualPid();
     addNode(sem->waitingList, (void *) pid);
 
@@ -100,8 +100,7 @@ void postSemaphore(TSem sem){
         return;
     }
     waitingProcess(&sem->state);
-    int unblocked = 0;
-    while(!isEmpty(sem->waitingList) && !unblocked){
+    while(!isEmpty(sem->waitingList)){
         int64_t *pidPtr =  (int64_t *) getFirst(sem->waitingList);
         int64_t pid = *pidPtr;
         TPCB process = getProcess(pid);
@@ -111,11 +110,10 @@ void postSemaphore(TSem sem){
         }
         freeMemory(pidPtr);
         readyProcess(pid);
-        unblocked = 1;
+        break;;
     }
-    if(!unblocked){
+    if(isEmpty(sem->waitingList))
         sem->value++;
-    }
     liberateProcess(&sem->state);
 }
 

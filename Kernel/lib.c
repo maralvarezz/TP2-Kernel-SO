@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "include/lib.h" // Añadir este include para que tome las declaraciones de strcpy y strcpychar
+#include "include/lib.h"
 
 static unsigned int log(uint64_t n, int base);
 
@@ -100,14 +100,6 @@ int itoa(uint64_t n, char* buffer, int base)
  
     unsigned int len = 0;
     int i = 0;
-    // Mover a otra funcion si se quiere implementar un itoa que soporte negativos
-    /*if (n < 0 && base == 10)
-    {
-        n = -n;
-        buffer[i] = '-';
-        len++;
-        i++;
-    }*/
  
     len += log(n, base);
     while (n != 0)

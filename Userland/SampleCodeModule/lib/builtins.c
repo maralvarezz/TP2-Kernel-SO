@@ -61,10 +61,7 @@ void ps(int argc, char *argv[]){
         PInfo process = processes[i];
         printf("PID: %d\n Nombre: %s\n Estado: %s\n Priority: %d\n Ground: %s\n StackPos: %d\n StackBase: %d\n RIP: %d\n", process.pid, process.name, process.status == 0 ? "Bloqueado" : (process.status == 3 ? "Muerto" : "Activo"), process.priority, process.ground == 0 ? "Background" : "Foreground", process.stackPos, process.stackBase, process.rip);
     }
-    
-    //aca faltaria un free??????? (de processes)
-    //si processInfo llama a malloc, entonces si
-    //aunque capaz seria mejor que no lo haga y que sea un array estatico
+    freeMem(processes);
 }
 
 void kill(int argc, char *argv[]){

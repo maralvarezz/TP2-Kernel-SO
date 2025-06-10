@@ -30,7 +30,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
         return -1; 
     }
 
-    printf("Iniciando test de memoria con maaximo %d bytes\n", max_memory);
+    printf("Iniciando test de memoria con maximo %d bytes\n", max_memory);
     rq = 0;
     total = 0;
 

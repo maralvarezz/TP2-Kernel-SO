@@ -103,22 +103,6 @@ int main()
 	_cli();
     
     createScheduler();
-	//char * argv[] = { "shell" };
-	//char * argv1[] = { "P1" };
-	//char * argv2[] = { "P2" };
-	//char * argv3[] = { "P3" };
-	//char * argv4[] = { "P4" };
-	//int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { -1, 1, -1 };
-	//createProcess((uint64_t)foo, argv, 1, SHELL_PRIORITY, fileDescriptors, 0);
-	//uint64_t pid1=createProcess((uint64_t)proceso1, argv1, 1, 1, fileDescriptors, 0);
-	//uint64_t pid2=createProcess((uint64_t)proceso2, argv2, 1, 1, fileDescriptors, 0);
-	//uint64_t pid3=createProcess((uint64_t)proceso3, argv3, 1, 1, fileDescriptors, 0);
-	//uint64_t pid4=createProcess((uint64_t)proceso4, argv4, 1, 1, fileDescriptors, 0);
-	//readyProcess(pid1);
-	//readyProcess(pid2);
-	//readyProcess(pid3);
-	//readyProcess(pid4);
-	//createProcess((uint64_t)proceso3, argv2, 1, 5, fileDescriptors, 0);
     char * argv[] = { "shell" };
     int16_t fileDescriptors[CANT_FILE_DESCRIPTORS] = { 0, 1, 2 };
     createProcess((uint64_t)sampleCodeModuleAddress, argv, 1, SHELL_PRIORITY, fileDescriptors, 1);
