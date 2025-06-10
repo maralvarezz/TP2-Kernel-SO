@@ -109,42 +109,8 @@ uint64_t syscallDispatcher(uint64_t nr, uint64_t arg0, uint64_t arg1, uint64_t a
 
     return syscalls[nr](arg0, arg1, arg2, arg3, arg4, arg5);
 
-	// switch (nr) {
-    //     case READ:
-    //         return syscall_read((uint32_t)arg0);
-	// 	case WRITE:
-	// 		syscall_write((uint32_t)arg0, (char)arg1);
-    //         break;
-    //     case CLEAR:
-    //         syscall_clear();
-    //         break;
-    //     case SECONDS:
-    //         return syscall_seconds();
-    //     case GET_REGISTER_ARRAY:
-    //         return (uint64_t) syscall_registerArray((uint64_t *) arg0);
-    //     case SET_FONT_SIZE:
-    //         syscall_fontSize((uint8_t)arg0);
-    //         break;
-    //     case GET_RESOLUTION:
-    //         return syscall_resolution();
-    //     case DRAW_RECT:
-    //         syscall_drawRect((uint16_t)arg0, (uint16_t)arg1, (uint16_t)arg2, (uint16_t)arg3, (uint32_t)arg4);
-    //         break;
-    //     case GET_TICKS:
-    //         return syscall_getTicks();
-    //     case GET_MEMORY:
-    //         syscall_getMemory((uint64_t) arg0, (uint8_t *) arg1);
-    //         break;
-    //     case SET_FONT_COLOR:
-    //         syscall_setFontColor((uint8_t) arg0, (uint8_t) arg1, (uint8_t) arg2);
-    //         break;
-    //     case GET_FONT_COLOR:
-    //         return syscall_getFontColor();
-	// }
-	// return 0;
 }
 
-// Read char
 static int64_t syscall_read(int64_t fd, char *buffer, uint64_t size){
     int64_t processFD = getFD(fd);
     if(processFD >= 3) {
@@ -162,21 +128,6 @@ static int64_t syscall_read(int64_t fd, char *buffer, uint64_t size){
     return -1;
 }
 
-// static void syscall_read(int64_t fd, char *buffer, uint64_t size) {
-// 	int64_t fdProcess = fd; //getFileDescriptor(fd);
-// 	if (fd >= 3) {
-// 		readPipe(fdProcess, buffer, size);
-// 	}
-// 	else if (fd == STDIN) {
-// 		char c;
-// 		while( (c = getAscii()) == 0){
-// 			blockProcess(getActualPid());
-// 		}
-// 		buffer[0] = c;
-// 	}
-// }
-
-// Write char
 static void syscall_write(int32_t fd, char * c, uint64_t size){
     if(fd <= (-1)){
         return;
@@ -298,7 +249,7 @@ static void syscall_yield(){
 }
 
 static void syscall_chauCPU(){
-    //hay que ver qué hacer acá, por ahora lo dejamos así
+    //no fue usada
 }
 
 static int syscall_waitProcess(uint64_t pid){

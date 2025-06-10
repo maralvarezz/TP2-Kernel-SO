@@ -8,7 +8,7 @@ waitingProcess:
 .loop:
     xchg [rdi], al
     test al, al
-    jz .loop
+    jnz .loop
     ret
 
 liberateProcess:

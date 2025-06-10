@@ -2,7 +2,7 @@
 #include "video.h"
 
 typedef struct Node {
-    void * info; //se va a usar para guardar estructuras de control de procesos (TPCB)
+    void * info; 
     struct Node * next;
     struct Node * prev;
 } Node;
@@ -42,12 +42,10 @@ int addNode(linkedListADT list, void * info){
 
     newNode->info = info;
     newNode->next = NULL;
-    if(list->size == 0){ //soy el primero 
-        
+    if(list->size == 0){ 
         list->first = newNode;
     }
     else{
-        
         list->last->next = newNode;
     }
     newNode->prev = list->last;
@@ -64,11 +62,11 @@ int removeNode(linkedListADT list, void * info){
     TNode iter = list->first;
     while(iter != NULL){
         if(iter->info == info){
-            if(iter == list->first){ //si soy el primero
+            if(iter == list->first){
                 list->first = iter->next;
                 list->first->prev = NULL;
             }
-            if(iter == list->last){ //si soy el ultimo
+            if(iter == list->last){ 
                 list->last = iter->prev;
                 list->last->next = NULL;
             }
@@ -125,7 +123,6 @@ void * getFirst(linkedListADT list){
         return NULL;
     }
     void * info = list->first->info;
-    // list->first = list->first->next;
     removeNode(list, info);
     return info;
 }

@@ -22,4 +22,4 @@ TSem openSem(char *name);
 
 uint16_t closeSem(TSem sem);
 
-#endif /* SEMAPHORE_H */
+#endif 

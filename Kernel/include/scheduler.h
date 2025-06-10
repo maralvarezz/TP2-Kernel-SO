@@ -26,8 +26,6 @@ typedef struct PInfo * TPInfo;
 
 TPInfo processInformation(uint64_t * pQuantity);
 
-
-
 void createScheduler();
 
 uint64_t changeProcess(uint64_t actualRSP);

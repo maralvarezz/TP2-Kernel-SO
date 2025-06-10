@@ -86,7 +86,7 @@ void waitSemaphore(TSem sem){
         liberateProcess(&sem->state);
         return;
     }
-    sem->value--;
+    //sem->value--;
     *pid = getActualPid();
     addNode(sem->waitingList, (void *) pid);
 

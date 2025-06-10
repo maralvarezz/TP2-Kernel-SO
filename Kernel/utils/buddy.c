@@ -66,7 +66,6 @@ void * allocMemory(const size_t memoryToAllocate){
     return (void *)(memoryManager->treeStart + (nodo - getNodeLevel(exponent)) * POW_2(exponent));
 }
 
-/* Me setea la memoria libre y en caso de ser necesario mergea */
 void freeMemory(void * const restrict memoryToFree){
     MemoryManagerADT memoryManager = getMM();
     if(memoryToFree == NULL){
@@ -114,10 +113,10 @@ static uint8_t getExponentPtr(void *memoryToFree) {
 
 static uint8_t getExponent(uint64_t size) {
     uint8_t exponent = MINEXPONENT;
-    uint64_t power = (uint64_t)1 << MINEXPONENT;
+    uint64_t pot = (uint64_t)1 << MINEXPONENT;
 
-    while (power < size) {
-        power = power << 1;
+    while (pot < size) {
+        pot = pot << 1;
         exponent++;
     }
 
@@ -142,17 +141,6 @@ static uint64_t getNodeLevel(uint8_t exponent){
     return (POW_2(MAXEXPONENT - exponent) - 1);
 }
 
-/*static void setMerge(uint64_t node){
-    MemoryManagerADT memoryManager = getMM();
-    if(node % 2 == 0 && memoryManager->tree[node - 1].state == FREE){
-        memoryManager->tree[(node - 1) / 2].state = FREE;
-    }
-    else if(node % 2 && memoryManager->tree[node + 1].state == FREE){
-        memoryManager->tree[node / 2].state = FREE;
-    }
-}*/
-
-
 static void setMerge(uint64_t node) {
     MemoryManagerADT memoryManager = getMM();
     if (node == 0)
@@ -160,11 +148,11 @@ static void setMerge(uint64_t node) {
 
     uint64_t buddy;
     if (node % 2 == 0) {
-        if (node == 0) return; // Evita underflow
+        if (node == 0) return;
         buddy = node - 1;
     } else {
         buddy = node + 1;
-        if (buddy >= CANTNODES) return; // Evita overflow
+        if (buddy >= CANTNODES) return; 
     }
 
     if (memoryManager->tree[buddy].state == FREE && memoryManager->tree[node].state == FREE) {
@@ -175,7 +163,6 @@ static void setMerge(uint64_t node) {
         }
     }
 }
-
 
 static void splitTree(uint64_t node){
     MemoryManagerADT memoryManager = getMM();

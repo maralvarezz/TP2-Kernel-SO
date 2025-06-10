@@ -64,66 +64,6 @@ void createScheduler(){
     scheduler->cantProcesses = 0;
 }
 
-
-/*uint64_t changeProcess(uint64_t actualRSP){ 
-    
-    if(createdScheduler == 0){ 
-        return actualRSP;
-    }
-    schedulerADT scheduler = getScheduler();
-    scheduler->quantum--; 
-    if(scheduler->quantum > 0 || scheduler->cantProcesses == 0){ 
-        return actualRSP;
-    }
-    
-
-    if(scheduler->actualPid == SHELLPID){       
-        scheduler->actualProcess = (TPCB) next(scheduler->readyList);
-        if(scheduler->actualProcess == NULL){   
-            return actualRSP;
-        }
-        
-        
-        scheduler->quantum = scheduler->actualProcess->priority;
-        scheduler->actualProcess->status = RUNNING;
-        scheduler->actualPid = scheduler->actualProcess->pid;
-        return scheduler->actualProcess->stackPos;
-    }
-
-
-    if(scheduler->actualProcess != NULL){
-        scheduler->actualProcess->stackPos = actualRSP; 
-        printf("scheduler->actualProcess->status: %d\n", scheduler->actualProcess->status);
-        if(scheduler->actualProcess->status == RUNNING){
-            scheduler->actualProcess->status = READY;
-            addNode(scheduler->readyList, scheduler->actualProcess);
-        }
-        else if(scheduler->actualProcess->status == KILLED){
-            freeProcess(scheduler->actualProcess);
-        }
-    }
-
-    TPCB auxProcess = getFirst(scheduler->readyList);
-
-    if(auxProcess == NULL){
-        TPCB process = getProcess(IDLEPROCESS);
-        printf("process: %d\n", (uint64_t)process);
-        if(process == NULL){
-            return actualRSP;
-        }
-        else{
-
-            scheduler->actualProcess = auxProcess;
-            return scheduler->actualProcess->stackPos;
-        }
-    }
-    addNode(scheduler->readyList,auxProcess); 
-    scheduler->actualProcess = auxProcess;
-    scheduler->actualProcess->status = RUNNING;
-    scheduler->quantum = scheduler->actualProcess->priority;
-    scheduler->actualPid = scheduler->actualProcess->pid;
-    return scheduler->actualProcess->stackPos;
-}*/
 uint64_t changeProcess(uint64_t actualRSP){ 
     
     if(createdScheduler == 0){ 
@@ -161,15 +101,13 @@ uint64_t changeProcess(uint64_t actualRSP){
     }
     TPCB auxProcess = getFirst(scheduler->readyList);
     while(auxProcess != NULL){
-        if(auxProcess->status != KILLED){  //&& auxProcess->pid != 0
+        if(auxProcess->status != KILLED){  
             scheduler->actualProcess = auxProcess;
             scheduler->actualProcess->status = RUNNING;
             scheduler->quantum = 1 * scheduler->actualProcess->priority;
             scheduler->actualPid = scheduler->actualProcess->pid;
             return scheduler->actualProcess->stackPos;  
-        }/*else if(auxProcess->pid == 0){
-            break;
-        }*/else{
+        }else{
             removeKilledProcess(auxProcess);
         }
         auxProcess = getFirst(scheduler->readyList);
@@ -428,7 +366,6 @@ void killForegroundProcess(){
             return;
         }
     }
-    //yieldProcess();
 }
 
 int64_t getFD(int64_t fd) {

@@ -367,7 +367,7 @@ static void man(char * command){
 
                               "Uso: testProcesses [PROCESOS] - ejecuta un test de procesos. Recibe un numero natural que es la cantidad de procesos a crear\n",
 
-                              "Uso: testSync - ejecuta un test de sincronizacion. No recibe parametros"
+                              "Uso: testSync [ITERACIONES] [USO DE SEMAFOROS]- ejecuta un test de sincronizacion. No recibe parametros"
 
                             };
     int idx = getCommandIndex(command);

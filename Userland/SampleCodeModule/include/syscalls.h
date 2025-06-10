@@ -160,7 +160,7 @@ int unblockProc(uint64_t pid);
 
 void yield();
 
-void chauCPU();
+void chauCPU(); //no fue usada
 
 int waitProcess(uint64_t pid);
 

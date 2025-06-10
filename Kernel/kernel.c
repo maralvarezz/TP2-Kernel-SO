@@ -40,7 +40,6 @@ void initializeKernelBinary()
 	memoryManagerPtr = createMemoryManager( memoryManagerModuleAddress, HEAPSIZE);
 	createSemaphores();
 	pipesCreate();
-	initializeKeyboardDriver();
 }
 
 

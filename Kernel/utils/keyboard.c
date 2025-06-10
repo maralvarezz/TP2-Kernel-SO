@@ -21,8 +21,6 @@ static uint8_t _buffer[BUFFER_CAPACITY] = {0};
 
 static uint8_t _ctrl = 0;					 
 static uint8_t _shift = 0;
-
-TSem keyboardSem = NULL;
                                                 
 static const char charHexMap[] =             
     {   0,  0,  '1',  '2',  '3',  '4',  '5',  '6', '7',  '8',  '9', '0', '-',  '=',  '\b',  ' ',
@@ -31,7 +29,7 @@ static const char charHexMap[] =
         'b',  'n',  'm',  ',',  '.',  '/',  0,  '*', 0,  ' ',  0, 0, 0,  0, 0, 0};
 
 
-static const char charHexMapShift[] = /* Mapa de scancode con shift a ASCII */
+static const char charHexMapShift[] = 
 	{0, 0, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_',
 	 '+', '\b', ' ', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
 	 '{', '}', '\n', 0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
@@ -47,10 +45,6 @@ static void writeKey(int8_t key);
  */
 static int getBufferIndex(int offset) {
 	return (_bufferStart + offset) % (BUFFER_CAPACITY);
-}
-
-void initializeKeyboardDriver() {
-	keyboardSem = buildSemaphore(0, "keyboardSem");
 }
 
 void keyboardHandler() {
@@ -88,7 +82,6 @@ static void writeKey(int8_t key) {
 	if (((key & 0x7F) < sizeof(charHexMap) && charHexMap[key & 0x7F] != 0) || (int) key == EOF) {
 		_buffer[getBufferIndex(_bufferSize)] = key;
 		_bufferSize++;
-		//postSemaphore(keyboardSem);
 	}
 }
 
@@ -103,7 +96,6 @@ char getScancode() {
 }
 
 int8_t getAscii() {
-	//waitSemaphore(keyboardSem);
 	int scanCode = getScancode();
 	if (scanCode == EOF)
 		return EOF;

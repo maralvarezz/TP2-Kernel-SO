@@ -62,11 +62,11 @@ int64_t openPipe(int16_t pid, uint8_t use){
     }
     for(int j = 0; j < MAXPIPES; j++){
         if(pipesM->pipes[j].fd != -1){
-            if(pipesM->pipes[j].writePid != -1 && pipesM->pipes[j].readPid==-1 && use == READ){
+            if(pipesM->pipes[j].writePid != -1 && pipesM->pipes[j].readPid == -1 && use == READ){
                 pipesM->pipes[j].readPid = pid;
                 return pipesM->pipes[j].fd;
             }
-            if(pipesM->pipes[j].readPid != -1 && pipesM->pipes[j].writePid==-1 && use == WRITE){
+            if(pipesM->pipes[j].readPid != -1 && pipesM->pipes[j].writePid == -1 && use == WRITE){
                 pipesM->pipes[j].writePid = pid;
                 return pipesM->pipes[j].fd;
             }

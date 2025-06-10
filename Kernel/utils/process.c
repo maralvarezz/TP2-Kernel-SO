@@ -10,7 +10,7 @@ int buildProcess(TPCB process, int16_t pid, uint64_t rip, char **args, int argc,
     if(stack == NULL){
         return -1;
     }
-    process->stackBase = (uint64_t) stack + STACK_SIZE; // porque crece hacia abajo
+    process->stackBase = (uint64_t) stack + STACK_SIZE; 
     process->argv = allocateArgv( args, argc);
     if (process->argv == NULL) {
         freeMemory((void *) (process->stackBase - STACK_SIZE));
